@@ -17,7 +17,7 @@ TODO(panicker): link to explainer for #2 Off Main Thread Scheduling.
 
 ## Main Thread Scheduling
 Schedulers have been built in userspace to chunk up main thread work and schedule it at appropriate times, in order to improve responsiveness and maintain high and smooth frame-rate.
-The specific schedulers we looked at are: Google Maps Scheduler and React Scheduler. These case studies demonstrate that schedulers can be (and have been) built as JS libraries, and also point to the platform gaps that they suffer from.
+The specific schedulers we looked at are: [Google Maps Scheduler](https://github.com/spanicker/main-thread-scheduling#case-study-1-maps-job-scheduler) and [React Scheduler](https://github.com/spanicker/main-thread-scheduling#case-study-2-react-scheduler). These [case studies](https://github.com/spanicker/main-thread-scheduling#appendix-scheduler-case-studies) demonstrate that schedulers can be (and have been) built as JS libraries, and also point to the platform gaps that they suffer from.
 
 ### High level goals
 We want to explore two avenues:
@@ -38,7 +38,7 @@ Also, the browser doesn’t have insight into JS work and knowledge of priority 
 ### Requirements for new Platform primitives
 The following issues require platform primitives to address, and constitute the requirements for solutions:
 #### 1. Able to get out of the way of important work (input, rendering etc).
-NOTE: shouldYield proposal targets this issue. Eg. from shouldYield: \
+NOTE: [shouldYield proposal](https://discourse.wicg.io/t/shouldyield-enabling-script-to-yield-to-user-input/2881) targets this issue. Eg. from shouldYield: \
 during page load, an app needs to initialize a set of components and scripts. These are ordered by priority: for example, first installing event handlers on primary buttons, then a search box, then a messaging widget, and then finally moving on to analytics scripts and ads.
 The developer wants to complete this work as fast as possible. For example, the messaging widget should be initialized by the time the user interacts with it. However when the user taps one of the primary buttons, they shouldn’t block until the entire page is ready.
 
@@ -52,9 +52,9 @@ Using rAF doesn’t fit in some cases, where it is not rendering work:
 JS schedulers need to schedule “normal” priority work, that execute at an appropriate time (eg. after paint), to spread out work while yielding to the browser (as opposed to using rIC for “idle time” work or rAF for rendering work). 
 Currently they use workarounds which are inefficient and often buggy compared to first class platform support:
 
-* messagechannel workaround (google3 nexttick used by Maps etc): use a private message channel to postMessage empty messages. A bug currently prevents yielding.
-* postmessage after each rAF (used by ReactScheduler)
-* settimeout 0: doesn’t work well, clamped to ~4ms
+* messagechannel workaround (google3 nexttick used by Maps etc): use a private message channel to postMessage empty messages. A [bug](https://bugs.chromium.org/p/chromium/issues/detail?id=867133) currently prevents yielding.
+* postmessage after each rAF ([used by ReactScheduler](https://github.com/facebook/react/blob/43a137d9c13064b530d95ba51138ec1607de2c99/packages/react-scheduler/src/ReactScheduler.js#L278)): using rAF is high overhead due to cost of rendering machinery, and guessing the idle budget without knowledge of browser internals is prone to cause jank.
+* settimeout 0: doesn’t work well, clamped to 1ms and to 4ms after N recursions.
 * “await yield” pattern in JS: causes a microtask to be queued 
 
 **Why not just use rIC?**
@@ -77,7 +77,7 @@ Furthermore, apps are not easily able to target a different frame rate, or ask t
 Use-cases:
 
 * Eg. Maps is building a throttling scheduler (non-trivial effort) for the purpose of targeting a lower frame rate during certain cases like zooming, when a lot of tiles need to be loaded, and rendering work can easily starve the loading work.
-* Eg. The React scheduler defaults to a target of 30fps with their own book-keeping, and have built detection (by timing successive scheduling of frames) for increasing to a higher target FPS. 
+* Eg. The React scheduler defaults to a target of 30fps with their own book-keeping, and have built [detection](https://github.com/facebook/react/blob/43a137d9c13064b530d95ba51138ec1607de2c99/packages/react-scheduler/src/ReactScheduler.js#L333) (by timing successive scheduling of frames) for increasing to a higher target FPS. 
 
 Some of the above could be addressed with JS library except for changing browser's target frame rate, as well as accurately knowing what the current target rate is.
 
