@@ -35,7 +35,7 @@ While rAF is suited for render related work that needs to happen per frame, ther
 
 Also, the browser doesn’t have insight into JS work and knowledge of priority that could help it to more effectively schedule this, as well as schedule it appropriately relative to browser’s own work and other async app work (such as processing network responses).
 
-#### Requirements for new Platform primitives
+### Requirements for new Platform primitives
 The following issues require platform primitives to address, and constitute the requirements for solutions:
 #### 1. Able to get out of the way of important work (input, rendering etc).
 NOTE: shouldYield proposal targets this issue. Eg. from shouldYield: \
@@ -86,6 +86,7 @@ Some of the above could be addressed with JS library except for changing browser
 Above covers gaps in the platform, in addition there are other problems that a standardized JS scheduling library would address:
 #### i. Easier to use disparate set of scheduling APIs
 Too many disparate scheduling APIs (rAF, rIC, settimeout) that require managing time budgets and bookkeeping -- that developers can’t understand when/how to use correctly.
+
 #### ii. Address userspace “coordination” issue (multi-actor problem)
 JS needs to cooperatively schedule between different parts of the app, and they need a common set of priorities for tasks.
 Some parts of the app may be using a JS scheduler with priorities but other parts of the app may not or may use a different priority mechanism (eg. embedded libraries). So low priority work in one system can get prioritized over high priority work in another.\
@@ -93,7 +94,8 @@ Some motivating discussion here: https://github.com/w3c/requestidlecallback/issu
 TODO(panicker): verify that this can be addressed with LAPI.
 
 #### iii. Easier to reason about and track priority
-JS library could make it easy to trace back current work to what triggered the work and corresponding priority, and make it easier to connect the dots.
+JS library could make it easy to trace back current work to what triggered the work and corresponding priority, and make it easier to connect the dots. 
+For instance, in response to high priority user interaction, work is flowing through the system (fetches, post-processing, followed by rendering) and should inherit the original priority. 
 
 #### iv. Dynamically update task priority and cancelling tasks
 The priority of a posted task is not static and can change after posting.
