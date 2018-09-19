@@ -28,6 +28,7 @@ develop primitives to fill platform gaps so that JS schedulers can be successful
 
 ### Platform Gaps
 **The yielding & coordination issue**
+
 JS should schedule work while yielding to the browser for rendering and input.
 JS schedulers need to be able to schedule chunks of work, and importantly, yield to the browser -- so that the frame is not overrun and so the browser is able to do its rendering work, and other important work like handling input.
 Currently JS schedulers have to guess when the browser needs to do pertinent work, when it will schedule posted work, and how much browser-side work is remaining.
