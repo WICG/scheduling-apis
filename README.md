@@ -116,5 +116,14 @@ Note that 1, 2, and 3 must be done on every frame and is scheduled via rAF, ever
 In response to events, Jobs of one of these types are created and scheduled with the JobScheduler to be run.
 
 ### Case-study 2: React Scheduler
-TODO: ...
+Link to [code is here](https://github.com/facebook/react/blob/43a137d9c13064b530d95ba51138ec1607de2c99/packages/react-scheduler/src/ReactScheduler.js)
+
+It works by scheduling a rAF, noting the time for the start of the frame, then scheduling a postMessage which gets scheduled after paint. Within the postMessage handler do as much work as possible until time + frame rate.
+Eeparating the "idle call" into a separate event tick ensures yielding to the browser work, and counting it against the available time.
+
+Frame rate is dynamically adapted. The scheduler defaults to a target of 30fps for standard units of work. It detects higher frame rate by timing successive scheduling of frames, and increasing to a higher target FPS if appropriate. 
+
+Whenever enqueuing via rAF, they also set a 100ms timeout, if the timeout is fired first it cancels the rAF and executes its associated tasks. This is a workaround for rAF not running in background & on occlusion. 
+
+
 
