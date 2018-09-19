@@ -27,7 +27,7 @@ develop a freely available “standardized” (potential LAPI) scheduling librar
 develop primitives to fill platform gaps so that JS schedulers can be successful and so that it is easier to serve the goal of “improved responsiveness guarantees”.
 
 ### Platform Gaps
-#### The yielding & coordination issue
+**The yielding & coordination issue**
 JS should schedule work while yielding to the browser for rendering and input.
 JS schedulers need to be able to schedule chunks of work, and importantly, yield to the browser -- so that the frame is not overrun and so the browser is able to do its rendering work, and other important work like handling input.
 Currently JS schedulers have to guess when the browser needs to do pertinent work, when it will schedule posted work, and how much browser-side work is remaining.
@@ -37,18 +37,18 @@ Also, the browser doesn’t have insight into JS work and knowledge of priority 
 
 #### Requirements for new Platform primitives
 The following issues require platform primitives to address, and constitute the requirements for solutions:
-##### 1. Able to get out of the way of important work (input, rendering etc).
+#### 1. Able to get out of the way of important work (input, rendering etc).
 NOTE: shouldYield proposal targets this issue. Eg. from shouldYield: \
 during page load, an app needs to initialize a set of components and scripts. These are ordered by priority: for example, first installing event handlers on primary buttons, then a search box, then a messaging widget, and then finally moving on to analytics scripts and ads.
 The developer wants to complete this work as fast as possible. For example, the messaging widget should be initialized by the time the user interacts with it. However when the user taps one of the primary buttons, they shouldn’t block until the entire page is ready.
 
-##### 2. Able to schedule work at a higher priority than rendering 
+#### 2. Able to schedule work at a higher priority than rendering 
 Using rAF doesn’t fit in some cases, where it is not rendering work:
 
 * Eg. when user zooms on Google Map, it is more important to quickly fetch Maps tiles than to render.
 * Eg. during page navigation, it could be more important to fetch and prepare the critical content of the page, than rendering.
 
-##### 3. Able to schedule work reliably at “normal” priority
+#### 3. Able to schedule work reliably at “normal” priority
 JS schedulers need to schedule “normal” priority work, that execute at an appropriate time (eg. after paint), to spread out work while yielding to the browser (as opposed to using rIC for “idle time” work or rAF for rendering work). 
 Currently they use workarounds which are inefficient and often buggy compared to first class platform support:
 
@@ -60,18 +60,18 @@ Currently they use workarounds which are inefficient and often buggy compared to
 **Why not just use rIC?**
 rIC is suited to idle time work, not normal priority work AFTER yielding to browser (for important work). By design, rIC has the risk of starvation and getting postponed indefinitely.
 
-##### 4. Able to prioritize network fetches and timing of responses
+#### 4. Able to prioritize network fetches and timing of responses
 Processing of network responses (parsing and execution) happens async and can occur at inopportune times relative to other ongoing work which could be more important.
 Certain responses are time sensitive (eg. when needed to respond to user interaction) while others could be lower priority (eg. optimistic prefetching).
 
-##### 5. [MAYBE?] Able to classify priority for input (handlers)
+#### 5. [MAYBE?] Able to classify priority for input (handlers)
 Similar to #4 above, but for input.
 
 * certain input is low priority (relative to current work in the app)
 * certain input is urgent and needs to be processed immediately without synchronizing to rendering (waiting until rAF)
 TODO: Add examples.
 
-##### 6. Able to target lower or different frame rate
+#### 6. Able to target lower or different frame rate
 Apps do not have access to easily learn the browser’s current target frame rate, and have to infer this withbook-keeping and guessing.
 Furthermore, apps are not easily able to target a different frame rate, or ask the browser to target different frame rate; default targeting 60fps can often result in starving of other necessary work.
 Use-cases:
@@ -82,4 +82,39 @@ Use-cases:
 Some of the above could be addressed with JS library except for changing browser's target frame rate, as well as accurately knowing what the current target rate is.
 
 
+### Why a standardized JS library (LAPI)?
+Above covers gaps in the platform, in addition there are other problems that a standardized JS scheduling library would address:
+#### i. Easier to use disparate set of scheduling APIs
+Too many disparate scheduling APIs (rAF, rIC, settimeout) that require managing time budgets and bookkeeping -- that developers can’t understand when/how to use correctly.
+#### ii. Address userspace “coordination” issue (multi-actor problem)
+JS needs to cooperatively schedule between different parts of the app, and they need a common set of priorities for tasks.
+Some parts of the app may be using a JS scheduler with priorities but other parts of the app may not or may use a different priority mechanism (eg. embedded libraries). So low priority work in one system can get prioritized over high priority work in another.\
+Some motivating discussion here: https://github.com/w3c/requestidlecallback/issues/68
+TODO(panicker): verify that this can be addressed with LAPI.
+
+#### iii. Easier to reason about and track priority
+JS library could make it easy to trace back current work to what triggered the work and corresponding priority, and make it easier to connect the dots.
+
+#### iv. Dynamically update task priority and cancelling tasks
+The priority of a posted task is not static and can change after posting.
+For instance work that was initially post as opportunistic prefetching, can become urgent if the current user interaction needs it.\
+Eg. React Scheduler uses expiration time instead of priority, so the times can dynamically update, and expired tasks are the highest priority.
+TODO(panicker): To what extent can this be addressed with LAPI vs. platform support
+
+## TODO: Placeholder for proposals
+
+
+## Appendix: Scheduler case studies
+### Case study 1: Maps’ Job Scheduler
+The scheduler attempts to render at the native framerate (usually ~60fps) but falling back to unit fractions of the native framerate (e.g. 1/2 native at ~30fps, 1/3 native at ~20fps, etc) if the native framerate cannot be achieved.
+It works by classifying all work into several stages:
+1. Input: updating model state in response to user input.
+2. Animation: updating model state based on the current time.
+3. Rendering: drawing to the screen based on current model state.
+4. Other: everything else
+Note that 1, 2, and 3 must be done on every frame and is scheduled via rAF, everything else does not need to be done on every frame and is scheduled either through rIC OR in deferred manner to yield to the browser (postmessage after rAF, or settimeout 0). 
+In response to events, Jobs of one of these types are created and scheduled with the JobScheduler to be run.
+
+### Case-study 2: React Scheduler
+TODO: ...
 
