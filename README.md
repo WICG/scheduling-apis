@@ -38,14 +38,16 @@ Also, the browser doesn’t have insight into JS work and knowledge of priority 
 #### Requirements for new Platform primitives
 The following issues require platform primitives to address, and constitute the requirements for solutions:
 ##### 1. Able to get out of the way of important work (input, rendering etc).
-NOTE: shouldYield proposal targets this issue.
-Eg. from shouldYield: during page load, an app needs to initialize a set of components and scripts. These are ordered by priority: for example, first installing event handlers on primary buttons, then a search box, then a messaging widget, and then finally moving on to analytics scripts and ads.
+NOTE: shouldYield proposal targets this issue. Eg. from shouldYield: \
+during page load, an app needs to initialize a set of components and scripts. These are ordered by priority: for example, first installing event handlers on primary buttons, then a search box, then a messaging widget, and then finally moving on to analytics scripts and ads.
 The developer wants to complete this work as fast as possible. For example, the messaging widget should be initialized by the time the user interacts with it. However when the user taps one of the primary buttons, they shouldn’t block until the entire page is ready.
 
 ##### 2. Able to schedule work at a higher priority than rendering 
 Using rAF doesn’t fit in some cases, where it is not rendering work:
-Eg. when user zooms on Google Map, it is more important to quickly fetch Maps tiles than to render.
-Eg. during page navigation, it could be more important to fetch and prepare the critical content of the page, than rendering.
+
+* Eg. when user zooms on Google Map, it is more important to quickly fetch Maps tiles than to render.
+* Eg. during page navigation, it could be more important to fetch and prepare the critical content of the page, than rendering.
+
 ##### 3. Able to schedule work reliably at “normal” priority
 JS schedulers need to schedule “normal” priority work, that execute at an appropriate time (eg. after paint), to spread out work while yielding to the browser (as opposed to using rIC for “idle time” work or rAF for rendering work). 
 Currently they use workarounds which are inefficient and often buggy compared to first class platform support:
@@ -73,8 +75,9 @@ TODO: Add examples.
 Apps do not have access to easily learn the browser’s current target frame rate, and have to infer this withbook-keeping and guessing.
 Furthermore, apps are not easily able to target a different frame rate, or ask the browser to target different frame rate; default targeting 60fps can often result in starving of other necessary work.
 Use-cases:
-Eg. Maps is building a throttling scheduler (non-trivial effort) for the purpose of targeting a lower frame rate during certain cases like zooming, when a lot of tiles need to be loaded, and rendering work can easily starve the loading work.
-Eg. The React scheduler defaults to a target of 30fps with their own book-keeping, and have built detection (by timing successive scheduling of frames) for increasing to a higher target FPS. 
+
+* Eg. Maps is building a throttling scheduler (non-trivial effort) for the purpose of targeting a lower frame rate during certain cases like zooming, when a lot of tiles need to be loaded, and rendering work can easily starve the loading work.
+* Eg. The React scheduler defaults to a target of 30fps with their own book-keeping, and have built detection (by timing successive scheduling of frames) for increasing to a higher target FPS. 
 
 Some of the above could be addressed with JS library except for changing browser's target frame rate, as well as accurately knowing what the current target rate is.
 
