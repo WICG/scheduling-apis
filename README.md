@@ -105,7 +105,7 @@ Eg. React Scheduler uses expiration time instead of priority, so the times can d
 TODO(panicker): To what extent can this be addressed with LAPI vs. platform support
 
 ## API Sketch
-NOTE: super premature API sketches, read as such.
+NOTE: these are early, premature API sketches, read as such. Feedback is appreciated.
 
 ### Semantic priority for queue
 Semantic priority i.e. enum TaskQueuePriority can be one of these: 
