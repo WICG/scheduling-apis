@@ -104,7 +104,35 @@ For instance work that was initially post as opportunistic prefetching, can beco
 Eg. React Scheduler uses expiration time instead of priority, so the times can dynamically update, and expired tasks are the highest priority.
 TODO(panicker): To what extent can this be addressed with LAPI vs. platform support
 
-## TODO: Placeholder for proposals
+## API Sketch
+NOTE: super premature API sketches, read as such.
+
+### Semantic priority for queue
+Semantic priority i.e. enum TaskQueuePriority can be one of these: 
+
+* "user-blocking"
+* "user-visible" (similar priority as rAF)
+* "default"
+* "background" (similar priority as rIC)
+
+NOTE: These match up with GCD and somewhat match our own internal TaskTraits.
+
+### Default set of Serial Task queues
+Tasks are guaranteed to start and finish in the order submitted, i.e. a task does not start until the previous task has completed.
+
+A set of global (default) serial task queues will be made available to post work on main thread. There will be a global queue for each priority level.
+```
+function mytask() {
+  ...
+}
+
+myQueue = TaskQueue.default("user-blocking") returns the global task queue with priority “user-blocking”, for posting to main thread.
+
+myQueue.postTask(mytask, <list of args>).then(doSomethingElse);
+```
+where task is a function.
+
+NOTE: syntax is likely to change for compatibility for posting work off main thread variant (TODO: Link to repo).
 
 
 ## Appendix: Scheduler case studies
