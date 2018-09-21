@@ -36,7 +36,7 @@ While rAF is suited for render related work that needs to happen per frame, ther
 
 Also, the browser doesn’t have insight into JS work and knowledge of priority that could help it to more effectively schedule this, as well as schedule it appropriately relative to browser’s own work and other async app work (such as processing network responses).
 
-### Requirements for new Platform primitives
+### Requirements for new Platform primitives / low level API
 The following issues require platform primitives to address, and constitute the requirements for solutions:
 #### 1. Able to get out of the way of important work (input, rendering etc).
 NOTE: [shouldYield proposal](https://discourse.wicg.io/t/shouldyield-enabling-script-to-yield-to-user-input/2881) targets this issue. Eg. from shouldYield: \
@@ -83,7 +83,7 @@ Use-cases:
 Some of the above could be addressed with JS library except for changing browser's target frame rate, as well as accurately knowing what the current target rate is.
 
 
-### Why a standardized library?
+### Why a higher level API?
 Above covers gaps in the platform, in addition there are other problems that a (higher level) standardized scheduling library would address:
 #### i. Easier to use disparate set of scheduling APIs
 Too many disparate scheduling APIs (rAF, rIC, settimeout) that require managing time budgets and bookkeeping -- that developers can’t understand when/how to use correctly.
