@@ -21,10 +21,10 @@ The specific schedulers we looked at are: [Google Maps Scheduler](https://github
 
 ### High level goals
 We want to explore two avenues:
-#### a. JS library
-develop a freely available “standardized” (potential LAPI) scheduling library, written in JS.
-#### b. Platform primitives
-develop primitives to fill platform gaps so that JS schedulers can be successful and so that it is easier to serve the goal of “improved responsiveness guarantees”.
+#### a. High level API
+a higher level scheduler API, potentially part of [“standardized” library](https://github.com/tc39-transfer/proposal-javascript-standard-library/blob/master/slides-JS-std-lib-July-2018.pdf).
+#### b. Low level API & Platform primitives
+develop primitives to fill platform gaps so that (above higher level) scheduler library can be successful and so that it is easier to serve the goal of “improved responsiveness guarantees”.
 
 ### Platform Gaps
 **The yielding & coordination issue**
@@ -83,8 +83,8 @@ Use-cases:
 Some of the above could be addressed with JS library except for changing browser's target frame rate, as well as accurately knowing what the current target rate is.
 
 
-### Why a standardized JS library (LAPI)?
-Above covers gaps in the platform, in addition there are other problems that a standardized JS scheduling library would address:
+### Why a standardized library?
+Above covers gaps in the platform, in addition there are other problems that a (higher level) standardized scheduling library would address:
 #### i. Easier to use disparate set of scheduling APIs
 Too many disparate scheduling APIs (rAF, rIC, settimeout) that require managing time budgets and bookkeeping -- that developers can’t understand when/how to use correctly.
 
