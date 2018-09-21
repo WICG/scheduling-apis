@@ -92,7 +92,6 @@ Too many disparate scheduling APIs (rAF, rIC, settimeout) that require managing 
 JS needs to cooperatively schedule between different parts of the app, and they need a common set of priorities for tasks.
 Some parts of the app may be using a JS scheduler with priorities but other parts of the app may not or may use a different priority mechanism (eg. embedded libraries). So low priority work in one system can get prioritized over high priority work in another.\
 Some motivating discussion here: https://github.com/w3c/requestidlecallback/issues/68
-TODO(panicker): verify that this can be addressed with LAPI.
 
 #### iii. Easier to reason about and track priority
 JS library could make it easy to trace back current work to what triggered the work and corresponding priority, and make it easier to connect the dots. 
@@ -102,7 +101,7 @@ For instance, in response to high priority user interaction, work is flowing thr
 The priority of a posted task is not static and can change after posting.
 For instance work that was initially post as opportunistic prefetching, can become urgent if the current user interaction needs it.\
 Eg. React Scheduler uses expiration time instead of priority, so the times can dynamically update, and expired tasks are the highest priority.
-TODO(panicker): To what extent can this be addressed with LAPI vs. platform support
+TODO(panicker): To what extent can this be addressed with higher level vs. lower level API.
 
 ## API Sketch
 NOTE: these are early, premature API sketches, read as such. Feedback is appreciated.
