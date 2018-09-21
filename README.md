@@ -109,11 +109,11 @@ NOTE: these are early, premature API sketches, read as such. Feedback is appreci
 ### Semantic priority for queue
 Semantic priority i.e. enum TaskQueuePriority can be one of these: 
 
-* "user-blocking"
-* "user-visible" (similar priority as rAF)
-* "default"
-* "background" (similar priority as rIC)
-
+* 1. "user-blocking"
+* 2. "user-visible" (similar priority as rAF)
+* 3. "default"
+* 4. "background" (similar priority as rIC)
+ 
 NOTE: These match up with GCD and somewhat match our own internal TaskTraits.
 
 ### Default set of Serial Task queues
@@ -135,6 +135,9 @@ returns the global task queue with priority “user-blocking”, for posting to 
 myQueue.postTask(mytask, <list of args>).then(doSomethingElse);
 ```
 where task is a function.
+
+### Issues to consider
+- postTask at priority level 2 is very similar to rAF and priority level 4 is very similar to rIC -- should we remove the duplication?
 
 
 ## Appendix: Scheduler case studies
