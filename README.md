@@ -121,18 +121,21 @@ NOTE: These match up with GCD and somewhat match our own internal TaskTraits.
 Tasks are guaranteed to start and finish in the order submitted, i.e. a task does not start until the previous task has completed.
 
 A set of global (default) serial task queues will be made available to post work on main thread. There will be a global queue for each priority level.
+
+NOTE: syntax is likely to change for compatibility for posting work off main thread variant (TODO: Link to repo).
+
 ```
 function mytask() {
   ...
 }
 
-myQueue = TaskQueue.default("user-blocking") returns the global task queue with priority “user-blocking”, for posting to main thread.
-
+myQueue = TaskQueue.default("user-blocking") 
+```
+returns the global task queue with priority “user-blocking”, for posting to main thread.
+```
 myQueue.postTask(mytask, <list of args>).then(doSomethingElse);
 ```
 where task is a function.
-
-NOTE: syntax is likely to change for compatibility for posting work off main thread variant (TODO: Link to repo).
 
 
 ## Appendix: Scheduler case studies
