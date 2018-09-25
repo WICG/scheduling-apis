@@ -107,14 +107,15 @@ TODO(panicker): To what extent can this be addressed with higher level vs. lower
 NOTE: these are early, premature API sketches, read as such. Feedback is appreciated.
 
 ### Semantic priority for queue
-Semantic priority i.e. enum TaskQueuePriority can be one of these: 
+We propose adding default task queues with three semantic priorities, i.e. enum TaskQueuePriority, can be one of these: 
 
 * 1. "user-blocking"
-* 2. "user-visible" (similar priority as rAF)
-* 3. "default"
-* 4. "background" (similar priority as rIC)
+* 2. "default"
+* 3. "idle"
  
-NOTE: These match up with GCD and somewhat match our own internal TaskTraits.
+NOTE: These roughly match up with GCD and our own internal TaskTraits, however the "render" priority level is missing, as it is already covered by rAF.
+
+NOTE: idle priority is similar to rIC. TODO: document why we are adding a queue for idle.
 
 ### Default set of Serial Task queues
 Tasks are guaranteed to start and finish in the order submitted, i.e. a task does not start until the previous task has completed.
@@ -132,12 +133,9 @@ myQueue = TaskQueue.default("user-blocking")
 ```
 returns the global task queue with priority “user-blocking”, for posting to main thread.
 ```
-myQueue.postTask(mytask, <list of args>).then(doSomethingElse);
+myQueue.postTask(mytask, <list of args>);
 ```
-where task is a function.
-
-### Issues to consider
-- postTask at priority level 2 is very similar to rAF and priority level 4 is very similar to rIC -- should we remove the duplication?
+where task is a callback.
 
 
 ## Appendix: Scheduler case studies
