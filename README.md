@@ -133,10 +133,15 @@ myQueue = TaskQueue.default("user-blocking")
 ```
 returns the global task queue with priority “user-blocking”, for posting to main thread.
 ```
-myQueue.postTask(mytask, <list of args>);
+taskId = myQueue.postTask(myTask, <list of args>);
 ```
-where task is a callback.
+where myTask is a callback.
+The return value is a long integer, the task id, that uniquely identifies the entry in the queue. 
 
+```
+myQueue.cancelTask(taskId);
+```
+taskId can be used to later cancel the task.
 
 ## Appendix: Scheduler case studies
 ### Case study 1: Maps’ Job Scheduler
