@@ -158,12 +158,15 @@ myQueue.cancelTask(taskId);
 ```
 taskId can be used to later cancel the task.
 
-### Return type
+### Return type, cancellation, updating priority
 The return type could be a promise instead of ID, for convenience and chaining of tasks.
 
 OR it could be a wrapper on promise -- a `TaskFuture` perhaps -- that provides cancellation support - by providing ID or cancel() method.
 
+Updating priority is equivalent to canceling a task and re-posting at a different priority. 
+
 TODO: should TaskFuture allow "priority upgrade" to do the work and its deps more urgently?
+
 
 ## Appendix: Scheduler case studies
 ### Case study 1: Maps’ Job Scheduler
