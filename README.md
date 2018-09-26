@@ -53,8 +53,8 @@ Using rAF doesn’t fit in some cases, where it is not rendering work:
 JS schedulers need to schedule “normal” priority work, that execute at an appropriate time (eg. after paint), to spread out work while yielding to the browser (as opposed to using rIC for “idle time” work or rAF for rendering work). 
 Currently they use workarounds which are inefficient and often buggy compared to first class platform support:
 
-* messagechannel workaround (google3 nexttick used by Maps etc): use a private message channel to postMessage empty messages. A [bug](https://bugs.chromium.org/p/chromium/issues/detail?id=867133) currently prevents yielding.
-* postmessage after each rAF ([used by ReactScheduler](https://github.com/facebook/react/blob/43a137d9c13064b530d95ba51138ec1607de2c99/packages/react-scheduler/src/ReactScheduler.js#L278)): using rAF is high overhead due to cost of rendering machinery, and guessing the idle budget without knowledge of browser internals is prone to cause jank.
+* postmessage after each rAF ([used by ReactScheduler](https://github.com/facebook/react/blob/43a137d9c13064b530d95ba51138ec1607de2c99/packages/react-scheduler/src/ReactScheduler.js#L278)): using rAF is high overhead due to cost of rendering machinery, and guessing the idle budget without knowledge of browser internals is prone to cause jank. rAF should not be used for work that is not tied to frame rendering.
+* messagechannel workaround (google3 nexttick used by Maps etc): use a private message channel to postMessage empty messages; also tacked on after rAF. A [bug](https://bugs.chromium.org/p/chromium/issues/detail?id=867133) currently prevents yielding.
 * settimeout 0: doesn’t work well, clamped to 1ms and to 4ms after N recursions.
 * “await yield” pattern in JS: causes a microtask to be queued 
 
