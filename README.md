@@ -158,6 +158,13 @@ myQueue.cancelTask(taskId);
 ```
 taskId can be used to later cancel the task.
 
+### Return type
+The return type could be a promise instead of ID, for convenience and chaining of tasks.
+
+OR it could be a wrapper on promise -- a `TaskFuture` perhaps -- that provides cancellation support - by providing ID or cancel() method.
+
+TODO: should TaskFuture allow "priority upgrade" to do the work and its deps more urgently?
+
 ## Appendix: Scheduler case studies
 ### Case study 1: Maps’ Job Scheduler
 The scheduler attempts to render at the native framerate (usually ~60fps) but falling back to unit fractions of the native framerate (e.g. 1/2 native at ~30fps, 1/3 native at ~20fps, etc) if the native framerate cannot be achieved.
