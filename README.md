@@ -112,11 +112,14 @@ We propose adding default task queues with three semantic priorities, i.e. enum 
 #### 1. "user-blocking"
 Work that the user has initiated and should yield immediate results, and therefore should start ASAP.
 This work must be completed for the user to continue.
+
 This is typically work in input handlers (tap, click) needed to provide the user immediate acknowledgement of their interation, eg. toggling the like button, showing a spinner or starting an animation when clicking on a comment list etc. 
 
 #### 2. "default"
 Normal work that is important, but can take a while to finish.
 This is typically initiated by the user, but has dependency on network or I/O.
+This is essentially setTimeout(0) without clamping; see other [workarounds used today](https://github.com/spanicker/main-thread-scheduling#3-able-to-schedule-work-reliably-at-normal-priority).
+
 Eg. user zooms into a map, fetching of the maps tiles should be posted as "default" priority.
 Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be posted as "default" priority (and potentially show a spinner, posted as "user-blocking" priority).
 
