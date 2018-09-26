@@ -91,20 +91,6 @@ Use-cases:
 Some of the above could be addressed with JS library except for changing browser's target frame rate, as well as accurately knowing what the current target rate is.
 
 
-### Why a higher level API?
-Above covers gaps in the platform, in addition there are other problems that a (higher level) standardized scheduling library would address:
-#### i. Easier to use disparate set of scheduling APIs
-Too many disparate scheduling APIs (rAF, rIC, settimeout) that require managing time budgets and bookkeeping -- that developers can’t understand when/how to use correctly.
-
-#### ii. Address userspace “coordination” issue (multi-actor problem)
-JS needs to cooperatively schedule between different parts of the app, and they need a common set of priorities for tasks.
-Some parts of the app may be using a JS scheduler with priorities but other parts of the app may not or may use a different priority mechanism (eg. embedded libraries). So low priority work in one system can get prioritized over high priority work in another.\
-Some motivating discussion here: https://github.com/w3c/requestidlecallback/issues/68
-
-#### iii. Easier to reason about and track priority
-JS library could make it easy to trace back current work to what triggered the work and corresponding priority, and make it easier to connect the dots. 
-For instance, in response to high priority user interaction, work is flowing through the system (fetches, post-processing, followed by rendering) and should inherit the original priority. 
-
 ## API Sketch
 NOTE: these are early, premature API sketches, read as such. Feedback is appreciated.
 
@@ -168,6 +154,20 @@ OR it could be a wrapper on promise -- a `TaskFuture` perhaps -- that provides c
 Updating priority is equivalent to canceling a task and re-posting at a different priority. 
 
 TODO: should TaskFuture allow "priority upgrade" to do the work and its deps more urgently?
+
+### Why a higher level API?
+Above proposal covers gaps in the platform, in addition there are other problems that a (higher level) standardized scheduling library would address:
+#### i. Easier to use disparate set of scheduling APIs
+Too many disparate scheduling APIs (rAF, rIC, settimeout) that require managing time budgets and bookkeeping -- that developers can’t understand when/how to use correctly.
+
+#### ii. Address userspace “coordination” issue (multi-actor problem)
+JS needs to cooperatively schedule between different parts of the app, and they need a common set of priorities for tasks.
+Some parts of the app may be using a JS scheduler with priorities but other parts of the app may not or may use a different priority mechanism (eg. embedded libraries). So low priority work in one system can get prioritized over high priority work in another.\
+Some motivating discussion here: https://github.com/w3c/requestidlecallback/issues/68
+
+#### iii. Easier to reason about and track priority
+JS library could make it easy to trace back current work to what triggered the work and corresponding priority, and make it easier to connect the dots. 
+For instance, in response to high priority user interaction, work is flowing through the system (fetches, post-processing, followed by rendering) and should inherit the original priority. 
 
 
 ## Appendix: Scheduler case studies
