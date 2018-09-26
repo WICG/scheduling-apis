@@ -155,6 +155,12 @@ Updating priority is equivalent to canceling a task and re-posting at a differen
 
 TODO: should TaskFuture allow "priority upgrade" to do the work and its deps more urgently?
 
+### is shouldYield needed?
+In a multi-actor scenario, when the entire app is not cooperating on scheduling, i.e. there is 3P content or Ads, then [shouldYield](https://github.com/tdresser/should-yield/blob/master/README.md) provides an incentive for yielding for input.
+
+However if the app is cooperating then it is better to simply yield than to check shouldYield and conditionally yield, as this is fairer for task queues at the same priority.
+Though in a legacy codebase where all the code is not using the scheduler, shouldYield can potentially help. 
+
 ### Why a higher level API?
 Above proposal covers gaps in the platform, in addition there are other problems that a (higher level) standardized scheduling library would address:
 #### i. Easier to use disparate set of scheduling APIs
