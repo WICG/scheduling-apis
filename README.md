@@ -62,18 +62,24 @@ Known workarounds for "normal" priority scheduling:
 **Why not just use rIC?**
 rIC is suited to idle time work, not normal priority work AFTER yielding to browser (for important work). By design, rIC has the risk of starvation and getting postponed indefinitely.
 
-#### 3. Able to prioritize network fetches and timing of responses
+#### 3. Support task cancellation and dynamically updating task priority
+The priority of a posted task is not static and can change after posting.
+For instance work that was initially post as opportunistic prefetching, can become urgent if the current user interaction needs it.\
+Eg. React Scheduler uses expiration time instead of priority, so the times can dynamically update, and expired tasks are the highest priority.
+
+NOTE: task cancellation must be supported on the lower level API
+#### 4. Able to prioritize network fetches and timing of responses
 Processing of network responses (parsing and execution) happens async and can occur at inopportune times relative to other ongoing work which could be more important.
 Certain responses are time sensitive (eg. when needed to respond to user interaction) while others could be lower priority (eg. optimistic prefetching).
 
-#### 4. [MAYBE?] Able to classify priority for input (handlers)
+#### 5. [MAYBE?] Able to classify priority for input (handlers)
 Similar to #4 above, but for input.
 
 * certain input is low priority (relative to current work in the app)
 * certain input is urgent and needs to be processed immediately without synchronizing to rendering (waiting until rAF)
 TODO: Add examples.
 
-#### 5. Able to target lower or different frame rate
+#### 6. Able to target lower or different frame rate
 Apps do not have access to easily learn the browser’s current target frame rate, and have to infer this withbook-keeping and guessing.
 Furthermore, apps are not easily able to target a different frame rate, or ask the browser to target different frame rate; default targeting 60fps can often result in starving of other necessary work.
 Use-cases:
@@ -98,12 +104,6 @@ Some motivating discussion here: https://github.com/w3c/requestidlecallback/issu
 #### iii. Easier to reason about and track priority
 JS library could make it easy to trace back current work to what triggered the work and corresponding priority, and make it easier to connect the dots. 
 For instance, in response to high priority user interaction, work is flowing through the system (fetches, post-processing, followed by rendering) and should inherit the original priority. 
-
-#### iv. Dynamically update task priority and cancelling tasks
-The priority of a posted task is not static and can change after posting.
-For instance work that was initially post as opportunistic prefetching, can become urgent if the current user interaction needs it.\
-Eg. React Scheduler uses expiration time instead of priority, so the times can dynamically update, and expired tasks are the highest priority.
-TODO(panicker): To what extent can this be addressed with higher level vs. lower level API.
 
 ## API Sketch
 NOTE: these are early, premature API sketches, read as such. Feedback is appreciated.
