@@ -102,6 +102,7 @@ We propose adding default task queues with three semantic priorities, i.e. enum 
 #### 1. "user-blocking"
 Work that the user has initiated and should yield immediate results, and therefore should start ASAP.
 This work must be completed for the user to continue.
+Tasks posted at this priority can delay rAF, and therefore should finish quickly (otherwise use "default" priority). 
 
 This is typically work in input handlers (tap, click) needed to provide the user immediate acknowledgement of their interation, eg. toggling the like button, showing a spinner or starting an animation when clicking on a comment list etc. 
 
