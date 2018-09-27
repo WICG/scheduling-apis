@@ -68,6 +68,8 @@ For instance work that was initially post as opportunistic prefetching, can beco
 Eg. React Scheduler uses expiration time instead of priority, so the times can dynamically update, and expired tasks are the highest priority.
 
 NOTE: task cancellation must be supported on the lower level API
+TODO: This belongs in higher level API that is running at higher priority, otherwise the call to cancel+repost may never get called in starvation scenarios.
+
 #### 4. Able to prioritize network fetches and timing of responses
 Processing of network responses (parsing and execution) happens async and can occur at inopportune times relative to other ongoing work which could be more important.
 Certain responses are time sensitive (eg. when needed to respond to user interaction) while others could be lower priority (eg. optimistic prefetching).
