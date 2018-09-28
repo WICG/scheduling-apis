@@ -196,6 +196,11 @@ It works by classifying all work into several stages:
 Note that 1, 2, and 3 must be done on every frame and is scheduled via rAF, everything else does not need to be done on every frame and is scheduled either through rIC OR in deferred manner to yield to the browser (postmessage after rAF, or settimeout 0). 
 In response to events, Jobs of one of these types are created and scheduled with the JobScheduler to be run.
 
+Maps needs throttling of frame-rate in the following cases:
+
+* on start-up, for prioritizing initialization over animation FPS 
+* when switching into 3d Earth mode, and there's lots of data fetching and 3d model building to do, and it's not worth showing 60fps of gradual build-up of this.
+
 ### Case-study 2: React Scheduler
 Link to [code is here](https://github.com/facebook/react/blob/43a137d9c13064b530d95ba51138ec1607de2c99/packages/react-scheduler/src/ReactScheduler.js)
 
