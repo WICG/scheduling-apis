@@ -154,9 +154,9 @@ taskId can be used to later cancel the task.
 
 ### API Aspects
 #### Return type, cancellation, updating priority
-The return type could be a promise instead of ID, for convenience and chaining of tasks.
+The return type could be a promise instead of ID, for convenience and chaining of tasks. If so, then [AbortController](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) is a standard way to cancel pending promises.
 
-OR it could be a wrapper on promise -- a `TaskFuture` perhaps -- that provides cancellation support - by providing ID or cancel() method.
+Alternatively, the return type could be a wrapper on promise -- a `TaskFuture` perhaps -- that provides cancellation support - by providing ID or cancel() method -- simpler API than AbortController.
 
 Updating priority is equivalent to canceling a task and re-posting at a different priority. 
 
