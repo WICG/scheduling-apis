@@ -180,8 +180,8 @@ Some parts of the app may be using a JS scheduler with priorities but other part
 Some motivating discussion here: https://github.com/w3c/requestidlecallback/issues/68
 
 #### iii. Support cancellation & dynamically updating priority
-See related note on lower level API.
-The higher level API would need to run at high priority, so that it can process calls to cancel or repost.
+See [related note on lower level API](https://github.com/spanicker/main-thread-scheduling#3-support-task-cancellation-and-dynamically-updating-task-priority)
+The higher level API would need to run at high priority, so that it can process calls to cancel or repost, without risk of starvation.
 
 #### iv. Easier to reason about and track priority
 JS library could make it easy to trace back current work to what triggered the work and corresponding priority, and make it easier to connect the dots. 
