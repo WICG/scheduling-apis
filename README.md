@@ -99,14 +99,19 @@ NOTE: these are early, premature API sketches, read as such. Feedback is appreci
 ### Semantic priority for queue
 We propose adding default task queues with three semantic priorities, i.e. enum TaskQueuePriority, can be one of these: 
 
-#### 1. "user-blocking"
+#### 1. "microtask"
+Work that should be queued as a microtask, without yielding to the browser.
+
+NOTE: Since [queueMicrotask](https://fergald.github.io/docs/explainers/queueMicrotask.html) is going to ship, we don't plan to directly expose this priority on the proposed scheduling API to avoid redundant platform API surface.
+
+#### 2. "user-blocking"
 Work that the user has initiated and should yield immediate results, and therefore should start ASAP.
 This work must be completed for the user to continue.
 Tasks posted at this priority can delay rAF, and therefore should finish quickly (otherwise use "default" priority). 
 
 This is typically work in input handlers (tap, click) needed to provide the user immediate acknowledgement of their interation, eg. toggling the like button, showing a spinner or starting an animation when clicking on a comment list etc. 
 
-#### 2. "default"
+#### 3. "default"
 Normal work that is important, but can take a while to finish.
 This is typically initiated by the user, but has dependency on network or I/O.
 This is essentially setTimeout(0) without clamping; see other [workarounds used today](https://github.com/spanicker/main-thread-scheduling#3-able-to-schedule-work-reliably-at-normal-priority).
@@ -114,7 +119,7 @@ This is essentially setTimeout(0) without clamping; see other [workarounds used 
 Eg. user zooms into a map, fetching of the maps tiles should be posted as "default" priority.
 Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be posted as "default" priority (and potentially show a spinner, posted as "user-blocking" priority).
 
-#### 3. "idle"
+#### 4. "idle"
 Work that is not visible to the user, and not time critical.
 Eg. analytics, backups, syncs, indexing, etc.
 
