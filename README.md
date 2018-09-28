@@ -67,8 +67,7 @@ The priority of a posted task is not static and can change after posting.
 For instance work that was initially post as opportunistic prefetching, can become urgent if the current user interaction needs it.\
 Eg. React Scheduler uses expiration time instead of priority, so the times can dynamically update, and expired tasks are the highest priority.
 
-NOTE: task cancellation must be supported on the lower level API
-TODO: This belongs in higher level API that is running at higher priority, otherwise the call to cancel+repost may never get called in starvation scenarios.
+NOTE: The lower level API needs to provide primitive for task cancellation. The higher level API should support invoking cancellation and dynamically updating priority.
 
 #### 4. Able to prioritize network fetches and timing of responses
 Processing of network responses (parsing and execution) happens async and can occur at inopportune times relative to other ongoing work which could be more important.
@@ -125,7 +124,6 @@ Eg. analytics, backups, syncs, indexing, etc.
 
 NOTE: idle priority is similar to rIC. TODO: document why we are adding a queue for idle.
 
-
 NOTE: These priorities roughly match up with [GCD](https://developer.apple.com/documentation/dispatch/dispatchqos/qosclass) and our own [internal TaskTraits](https://cs.chromium.org/chromium/src/base/task/task_traits.h). However the "render" priority level is missing, this is covered by rAF today.
 
 ### Default set of Serial Task queues
@@ -164,7 +162,7 @@ Updating priority is equivalent to canceling a task and re-posting at a differen
 
 TODO: should TaskFuture allow "priority upgrade" to do the work and its deps more urgently?
 
-#### is shouldYield needed?
+#### Is shouldYield needed?
 In a multi-actor scenario, when the entire app is not cooperating on scheduling, i.e. there is 3P content or Ads, then [shouldYield](https://github.com/tdresser/should-yield/blob/master/README.md) provides an incentive for yielding for input.
 
 However if the app is cooperating then it is better to simply yield than to check shouldYield and conditionally yield, as this is fairer for task queues at the same priority.
@@ -172,15 +170,20 @@ Though in a legacy codebase where all the code is not using the scheduler, shoul
 
 ## Why a higher level API?
 Above proposal covers gaps in the platform, in addition there are other problems that a (higher level) standardized scheduling library would address:
+
 #### i. Easier to use disparate set of scheduling APIs
-Too many disparate scheduling APIs (rAF, rIC, settimeout) that require managing time budgets and bookkeeping -- that developers can’t understand when/how to use correctly.
+There are too many disparate scheduling APIs (rAF, rIC, settimeout, queueMicrotask) that require managing time budgets and bookkeeping -- that developers can’t understand when / how to use correctly. The higher level API would present a simple interface (with priorities and postTask) and hide the complexity. 
 
 #### ii. Address userspace “coordination” issue (multi-actor problem)
 JS needs to cooperatively schedule between different parts of the app, and they need a common set of priorities for tasks.
 Some parts of the app may be using a JS scheduler with priorities but other parts of the app may not or may use a different priority mechanism (eg. embedded libraries). So low priority work in one system can get prioritized over high priority work in another.\
 Some motivating discussion here: https://github.com/w3c/requestidlecallback/issues/68
 
-#### iii. Easier to reason about and track priority
+#### iii. Support cancellation & dynamically updating priority
+See related note on lower level API.
+The higher level API would need to run at high priority, so that it can process calls to cancel or repost.
+
+#### iv. Easier to reason about and track priority
 JS library could make it easy to trace back current work to what triggered the work and corresponding priority, and make it easier to connect the dots. 
 For instance, in response to high priority user interaction, work is flowing through the system (fetches, post-processing, followed by rendering) and should inherit the original priority. 
 
