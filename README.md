@@ -148,6 +148,8 @@ Eg. React Scheduler, Maps Scheduler <links>
 
 
 ## Appendix: Scheduler case studies
+NOTE: See [recent Slides here](https://docs.google.com/presentation/d/1HGBOAfVhmWoyOt2ETk-1Y2dOvuMyRnQ5AF7VrPBvfX0/edit).
+
 ### Case study 1: Maps’ Job Scheduler
 The scheduler attempts to render at the native framerate (usually ~60fps) but falling back to unit fractions of the native framerate (e.g. 1/2 native at ~30fps, 1/3 native at ~20fps, etc) if the native framerate cannot be achieved.
 It works by classifying all work into several stages:
