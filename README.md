@@ -142,7 +142,6 @@ The platform exposed API is essentially focused on exposing what's needed for th
 The platform exposed API would also fill in the gaps for how to post work at specific priorities:
 
 * Posting work at default priority: ```var handle = window.requestDefaultCallback(callback[, options]) ```
-* Posting work at high priority: ```var handle = window.requestDefaultCallback(callback[, options]) ```
 
 TODO: API Sketch / sample code for JS scheduler. 
 Eg. React Scheduler, Maps Scheduler <links>
