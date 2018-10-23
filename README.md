@@ -53,7 +53,7 @@ A mechanism to execute tasks at an appropriate time, relative to the current sta
 
 ## API Shape
 
-### Option 1: run-loop is built into the browser
+### API Option 1: run-loop is built into the browser
 The run-loop could be built into the browser and integrated closely with the browser’s event-loop. This would automatically move #4 into the browser and #3 becomes the platform exposed API. The API sketch follows.
 
 #### Semantic priority for queue
@@ -131,6 +131,17 @@ Updating priority of specific task is equivalent to canceling that task and re-p
 Flushing the queue: ```myQueue.flush();```
 
 TODO: supporting additional priorities, beyond small set of semantic priorities. Add API ideas for this.
+
+### API Option 1: run-loop is built in a JS library
+The run-loop could be built into a JS scheduling library. This would mean that #3 is defined in JS and not a platform primitive. 
+The platform exposed API is essentially focused on exposing what's needed for the run-loop:
+
+* 4a. can be addressed with shouldYield proposal.
+* 4b. is really difficult to reason about and expose to JS.
+
+TODO: API Sketch / sample code for JS scheduler. 
+Eg. React Scheduler, Maps Scheduler <links>
+
 
 ## Appendix: Scheduler case studies
 ### Case study 1: Maps’ Job Scheduler
