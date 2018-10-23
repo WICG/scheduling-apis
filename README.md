@@ -7,15 +7,8 @@ This app needs to be responsive to user input i.e. user typing in the search-box
 
 This is a lot of different deadlines to meet for the app developer. It is easy for any long running script work to hold up the main thread and cause responsiveness issues for typing, rendering animations or updating search results.
 
-A main thread Scheduler is 
-
-**Key strategies** for addressing main thread contention and improving responsiveness:
-1. Break up script work into chunks and execute asynchronously on main thread
-2. Move work off the main thread into background threads
-
-These are essentially scheduling problems, improved scheduling will result in better guarantees of responsiveness.
-This explainer will focus on #1: scheduling on main thread.
-TODO(panicker): link to explainer for #2 Off Main Thread Scheduling.
+This problem can be tackled by systematically chunking and scheduling main thread work i.e. prioritizing and executing work async at an appropriate time relative to current situation of user and browser. 
+A Main Thread Scheduler provides improved guarantees of responsiveness.
 
 ## Main Thread Scheduling
 Schedulers have been built in userspace to chunk up main thread work and schedule it at appropriate times, in order to improve responsiveness and maintain high and smooth frame-rate.
