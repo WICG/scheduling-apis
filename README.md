@@ -146,13 +146,15 @@ The platform exposed API would also fill in the gaps for how to post work at spe
 TODO: API Sketch / sample code for JS scheduler. 
 Eg. React Scheduler, Maps Scheduler <links>
 
-### Pros & Cons of API Option A vs B
-#### Option A: Cons
-Really difficult to reason about and expose all necessary signals in [#4](https://github.com/spanicker/main-thread-scheduling#4-run-loop), especially [4b.](https://github.com/spanicker/main-thread-scheduling#b-run-loop-requires-effective-coordination-with-other-work-on-the-main-thread) 
-A key thing here is understanding what subset of 5b is necessary for effective scheduling and what it might take to support that.
+### Pros & Cons:API Option A vs B
+#### API Option A: Cons
+* Really difficult to reason about and expose all necessary signals in [#4](https://github.com/spanicker/main-thread-scheduling#4-run-loop), especially [4b.](https://github.com/spanicker/main-thread-scheduling#b-run-loop-requires-effective-coordination-with-other-work-on-the-main-thread) 
+* Not possible to expose priorities 
 
-#### Option B: Cons
-likely tough interop story
+A key thing here is understanding what subset of [4b.](https://github.com/spanicker/main-thread-scheduling#b-run-loop-requires-effective-coordination-with-other-work-on-the-main-thread) is necessary for effective scheduling and what it might take to support that.
+
+#### API Option B: Cons
+* potentially tougher interop story?
 
 ### Open Questions & Challenges
 
