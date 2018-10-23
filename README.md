@@ -53,7 +53,7 @@ A mechanism to execute tasks at an appropriate time, relative to the current sta
 
 ## API Shape
 
-### API Option 1: run-loop is built into the browser
+### API Option A: run-loop is built into the browser
 The run-loop could be built into the browser and integrated closely with the browser’s event-loop. This would automatically move #4 into the browser and #3 becomes the platform exposed API. The API sketch follows.
 
 #### Semantic priority for queue
@@ -132,7 +132,7 @@ Flushing the queue: ```myQueue.flush();```
 
 TODO: supporting additional priorities, beyond small set of semantic priorities. Add API ideas for this.
 
-### API Option 2: run-loop is built in a JS library
+### API Option B: run-loop is built in a JS library
 The run-loop could be built into a JS scheduling library. This would mean that #3 is defined in JS and not a platform primitive. 
 The platform exposed API is essentially focused on exposing what's needed for the run-loop:
 
@@ -145,6 +145,23 @@ The platform exposed API would also fill in the gaps for how to post work at spe
 
 TODO: API Sketch / sample code for JS scheduler. 
 Eg. React Scheduler, Maps Scheduler <links>
+
+### Pros & Cons of API Option A vs B
+#### Option A: Cons
+Really difficult to reason about and expose all necessary signals in [#4](https://github.com/spanicker/main-thread-scheduling#4-run-loop), especially [4b.](https://github.com/spanicker/main-thread-scheduling#b-run-loop-requires-effective-coordination-with-other-work-on-the-main-thread) 
+A key thing here is understanding what subset of 5b is necessary for effective scheduling and what it might take to support that.
+
+#### Option B: Cons
+likely tough interop story
+
+### Open Questions & Challenges
+
+- how to handle promises and chaining: how to make the chain yield; how to execute promise at a given priority 
+- handling 3P and non-cooperating script (directly embedded) in the page 
+- DOM read-write phase: either exposing the phase or allowing tasks to specify read vs write etc
+- priorities for work posted implicitly eg. <script ..> schedules work for fetching script, followed by parsing, compiling and executing the response
+- lowering priority of event handlers (similar to “passive”)
+- propagating priority across multiple tasks in the app
 
 
 ## Appendix: Scheduler case studies
