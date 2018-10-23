@@ -132,12 +132,17 @@ Flushing the queue: ```myQueue.flush();```
 
 TODO: supporting additional priorities, beyond small set of semantic priorities. Add API ideas for this.
 
-### API Option 1: run-loop is built in a JS library
+### API Option 2: run-loop is built in a JS library
 The run-loop could be built into a JS scheduling library. This would mean that #3 is defined in JS and not a platform primitive. 
 The platform exposed API is essentially focused on exposing what's needed for the run-loop:
 
 * 4a. can be addressed with shouldYield proposal.
 * 4b. is really difficult to reason about and expose to JS.
+
+The platform exposed API would also fill in the gaps for how to post work at specific priorities:
+
+* Posting work at default priority: ```var handle = window.requestDefaultCallback(callback[, options]) ```
+* Posting work at high priority: ```var handle = window.requestDefaultCallback(callback[, options]) ```
 
 TODO: API Sketch / sample code for JS scheduler. 
 Eg. React Scheduler, Maps Scheduler <links>
