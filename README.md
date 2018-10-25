@@ -158,10 +158,12 @@ A key thing here is understanding what subset of [4b.](https://github.com/spanic
 
 ### Open Questions & Challenges
 
+- API for frame rate throttling: 30 vs. 60fps
 - how to handle promises and chaining: how to make the chain yield; how to execute promise at a given priority 
+- priorities for network fetches and for handling network responses
+- priorities for work posted implicitly eg. <script ..> schedules work for fetching script, followed by parsing, compiling and executing the response
 - handling 3P and non-cooperating script (directly embedded) in the page 
 - DOM read-write phase: either exposing the phase or allowing tasks to specify read vs write etc
-- priorities for work posted implicitly eg. <script ..> schedules work for fetching script, followed by parsing, compiling and executing the response
 - lowering priority of event handlers (similar to “passive”)
 - propagating priority across multiple tasks in the app
 
