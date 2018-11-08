@@ -1,4 +1,5 @@
 # Main-thread Scheduling API
+For an overview, see: [Slides presented at TPAC 2018](https://docs.google.com/presentation/d/12lkTrTwGedKSFqOFhQTsEdcLI3ydRiAdom_9uQ2FgsM/edit?usp=sharing)
 
 ## Motivation: Main thread contention
 Consider a "search-as-you-type" application:
