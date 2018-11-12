@@ -59,28 +59,36 @@ The run-loop could be built into the browser and integrated closely with the bro
 
 #### Semantic priority for queue
 We propose adding default task queues with three semantic priorities, i.e. enum TaskQueuePriority, can be one of these: 
-
-##### 1. "microtask"
-Work that should be queued as a microtask, without yielding to the browser.
-
-NOTE: Since [queueMicrotask](https://fergald.github.io/docs/explainers/queueMicrotask.html) is going to ship, it is difficult to justify exposing this priority, as it create redundant platform API surface.
-
-##### 2. "user-blocking"
+ 
+##### 1. "user-blocking"
+Urgent work that must happen in the limited time *within the current frame*.
 Work that the user has initiated and should yield immediate results, and therefore should start ASAP.
 This work must be completed for the user to continue.
 Tasks posted at this priority can delay frame rendering, and therefore should finish quickly (otherwise use "default" priority).
 
-This is typically work in input handlers (tap, click) needed to provide the user immediate acknowledgement of their interation, eg. toggling the like button, showing a spinner or starting an animation when clicking on a comment list etc. 
+This is work in:
 
-##### 3. "default"
+* input handlers: (tap, click) needed to provide the user immediate acknowledgement of their interation, eg. toggling the like button, showing a spinner or starting an animation when clicking on a comment list etc. 
+* requestAnimationFrame: rendering work for ongoing animations 
+* microtasks: are user-blocking priority, and do not yield to the browser's event loop.
+
+NOTE: we've seen bad cases where developers accidentally do large, non-urgent work in microtasks -- with promise.then and await, without realizing it blocks rendering.
+
+NOTE: [queueMicrotask](https://fergald.github.io/docs/explainers/queueMicrotask.html) is going to provide a direct API for submitting microtasks.
+
+##### 2. "default"
+User visible work that is needed to *prepare for the next frame* (or future frames).
 Normal work that is important, but can take a while to finish.
 This is typically initiated by the user, but has dependency on network or I/O.
 This is essentially setTimeout(0) without clamping; see other [workarounds used today](https://github.com/spanicker/main-thread-scheduling#3-able-to-schedule-work-reliably-at-normal-priority).
 
-Eg. user zooms into a map, fetching of the maps tiles should be posted as "default" priority.
-Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be posted as "default" priority (and potentially show a spinner, posted as "user-blocking" priority).
+Eg. user zooms into a map, fetching of the maps tiles OR atleast post-processing of fetch responses should be posted as "default" priority.
+Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be handled as "default" priority (and potentially show a spinner, posted as "user-blocking" priority).
 
-##### 4. "idle"
+NOTE: it may make sense to kick off fetches in input-handler, however handling fetch responses in microtasks can be problematic, and could block user input & urgent rendering work.
+
+
+##### 3. "idle"
 Work that is not visible to the user, and not time critical.
 Eg. analytics, backups, syncs, indexing, etc.
 
