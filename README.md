@@ -84,9 +84,7 @@ NOTE: it may make sense to kick off fetches in input-handler, however handling f
 Work that is not visible to the user, and not time critical.
 Eg. analytics, backups, syncs, indexing, etc.
 
-NOTE: idle priority is similar to rIC. TODO: document why we should expose this directly?
-
-NOTE: These priorities roughly match up with [GCD](https://developer.apple.com/documentation/dispatch/dispatchqos/qosclass) and our own [internal TaskTraits](https://cs.chromium.org/chromium/src/base/task/task_traits.h). However the "render" priority level is missing, this is covered by rAF today.
+requestIdleCallback (rIC) is the API for idle priority work.
 
 
 ## API Shape
