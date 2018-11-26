@@ -86,6 +86,7 @@ TODO: Add link to repo.
 #### 4. Propagating scheduling Context for async work
 Similar in spririt to zone.js. We need a way to inherit and propagate scheduling priority across async things: fetches, promises etc.
 
+TODO: Add link to repo.
 
 ### II. Built-in API
 The run-loop could be built into the browser and integrated closely with the browser’s event-loop. This would automatically move #4 into the browser and #3 becomes the platform exposed API. The API sketch follows.
