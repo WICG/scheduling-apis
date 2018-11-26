@@ -51,6 +51,43 @@ A mechanism to execute tasks at an appropriate time, relative to the current sta
 * 4. rendering: tasks may be reprioritized dependent on renderer state
 * 5. other developer scheduled callbacks: eg. settimeout 
 
+### Priorities for tasks
+ 
+#### 1. "user-blocking"
+Urgent work that must happen in the limited time *within the current frame*.
+Work that the user has initiated and should yield immediate results, and therefore should start ASAP.
+This work must be completed for the user to continue.
+Tasks posted at this priority can delay frame rendering, and therefore should finish quickly (otherwise use "default" priority).
+
+This is work in:
+
+* input handlers: (tap, click) needed to provide the user immediate acknowledgement of their interation, eg. toggling the like button, showing a spinner or starting an animation when clicking on a comment list etc. 
+* requestAnimationFrame: rendering work for ongoing animations 
+* microtasks: are user-blocking priority, and do not yield to the browser's event loop.
+
+NOTE: we've seen bad cases where developers accidentally do large, non-urgent work in microtasks -- with promise.then and await, without realizing it blocks rendering.
+
+NOTE: [queueMicrotask](https://fergald.github.io/docs/explainers/queueMicrotask.html) is going to provide a direct API for submitting microtasks.
+
+#### 2. "default"
+User visible work that is needed to *prepare for the next frame* (or future frames).
+Normal work that is important, but can take a while to finish.
+This is typically initiated by the user, but has dependency on network or I/O.
+This is essentially setTimeout(0) without clamping; see other [workarounds used today](https://github.com/spanicker/main-thread-scheduling#3-after-paint-callback)
+
+Eg. user zooms into a map, fetching of the maps tiles OR atleast post-processing of fetch responses should be posted as "default" priority.
+Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be handled as "default" priority (and potentially show a spinner, posted as "user-blocking" priority).
+
+NOTE: it may make sense to kick off fetches in input-handler, however handling fetch responses in microtasks can be problematic, and could block user input & urgent rendering work.
+
+#### 3. "idle"
+Work that is not visible to the user, and not time critical.
+Eg. analytics, backups, syncs, indexing, etc.
+
+NOTE: idle priority is similar to rIC. TODO: document why we should expose this directly?
+
+NOTE: These priorities roughly match up with [GCD](https://developer.apple.com/documentation/dispatch/dispatchqos/qosclass) and our own [internal TaskTraits](https://cs.chromium.org/chromium/src/base/task/task_traits.h). However the "render" priority level is missing, this is covered by rAF today.
+
 
 ## API Shape
 We intend to pursue a two-pronged approach:
@@ -91,49 +128,16 @@ TODO: Add link to repo.
 ### II. Built-in API
 The run-loop could be built into the browser and integrated closely with the browser’s event-loop. This would automatically move #4 into the browser and #3 becomes the platform exposed API. The API sketch follows.
 
-#### Semantic priority for queue
-We propose adding default task queues with three semantic priorities, i.e. enum TaskQueuePriority, can be one of these: 
- 
-##### 1. "user-blocking"
-Urgent work that must happen in the limited time *within the current frame*.
-Work that the user has initiated and should yield immediate results, and therefore should start ASAP.
-This work must be completed for the user to continue.
-Tasks posted at this priority can delay frame rendering, and therefore should finish quickly (otherwise use "default" priority).
+We propose adding default task queues with three semantic priorities, i.e. enum TaskQueuePriority, can be one of these:
 
-This is work in:
+* User-blocking
+* Default
+* Idle
 
-* input handlers: (tap, click) needed to provide the user immediate acknowledgement of their interation, eg. toggling the like button, showing a spinner or starting an animation when clicking on a comment list etc. 
-* requestAnimationFrame: rendering work for ongoing animations 
-* microtasks: are user-blocking priority, and do not yield to the browser's event loop.
-
-NOTE: we've seen bad cases where developers accidentally do large, non-urgent work in microtasks -- with promise.then and await, without realizing it blocks rendering.
-
-NOTE: [queueMicrotask](https://fergald.github.io/docs/explainers/queueMicrotask.html) is going to provide a direct API for submitting microtasks.
-
-##### 2. "default"
-User visible work that is needed to *prepare for the next frame* (or future frames).
-Normal work that is important, but can take a while to finish.
-This is typically initiated by the user, but has dependency on network or I/O.
-This is essentially setTimeout(0) without clamping; see other [workarounds used today](https://github.com/spanicker/main-thread-scheduling#3-after-paint-callback)
-
-Eg. user zooms into a map, fetching of the maps tiles OR atleast post-processing of fetch responses should be posted as "default" priority.
-Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be handled as "default" priority (and potentially show a spinner, posted as "user-blocking" priority).
-
-NOTE: it may make sense to kick off fetches in input-handler, however handling fetch responses in microtasks can be problematic, and could block user input & urgent rendering work.
-
-
-##### 3. "idle"
-Work that is not visible to the user, and not time critical.
-Eg. analytics, backups, syncs, indexing, etc.
-
-NOTE: idle priority is similar to rIC. TODO: document why we should expose this directly?
-
-NOTE: These priorities roughly match up with [GCD](https://developer.apple.com/documentation/dispatch/dispatchqos/qosclass) and our own [internal TaskTraits](https://cs.chromium.org/chromium/src/base/task/task_traits.h). However the "render" priority level is missing, this is covered by rAF today.
-
-#### Default set of Serial Task queues
+#### Global set of Serial Task queues
 Tasks are guaranteed to start and finish in the order submitted, i.e. a task does not start until the previous task has completed.
 
-A set of global (default) serial task queues will be made available to post work on main thread. There will be a global queue for each priority level.
+A set of global serial task queues will be made available to post work on main thread. There will be a global queue for each priority level.
 
 #### API for posting & canceling tasks
 NOTE: syntax is likely to change for compatibility for posting work off main thread variant (TODO: Link to repo).
