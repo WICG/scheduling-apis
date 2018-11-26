@@ -41,7 +41,7 @@ A mechanism to execute tasks at an appropriate time, relative to the current sta
 * 2. input
   * is input pending 
   * how long do we have before input should be serviced
-* 3.loading, navigation (including SPA nav)
+* 3. loading, navigation
 
 #### b. run-loop requires effective coordination with other work on the main thread:
 
@@ -55,7 +55,7 @@ A mechanism to execute tasks at an appropriate time, relative to the current sta
 ## API Shape
 We intend to pursue a two-pronged approach:
 
-* I. Ship primitives to enable Javascript / userland schedulers to succeed
+* I. Ship primitives to enable Javascript / userland schedulers to succeed: above components of scheduling can be built in javascript. However there are gaps that need to be filled for [4a](https://github.com/spanicker/main-thread-scheduling/blob/master/README.md#4a-run-loop-requires-knowledge-of) and [4b](https://github.com/spanicker/main-thread-scheduling/blob/master/README.md#4a-run-loop-requires-knowledge-of). These can be tackled as a set of APIs to plug these gaps. 
 * II. Show proof-of-concept for a native platform scheduler, that is directly integrated into the browser's event-loop.
 
 More details below, for each approach. 
