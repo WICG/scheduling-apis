@@ -53,8 +53,40 @@ A mechanism to execute tasks at an appropriate time, relative to the current sta
 
 
 ## API Shape
+We intend to pursue a two-pronged approach:
 
-### API Option A: run-loop is built into the browser
+* I. Ship primitives to enable Javascript / userland schedulers to succeed
+* II. Show proof-of-concept for a native platform scheduler, that is directly integrated into the browser's event-loop.
+
+More details below, for each approach. 
+
+### I. APIs to improve JS schedulers
+
+The following (primitive) APIs are being pursued currently:
+#### 1. Is Input Pending
+Knowledge of whether input is pending, and the type of input.
+This is covered here:
+https://github.com/tdresser/should-yield
+
+#### 2. Expected time to next animation frame
+JS schedulers are estimating the time to next animation frame with book-keeping, but it's not possible to be estimate this properly without knowing browser internals.
+
+TODO: Add link to repo.
+
+#### 3. "After-paint" callback
+Schedulers need to execute "default priority" work immediately following the document lifecycle (style, layout, paint).
+Currently they use workarounds to target this with:
+
+* settimeout0
+* postmessage or messagechannel 
+For details see: ....
+TODO: Add link to repo.
+
+#### 4. Propagating scheduling Context for async work
+Similar in spririt to zone.js. We need a way to inherit and propagate scheduling priority across async things: fetches, promises etc.
+
+
+### II. Built-in API
 The run-loop could be built into the browser and integrated closely with the browser’s event-loop. This would automatically move #4 into the browser and #3 becomes the platform exposed API. The API sketch follows.
 
 #### Semantic priority for queue
@@ -141,41 +173,12 @@ Flushing the queue: ```myQueue.flush();```
 
 TODO: supporting additional priorities, beyond small set of semantic priorities. Add API ideas for this.
 
-### API Option B: run-loop is built in a JS library
-The run-loop could be built into a JS scheduling library. This would mean that #3 is defined in JS and not a platform primitive. 
-The platform exposed API is essentially focused on exposing what's needed for the run-loop:
-
-* 4a. can be addressed with shouldYield proposal.
-* 4b. is really difficult to reason about and expose to JS.
-
-The platform exposed API would also fill in the gaps for how to post work at specific priorities:
-
-* Posting work at default priority: ```var handle = window.requestDefaultCallback(callback[, options]) ```
-
-TODO: API Sketch / sample code for JS scheduler. 
-Eg. React Scheduler, Maps Scheduler <links>
-
-### Pros & Cons:API Option A vs B
-#### API Option A: Cons
-* Really difficult to reason about and expose all necessary signals in [#4](https://github.com/spanicker/main-thread-scheduling#4-run-loop), especially [4b.](https://github.com/spanicker/main-thread-scheduling#b-run-loop-requires-effective-coordination-with-other-work-on-the-main-thread) 
-* Not possible to expose priorities 
-
-A key thing here is understanding what subset of [4b.](https://github.com/spanicker/main-thread-scheduling#b-run-loop-requires-effective-coordination-with-other-work-on-the-main-thread) is necessary for effective scheduling and what it might take to support that.
-
-#### API Option B: Cons
-* potentially tougher interop story?
-
 ### Open Questions & Challenges
 
-- API for frame rate throttling: 30 vs. 60fps
-- how to handle promises and chaining: how to make the chain yield; how to execute promise at a given priority 
-- priorities for network fetches and for handling network responses
-- priorities for work posted implicitly eg. <script ..> schedules work for fetching script, followed by parsing, compiling and executing the response
-- handling 3P and non-cooperating script (directly embedded) in the page 
 - DOM read-write phase: either exposing the phase or allowing tasks to specify read vs write etc
+- API for frame rate throttling: 30 vs. 60fps
+- handling 3P and non-cooperating script (directly embedded) in the page 
 - lowering priority of event handlers (similar to “passive”)
-- propagating priority across multiple tasks in the app
-
 
 ## Appendix: Scheduler case studies
 NOTE: See [recent Slides here](https://docs.google.com/presentation/d/1HGBOAfVhmWoyOt2ETk-1Y2dOvuMyRnQ5AF7VrPBvfX0/edit).
