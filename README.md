@@ -77,9 +77,10 @@ TODO: Add link to repo.
 Schedulers need to execute "default priority" work immediately following the document lifecycle (style, layout, paint).
 Currently they use workarounds to target this with:
 
-* settimeout0
-* postmessage or messagechannel 
-For details see: ....
+* postmessage after each rAF (used by ReactScheduler):
+* messagechannel workaround (google3 nexttick used by Maps etc): use a private message channel to postMessage empty messages; also tacked on after rAF. A bug currently prevents yielding.
+* settimeout 0: doesn’t work well, in Chrome this is clamped to 1ms and to 4ms after N recursions.
+
 TODO: Add link to repo.
 
 #### 4. Propagating scheduling Context for async work
@@ -112,7 +113,7 @@ NOTE: [queueMicrotask](https://fergald.github.io/docs/explainers/queueMicrotask.
 User visible work that is needed to *prepare for the next frame* (or future frames).
 Normal work that is important, but can take a while to finish.
 This is typically initiated by the user, but has dependency on network or I/O.
-This is essentially setTimeout(0) without clamping; see other [workarounds used today](https://github.com/spanicker/main-thread-scheduling#3-able-to-schedule-work-reliably-at-normal-priority).
+This is essentially setTimeout(0) without clamping; see other [workarounds used today](https://github.com/spanicker/main-thread-scheduling#3-after-paint-callback)
 
 Eg. user zooms into a map, fetching of the maps tiles OR atleast post-processing of fetch responses should be posted as "default" priority.
 Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be handled as "default" priority (and potentially show a spinner, posted as "user-blocking" priority).
