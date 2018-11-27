@@ -1,6 +1,8 @@
 # Main-thread Scheduling API
 For an overview, see: [Slides presented at TPAC 2018](https://docs.google.com/presentation/d/12lkTrTwGedKSFqOFhQTsEdcLI3ydRiAdom_9uQ2FgsM/edit?usp=sharing)
 
+Also this [talk from Chrome Dev Summit](https://youtu.be/mDdgfyRB5kg) covers the problem and larger direction.
+
 ## Motivation: Main thread contention
 Consider a "search-as-you-type" application:
 
