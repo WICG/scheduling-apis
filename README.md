@@ -79,7 +79,8 @@ User visible work that is needed to *prepare for the next frame* (or future fram
 Normal work that is important, but can take a while to finish.
 This is typically initiated by the user, but has dependency on network or I/O.
 This work should not delay current frame rendering, but should execute immediately afterwards to pipeline and target the next frame.
-This is essentially setTimeout(0) without clamping; see other [workarounds used today](https://github.com/spanicker/main-thread-scheduling#3-after-paint-callback)
+
+NOTE: This is essentially setTimeout(0) without clamping; see other [workarounds used today](https://github.com/spanicker/main-thread-scheduling#3-after-paint-callback)
 
 Eg. user zooms into a map, fetching of the maps tiles OR atleast post-processing of fetch responses should be posted as "default" priority.
 Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be handled as "default" priority (and potentially show a spinner, posted at "user-blocking" priority).
@@ -110,7 +111,7 @@ This is covered here:
 https://github.com/tdresser/should-yield
 
 #### 2. Expected time to next animation frame
-JS schedulers are estimating the time to next animation frame with book-keeping, but it's not possible to be estimate this properly without knowing browser internals.
+JS schedulers are estimating the time to next animation frame with book-keeping, but it's not possible to estimate this properly without knowing browser internals.
 
 TODO: Add link to repo.
 
@@ -124,8 +125,14 @@ Currently they use workarounds to target this with:
 
 TODO: Add link to repo.
 
-#### 4. Propagating scheduling Context for async work
-Similar in spririt to zone.js. We need a way to inherit and propagate scheduling priority across async things: fetches, promises etc.
+#### 4. Clean read (phase) after layout
+Interleaved reads and writes of dom result in layout thrashing.
+Today this is tackled with scheduling patterns like [fast-dom](https://github.com/wilsonpage/fastdom) and enforcement that goes along with this such as [strict-dom](https://github.com/wilsonpage/strictdom).
+Ideally, the read phase would occur immediately after style and layout have finished; and this would be followed by the write phase (default).
+
+#### 5. Propagating scheduling Context for async work
+A mechanism to inherit and propagate scheduling priority across related async calls: fetches, promises etc.
+Similar in spririt to zone.js. 
 
 TODO: Add link to repo.
 
