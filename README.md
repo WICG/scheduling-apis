@@ -195,7 +195,7 @@ TODO: supporting additional priorities, beyond small set of semantic priorities.
 
 ### Open Questions & Challenges
 
-- DOM read-write phase: either exposing the phase or allowing tasks to specify read vs write etc
+- DOM read-write phase: enabling tasks to target read vs write phases
 - API for frame rate throttling: 30 vs. 60fps
 - handling 3P and non-cooperating script (directly embedded) in the page 
 - lowering priority of event handlers (similar to “passive”)
