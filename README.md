@@ -140,7 +140,7 @@ Similar in spririt to zone.js.
 TODO: Add link to repo.
 
 ### II. Built-in API
-The run-loop could be built into the browser and integrated closely with the browser’s event-loop. This would automatically move #4 into the browser and #3 becomes the platform exposed API. The API sketch follows.
+The run-loop could be built into the browser and integrated closely with the browser’s event-loop. This would automatically move [#4](https://github.com/spanicker/main-thread-scheduling/blob/master/README.md#4-run-loop) into the browser and [#3](https://github.com/spanicker/main-thread-scheduling/blob/master/README.md#3-api-for-posting-tasks) becomes the platform exposed API. The API sketch follows.
 
 We propose adding default task queues with three semantic priorities, i.e. enum TaskQueuePriority, can be one of these:
 
