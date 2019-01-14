@@ -21,7 +21,7 @@ The specific schedulers we looked at are: [Google Maps Scheduler](https://github
 We analyzed various scheduling systems, including userspace schedulers above, and determined that the following are core aspects of an effective scheduling system for main thread:
 
 ### 1. Set of tasks with priority
-Tasks are work items posted by application to be run by scheduler (typically async). Tasks can posted at specific priority, based on a pre-determined set of priorities.
+Tasks are work items posted by application to be run by scheduler (typically async). Tasks can be posted at specific priority, based on a pre-determined set of priorities.
 
 ### 2. “virtual” task-queues for managing groups of tasks
 This is to allow the app to:
@@ -30,32 +30,35 @@ This is to allow the app to:
 * synchronously run queued tasks (flush the queue) when the user navigates away etc
 
 ### 3. API for posting tasks
-API to enable posting tasks -- at known priority levels.
+API to enable posting tasks -- at a pre-determined set of priority levels.
 
 ### 4. run-loop
 A mechanism to execute tasks at an appropriate time, relative to the current state of the user and the browser.
+
 **What does the run-loop need for effective scheduling?**
 #### 4a. run-loop requires knowledge of:
 
-* 1. rendering
+* 1. browser's rendering pipeline
   * timing of next frame 
   * time budget within current frame
-* 2. input
+* 2. state of input and user interaction
   * is input pending 
   * how long do we have before input should be serviced
-* 3. loading, navigation
+  * loading, navigation
 
 #### b. run-loop requires effective coordination with other work on the main thread:
 
 * 1. fetches and network responses
 * 2. browser initiated callbacks: eg. onreadystatechange in xhr, post-message from worker etc
 * 3. browser’s internal work: eg. GC
-* 4. rendering: tasks may be reprioritized dependent on renderer state
-* 5. other developer scheduled callbacks: eg. settimeout 
+* 4. other developer scheduled callbacks: eg. settimeout
+* 5. propagation of priority across a series of related async calls
+* 6. rendering: tasks may be reprioritized depending on renderer state
+* 7. knowledge of read / write renderinng phases to avoid layout thrashing from interleaved reads & writes
 
 ### Priorities for tasks
  
-#### 1. "user-blocking"
+#### 1. "user-blocking" priority
 Urgent work that must happen in the limited time *within the current frame*.
 Work that the user has initiated and should yield immediate results, and therefore should start ASAP.
 This work must be completed for the user to continue.
@@ -71,14 +74,15 @@ NOTE: we've seen bad cases where developers accidentally do large, non-urgent wo
 
 NOTE: [queueMicrotask](https://fergald.github.io/docs/explainers/queueMicrotask.html) is going to provide a direct API for submitting microtasks.
 
-#### 2. "default"
+#### 2. "default" priority
 User visible work that is needed to *prepare for the next frame* (or future frames).
 Normal work that is important, but can take a while to finish.
 This is typically initiated by the user, but has dependency on network or I/O.
+This work should not delay current frame rendering, but should execute immediately afterwards to pipeline and target the next frame.
 This is essentially setTimeout(0) without clamping; see other [workarounds used today](https://github.com/spanicker/main-thread-scheduling#3-after-paint-callback)
 
 Eg. user zooms into a map, fetching of the maps tiles OR atleast post-processing of fetch responses should be posted as "default" priority.
-Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be handled as "default" priority (and potentially show a spinner, posted as "user-blocking" priority).
+Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be handled as "default" priority (and potentially show a spinner, posted at "user-blocking" priority).
 
 NOTE: it may make sense to kick off fetches in input-handler, however handling fetch responses in microtasks can be problematic, and could block user input & urgent rendering work.
 
