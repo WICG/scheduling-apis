@@ -125,15 +125,17 @@ Currently they use workarounds to target this with:
 
 TODO: Add link to repo.
 
-#### 4. Clean read (phase) after layout
+#### Potential APIs we are thinking about
+We are also thinking about the following problems. 
+Note that these are not currently being pursued as API proposals, they are noted here for completeness and as a seed for discussion.
+
+##### Clean read (phase) after layout
 Interleaved reads and writes of dom result in layout thrashing.
 Today this is tackled with scheduling patterns like [fast-dom](https://github.com/wilsonpage/fastdom) and enforcement that goes along with this such as [strict-dom](https://github.com/wilsonpage/strictdom).
 
 Ideally, the read phase would occur immediately after style and layout have finished; and this would be followed by the write phase (default). A first class callback would allow developers to perform a clean read at the appropriate time.
 
-TODO: Add link to repo.
-
-#### 5. Propagating scheduling Context for async work
+##### Propagating scheduling Context for async work
 A mechanism to inherit and propagate scheduling priority across related async calls: fetches, promises etc.
 Similar in spririt to zone.js. 
 
