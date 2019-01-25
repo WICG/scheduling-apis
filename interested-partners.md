@@ -1,6 +1,7 @@
 
 We are partnering closely with web developers and framework developers in developing these APIs.
-Here we try to summarize (interested) partners for each API.
+
+Here we try to summarize and track interested partners for each API. They will become candidates for participating in origin trial.
 
 ## Low level primitives
 ### Is Input Pending
