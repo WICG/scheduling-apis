@@ -139,7 +139,6 @@ Ideally, the read phase would occur immediately after style and layout have fini
 A mechanism to inherit and propagate scheduling priority across related async calls: fetches, promises etc.
 Similar in spririt to zone.js. 
 
-TODO: Add link to repo.
 
 ### II. Built-in API
 The run-loop could be built into the browser and integrated closely with the browser’s event-loop. This would automatically move [#4](https://github.com/spanicker/main-thread-scheduling/blob/master/README.md#4-run-loop) into the browser and [#3](https://github.com/spanicker/main-thread-scheduling/blob/master/README.md#3-api-for-posting-tasks) becomes the platform exposed API. The API sketch follows.
