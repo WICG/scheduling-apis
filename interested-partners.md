@@ -23,3 +23,13 @@ Interested partners: Google Maps.
 
 ## Native scheduling API
 Interested partners: React, Ember, Airbnb, Vue.
+
+
+## Primary Contacts
+
+* Facebook: Nate Schloss
+* React core: Sebastian Markbage, Andrew Clarke
+* Google Maps: Mike Rolig
+* Airbnb: Elliott Sprehn
+* Ember: Chris Thoburn
+* Vue: Evan You
