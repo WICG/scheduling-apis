@@ -57,38 +57,43 @@ A mechanism to execute tasks at an appropriate time, relative to the current sta
 * 7. knowledge of read / write renderinng phases to avoid layout thrashing from interleaved reads & writes
 
 ### Priorities for tasks
- 
-#### 1. "user-blocking" priority
-Urgent work that must happen in the limited time *within the current frame*.
-Work that the user has initiated and should yield immediate results, and therefore should start ASAP.
-This work must be completed for the user to continue.
-Tasks posted at this priority can delay frame rendering, and therefore should finish quickly (otherwise use "default" priority).
 
-This is work in:
+For work that the user has initiated by interacting with the app, the app developer would have to determine what action needs to be taken, and how to schedule work to target appropritate timing that is compatible with browser's rendering pipeline.
 
-* input handlers: (tap, click) needed to provide the user immediate acknowledgement of their interation, eg. toggling the like button, showing a spinner or starting an animation when clicking on a comment list etc. 
-* requestAnimationFrame: rendering work for ongoing animations 
-* microtasks: are user-blocking priority, and do not yield to the browser's event loop.
+Input handlers (tap, click etc) often need to schedule a combination of different kinds of work:
+* kicking off some immediate work as microtasks eg. fetching from local cache
+* scheduling data fetches over the network
+* rendering in the current frame eg. to respond to user typing, toggle the *like* button, start an animation when clicking on a comment list etc.
+* rendering over the course of next new frames, as fetches complete and data becomes available to prepare and render results.
+
+#### 1. "Immediate" priority
+Urgent work that must happen immediately.
+This is essentially microtask timing: occurs right after current task and does not yield to the browser's event loop.
+
+NOTE: [queueMicrotask](https://fergald.github.io/docs/explainers/queueMicrotask.html) provides a direct API for submitting microtasks.
 
 NOTE: we've seen bad cases where developers accidentally do large, non-urgent work in microtasks -- with promise.then and await, without realizing it blocks rendering.
 
-NOTE: [queueMicrotask](https://fergald.github.io/docs/explainers/queueMicrotask.html) is going to provide a direct API for submitting microtasks.
+#### 2. "render-blocking" priority (render-immediate?)
+Urgent rendering work that must happen in the limited time *within the current frame*.
+This is typically work in requestAnimationFrame: i.e. rendering work for ongoing animations and dom manipulation that needs to render right away.
+Tasks posted at this priority can delay rendering of the current frame, and therefore should finish quickly (otherwise use "default" priority).
 
 #### 2. "default" priority
 User visible work that is needed to *prepare for the next frame* (or future frames).
 Normal work that is important, but can take a while to finish.
-This is typically initiated by the user, but has dependency on network or I/O.
+This is typically rendering that is needed in response to user interaction, but has dependency on network or I/O, and should be rendered over next couple frames - as the needed data becomes available.
 This work should not delay current frame rendering, but should execute immediately afterwards to pipeline and target the next frame.
 
 NOTE: This is essentially setTimeout(0) without clamping; see other [workarounds used today](https://github.com/spanicker/main-thread-scheduling#3-after-paint-callback)
 
-Eg. user zooms into a map, fetching of the maps tiles OR atleast post-processing of fetch responses should be posted as "default" priority.
-Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be handled as "default" priority (and potentially show a spinner, posted at "user-blocking" priority).
+Eg. user zooms into a map, fetching of the maps tiles OR atleast post-processing of fetch responses should be posted as "default" priority work to render over subsequent frames.
+Eg. user clicks a (long) comment list, it can take a while to fetch all the comments from the server; the fetches should be handled as "default" priority (and potentially start a spinner or animation, posted at "render-blocking" priority).
 
-NOTE: it may make sense to kick off fetches in input-handler, however handling fetch responses in microtasks can be problematic, and could block user input & urgent rendering work.
+NOTE: while it *may* make sense to kick off fetches in input-handler, handling fetch responses in microtasks can be problematic, and could block user input & urgent rendering work.
 
 #### 3. "idle"
-Work that is not visible to the user, and not time critical.
+Work that is typically not visible to the user or initiated by the user, and is not time critical.
 Eg. analytics, backups, syncs, indexing, etc.
 
 requestIdleCallback (rIC) is the API for idle priority work.
@@ -145,7 +150,8 @@ The run-loop could be built into the browser and integrated closely with the bro
 
 We propose adding default task queues with three semantic priorities, i.e. enum TaskQueuePriority, can be one of these:
 
-* User-blocking
+* Immediate
+* Render-blocking
 * Default
 * Idle
 
@@ -162,9 +168,9 @@ function mytask() {
   ...
 }
 
-myQueue = TaskQueue.default("user-blocking") 
+myQueue = TaskQueue.default("render-blocking") 
 ```
-returns the global task queue with priority “user-blocking”, for posting to main thread.
+returns the global task queue with priority “render-blocking”, for posting to main thread.
 ```
 taskId = myQueue.postTask(myTask, <list of args>);
 ```
