@@ -15,14 +15,15 @@ Interested partners: Google Maps, React.
 ### post-animation-frame ("after paint") callback
 Interested partners: Google Maps, React, Vue.
 
-Maps is also interested in clean read phase after layout.
+Maps is also interested in "clean read" phase after layout & paint.
 
-### frame throttling
+### Frame throttling
 Interested partners: Google Maps.
 
 
 ## Native scheduling API
-Interested partners: React, Ember, Airbnb, Vue.
+Interested partners: React, Ember, Airbnb
+Potential partners: Vue
 
 
 ## Primary Contacts
