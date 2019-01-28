@@ -7,7 +7,7 @@ Here we try to summarize and track interested partners for each API. They will b
 ### Is Input Pending
 Interested partners: Facebook, React core team.
 
-Facebook is also contributing to developing the API.
+NOTE: Facebook is actively contributing to developing this API.
 
 ### Expected time to next animation frame
 Interested partners: Google Maps, React.
@@ -22,7 +22,8 @@ Interested partners: Google Maps.
 
 
 ## Native scheduling API
-Interested partners: React, Ember, Airbnb
+Interested partners: React, Ember, Airbnb.
+
 Potential partners: Vue
 
 
