@@ -79,7 +79,7 @@ Urgent rendering work that must happen in the limited time *within the current f
 This is typically work in requestAnimationFrame: i.e. rendering work for ongoing animations and dom manipulation that needs to render right away.
 Tasks posted at this priority can delay rendering of the current frame, and therefore should finish quickly (otherwise use "default" priority).
 
-#### 2. "default" priority
+#### 2. "default" priority (or render-normal?)
 User visible work that is needed to *prepare for the next frame* (or future frames).
 Normal work that is important, but can take a while to finish.
 This is typically rendering that is needed in response to user interaction, but has dependency on network or I/O, and should be rendered over next couple frames - as the needed data becomes available.
