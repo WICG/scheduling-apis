@@ -118,7 +118,8 @@ https://github.com/tdresser/should-yield
 #### 2. Expected time to next animation frame
 JS schedulers are estimating the time to next animation frame with book-keeping, but it's not possible to estimate this properly without knowing browser internals.
 
-TODO: Add link to repo.
+Link:
+https://github.com/szager-chromium/timeUntilNextFrame/blob/master/explainer.md
 
 #### 3. "After-paint" callback
 Schedulers need to execute "default priority" work immediately following the document lifecycle (style, layout, paint).
@@ -128,7 +129,8 @@ Currently they use workarounds to target this with:
 * messagechannel workaround (google3 nexttick used by Maps etc): use a private message channel to postMessage empty messages; also tacked on after rAF. A bug currently prevents yielding.
 * settimeout 0: doesn’t work well, in Chrome this is clamped to 1ms and to 4ms after N recursions.
 
-TODO: Add link to repo.
+Link:
+https://github.com/szager-chromium/requestPostAnimationFrame/blob/master/explainer.md
 
 #### Potential APIs we are thinking about
 We are also thinking about the following problems. 
