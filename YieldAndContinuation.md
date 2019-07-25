@@ -10,7 +10,7 @@ or rendering can be serviced.
 
 One strategy is to statically chunk work ahead of time and schedule it with
 `setTimeout` or `postMessage`. But this is often difficult in practice, e.g.
-it's to get the chunk size right, and that can change depending on the
+it's hard to get the chunk size right, and that can change depending on the
 underlying hardware.
 
 A more common strategy is to run for some amount of time and yield when
