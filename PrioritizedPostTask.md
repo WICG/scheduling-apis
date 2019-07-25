@@ -10,7 +10,7 @@ experience), but the Platform lacks a unified API to schedule prioritized work.
 
 ## The Problem
 
-To keep apps responsive, developers break up long tasks into smaller chunks.
+To keep apps responsive, developers should break up long tasks into smaller chunks.
 [Userspace schedulers](UserspaceSchedulers.md) often manage these chunks of
 work (tasks)&mdash;prioritizing and executing work async at an appropriate time
 relative to the current situation of the user and browser.
