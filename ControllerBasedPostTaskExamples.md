@@ -12,16 +12,21 @@ For convenience, providing an explicit priority is allowed when signals are not
 passed.
 
 ```javascript
-// postTask returns a Promise.
+// New. postTask returns a Promise.
 scheduler.postTask(foo, {priority: 'high'}).then(() => console.log('done'));
+
+// Old.
+scheduler.postTask(foo, {priority: 'high'}).result.then(() => console.log('done'));
 ```
 
 **E.g. Scheduling and controlling a task.**
 ```javascript
+// New.
+
 // Create a controller that is used for both cancellation and for changing priority.
 // The priority is derived from the signal (see note below on signals vs. priority option).
 const controller = new TaskController({priority: 'low'});
-scheduler.postTask(foo, { signals: controller.signals });
+scheduler.postTask(foo, {signals: controller.signals});
 
 // ... do work ...
 
@@ -30,16 +35,42 @@ controller.setPriority('high');
 
 // Cancel the task.
 controller.abort();
+
+// Old.
+const task = scheduler.postTask(foo, {priority: 'low'});
+
+// ... do work ...
+
+// Update the task's priority.
+scheduler.getTaskQueue('high').take(task);
+// Note: we're exploring an API simplification that would change this to
+// task.setPriority('high');
+
+// Cancel the task.
+task.cancel();
 ```
 
 **E.g. Share an AbortSignal between postTask and fetch.**
 ```javascript
+// New.
 const controller = new TaskController({priority: 'low'});
-const res = scheduler.postTask(foo, { signals: controller.signals });
-fetch(url, { signal: controller.signals['abort'] });
+const res = scheduler.postTask(foo, {signals: controller.signals});
+fetch(url, {signal: controller.signals['abort']});
 
 // Cancel the task and fetch.
 controller.abort();
+
+// Old.
+
+const controller = new AbortController();
+const task = scheduler.postTask(foo, {priority: 'low'});
+// The fetch and other async work would need to be cancelled separately.
+task.result.catch(() => controller.abort());
+fetch(url, {signal: controller.signal});
+
+// Cancel the task and fetch.
+task.cancel();
+
 ```
 
 **E.g. Controlling related tasks.**
@@ -49,9 +80,9 @@ together share a controller.
 function fancyLog(msg) { ... }
 
 const loggingTaskContoller = new TaskController({priority: 'low'});
-scheduler.postTask(fancyLog, { signals: loggingTaskContoller.signals }, 'foo');
-scheduler.postTask(fancyLog, { signals: loggingTaskContoller.signals }, 'bar');
-scheduler.postTask(fancyLog, { signals: loggingTaskContoller.signals }, 'baz');
+scheduler.postTask(fancyLog, {signals: loggingTaskContoller.signals}, 'foo');
+scheduler.postTask(fancyLog, {signals: loggingTaskContoller.signals}, 'bar');
+scheduler.postTask(fancyLog, {signals: loggingTaskContoller.signals}, 'baz');
 
 // Change the priority of all of the tasks.
 loggingTaskContoller.setPriority('high');
@@ -61,38 +92,19 @@ loggingTaskContoller.setPriority('high');
 // be used to post further tasks, which is semantically different than clearing
 // a task queue.
 loggingTaskContoller.abort();
-```
 
-## Higher-level Abstractions
+// Old, using native TaskQueues.
 
-The higher-level abstractions we originally proposed can be built in userspace.
-For example, consider the following for userspace task queues, which abstracts
-some of the more low-level controller details:
+const loggingTaskQueue = new TaskQueue({priority: 'low'});
+scheduler.postTask(fancyLog, {}, 'foo');
+scheduler.postTask(fancyLog, {}, 'bar');
+scheduler.postTask(fancyLog, {}, 'baz');
 
-```javascript
-class TaskQueue {
-  constructor(priority) {
-    this.priority = priority;
-    this.controller = new TaskController({priority});
-  }
+// Change the priority of all of the tasks.
+loggingTaskQueue.setPriority('high');
 
-  enqueue(task) {
-    // Assuming postTask is also FIFO, no need to track the tasks for simple
-    // FIFO task queues.
-    return scheduler.postTask(task, { signals: controller.signals };
-  }
-
-  setPriority(priority) {
-    this.priority = priority;
-    controller.setPriority(priority);
-  }
-
-  clear() {
-    controller.abort();
-    // Reset the controller since it is no longer usable.
-    this.controller = new TaskController({priority: this.priority});
-  }
-}
+// Cancel all pending logging tasks.
+loggingTaskQueue.clear();
 ```
 
 ## Notes
