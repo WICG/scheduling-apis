@@ -1,16 +1,19 @@
 # APIs to improve JS schedulers
 
 The following (primitive) APIs are being pursued currently:
+
 ## 1. Is Input Pending
 Knowledge of whether input is pending, and the type of input.
 This is covered here:
 https://github.com/tdresser/should-yield
 
-## 2. Expected time to next animation frame
+## 2. Is Frame Pending
+
 JS schedulers are estimating the time to next animation frame with book-keeping, but it's not possible to estimate this properly without knowing browser internals.
+The IsFramePending API allows script to determine when there is a pending frame to help with yielding decisions.
 
 Link:
-https://github.com/szager-chromium/timeUntilNextFrame/blob/master/explainer.md
+https://github.com/szager-chromium/isFramePending/blob/master/explainer.md
 
 ## 3. "After-paint" callback
 Schedulers need to execute "default priority" work immediately following the document lifecycle (style, layout, paint).
