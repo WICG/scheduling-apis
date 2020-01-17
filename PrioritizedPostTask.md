@@ -330,8 +330,8 @@ extensions of the base API that are in various degrees of exploration:
     WIP) for a Job Queue (or Task Queue) API. This aims to solve two classes of
     problems that the initial `postTask` API does not address directly:
 
-   1. *App-specific priorities*: My app has N priorities (N > 3).
-   2. *Async ordering*: task `foo` shouldn't run until task `bar` and all of its
+   + *App-specific priorities*: My app has N priorities (N > 3).
+   + *Async ordering*: task `foo` shouldn't run until task `bar` and all of its
       dependent subtasks run.
 
 
