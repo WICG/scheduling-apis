@@ -52,11 +52,11 @@ function task1() {
   // ... do task1 work ...
 
   // Inherit the current signal.
-  let res = scheduler.postTask(asyncSubtask, { scheduler.currentTaskSignal});
+  let res = scheduler.postTask(asyncSubtask, {signal: scheduler.currentTaskSignal});
   res.then(() => {
     // The currentTaskSignal is retained across this async boundary as well,
     // i.e. when the microtask runs.
-    scheduler.postTask(asyncSubtask, { scheduler.currentTaskSignal});
+    scheduler.postTask(asyncSubtask, {signal: scheduler.currentTaskSignal});
   });
   // ... do more work ...
 }
@@ -74,7 +74,7 @@ function asyncSubtask() {}
 
 function task1() {
   // logs 'background'.
-  console.log(scheduler.currentTaskSignal.priority;
+  console.log(scheduler.currentTaskSignal.priority);
 }
 
 scheduler.postTask(task1, { priority: 'background' });
