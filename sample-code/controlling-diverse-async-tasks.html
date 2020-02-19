@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>postTask Example: Controlling Diverse Async Tasks</title>
+
+<script src='support/common.js'></script>
+
+<body>
+  <div id='content'>
+    <h3>postTask Example: Controlling Diverse Async Tasks</h3>
+  </div>
+
+  <script>
+    function runExample() {
+      // Like AbortSignals, TaskSignals can be shared between other APIs that accept
+      // an AbortSignal, for example fetch(). The TaskController (or AbortController)
+      // can be used to abort different types of aysnc work together.
+      const controller = new TaskController();
+
+      function abortGroupOfAsyncTasks() {
+        const signal = controller.signal;
+
+        scheduler.postTask(() => {}, {signal})
+        .then(() => {
+          console.log('This task should never run!');
+        })
+        .catch(() => {
+          appendToContent('div', 'Task aborted using TaskController (1 of 2)');
+        });
+
+        fetch('https://randomuser.me/api/?results=5)', {signal})
+        .then(() => {
+          console.log('This task should never run!');
+        })
+        .catch(() => {
+          appendToContent('div', 'Fetch task aborted using TaskController (2 of 2)');
+        });
+
+        // Self-destruct! This will cancel the postTask task before it runs and
+        // the fetch, which is in progress.
+        controller.abort();
+      }
+      // Sharing the signal with this task will cause an AbortError when the
+      // task aborts itself. This will propagate back to the Promise returned
+      // by this postTask call, which we supress with the catch statement.
+      scheduler.postTask(abortGroupOfAsyncTasks, {signal: controller.signal})
+      .catch(() => {});
+    }
+    document.body.onload = runExample;
+  </script>
+
+</body>

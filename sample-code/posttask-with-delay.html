@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>postTask Example: Delayed Tasks</title>
+
+<script src='support/common.js'></script>
+
+<body>
+  <div id='content'>
+    <h3>postTask Example: Delayed Tasks</h3>
+  <div>
+
+  <script>
+    function runExample() {
+      // |results| is an array of Promises representing postTask results.
+      let results = [];
+
+      // The API takes an optional argument for 'delay', which is essentially makes
+      // postTask act like a prioritized version of setTimeout. The semantics are
+      // described in the explainer:
+      // https://github.com/WICG/main-thread-scheduling/blob/master/PrioritizedPostTask.md#posting-delayed-tasks
+      results.push(scheduler.postTask(() => 'hello!', {delay: 1000}));
+      results.push(scheduler.postTask(() => 'scheduled'));
+      results.push(scheduler.postTask(() => 'world,'));
+
+      // All three tasks have the same priority, so if there were no delay,
+      // they would run in the order they were posted. But since the first
+      // task has a delay, the remaining tasks will finish first.
+      //
+      // This will append the following to the document:
+      //   scheduled
+      //   world,
+      //   hello!
+      // The last word will appear after a 1 second delay.
+      results.forEach((promise) => {
+        promise.then((result) => appendToContent('div', result));
+      });
+    }
+    document.body.onload = runExample;
+  </script>
+</body>

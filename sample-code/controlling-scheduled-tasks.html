@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>postTask Example: Controlling Scheduled Tasks</title>
+
+<script src='support/common.js'></script>
+
+<body>
+  <div id='content'></div>
+
+  <script>
+    function runExample() {
+      function changePriorityExample() {
+        // TaskController is the abstraction for controlling tasks that have been
+        // scheduled, which is similar (and inherits from) AbortController
+        // (https://developer.mozilla.org/en-US/docs/Web/API/AbortController).
+        //
+        // TaskController takes a single argument for the priority. Similar to postTask,
+        // the priority is optional and defaults to 'user-visible'.
+        const headerController = new TaskController('background');
+
+        // To link the TaskController to tasks, the TaskController's TaskSignal needs
+        // to be provided to postTask.
+        scheduler.postTask(() => {
+          // This task is scheduled at background priority.
+          appendToContent('h3', 'postTask Example: Controlling Scheduled Tasks');
+        }, {signal: headerController.signal});
+
+        // This task is scheduled at user-visible priority (default).
+        scheduler.postTask(() => appendToContent('div', 'Hello, scheduled world!'));
+
+        // Ahh, the header should come first! If this line is omitted, the heading will
+        // below the first <div>.
+        headerController.setPriority('user-blocking');
+      }
+      changePriorityExample();
+
+      function abortTasksExample() {
+        // TaskControllers can also be used to abort tasks.
+        function abortTaskExample(controller, text) {
+          let result = scheduler.postTask(() => {}, {signal: controller.signal});
+          result.then(() => {
+            console.log('This task should never run!');
+          })
+          .catch(() => {
+            appendToContent('div', text);
+          });
+          controller.abort();
+        }
+
+        scheduler.postTask(() => {
+          let controller = new TaskController();
+          let text = '(1) Task aborted using TaskController';
+          abortTaskExample(controller, text);
+        });
+
+        // If only cancellation is required, an AbortController/AbortSignal well.
+        // This can also be more performant, since the task priority cannot be
+        // modified.
+        scheduler.postTask(() => {
+          let controller = new AbortController();
+          let text = '(2) Task aborted using AbortController';
+          abortTaskExample(controller, text);
+        });
+      }
+      abortTasksExample();
+    }
+    document.body.onload = runExample;
+  </script>
+</body>

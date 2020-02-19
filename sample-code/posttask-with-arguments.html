@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>postTask Example: Arguments</title>
+
+<script src='support/common.js'></script>
+
+<body>
+  <div id='content'>
+    <h3>postTask Example: Arguments</h3>
+  <div>
+
+  <script>
+
+    async function runExample() {
+      function sumTask(a, b) { return a + b; }
+      // postTask can take a variable number of arguments, which are passed to
+      // the callback.
+      let a = 10;
+      let b = 20;
+      let result = await scheduler.postTask(sumTask, {}, a, b);
+      appendToContent('div', `${a} + ${b} is ${result}`);
+    }
+    document.body.onload = runExample;
+  </script>
+</body>
