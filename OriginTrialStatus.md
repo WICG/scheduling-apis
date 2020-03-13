@@ -26,6 +26,8 @@ Chrome:
 
 The minimum supported Chrome version for `postTask` is **81.0.4044.9**.
 
+The minimum supported Chrome version for `onprioritychange` and `currentTaskSignal` is **82.0.4084.0**.
+
 ### Implementation Status
 
 1. `scheduler.postTask` has been implemented, including parameters for
@@ -35,9 +37,9 @@ The minimum supported Chrome version for `postTask` is **81.0.4044.9**.
 
 3. [Priority
    inheritance](https://github.com/WICG/main-thread-scheduling/blob/master/PostTaskPropagation.md)
-has **not** yet been implemented, but is in progress.  We're planning to finish
-the implementation before the origin trial starts, and will update this page
-when the status changes.
+   has been implemented and exposed through `scheduler.currentTaskSignal`.
+
+4. An `onprioritychange` event has been added to `TaskSignal`.
 
 ### Examples
 
@@ -45,6 +47,8 @@ Sample code can be found [here](sample-code/), which covers the currently
 implemented features. Please see the
 [explainer](https://github.com/WICG/main-thread-scheduling/blob/master/PrioritizedPostTask.md)
 for more context.
+
+TODO(shaseley): add examples for `scheduler.currentTaskSignal` and `onprioritychange`.
 
 ### Filing Issues
 
