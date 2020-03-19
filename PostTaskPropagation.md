@@ -42,7 +42,7 @@ scheduler.postTask(task1, { signal }, signal);
 
 Rather than forcing developers to explicitly pass signals everywhere, we are
 proposing to expose the current `TaskSignal` so it can be inherited across async
-boundaries. The current `TaskSignal` is propgated through `postTask`) and
+boundaries. The current `TaskSignal` is propgated through `postTask` and
 through any Promise chains that begin inside of a `postTask` task, but will not
 propgate through other callbacks (e.g., event handlers, `setTimeout`, etc.).
 For example:
