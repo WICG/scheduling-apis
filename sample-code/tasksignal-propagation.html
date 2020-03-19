@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>postTask Example: TaskSignal propagation</title>
+
+<script src='support/common.js'></script>
+
+<div id='content'></div>
+
+<script>
+  async function runExample() {
+
+    function returnCurrentTaskSignal() {
+      return scheduler.currentTaskSignal;
+    }
+
+    async function propagationEqualityAndPriorities() {
+      var inherit_task_signal = await scheduler.postTask(returnCurrentTaskSignal,
+          { signal: scheduler.currentTaskSignal });
+      appendToContent('div', "Passing currentTaskSignal should keep the same TaskSignal: " +
+          (inherit_task_signal == scheduler.currentTaskSignal).toString());
+
+      var inherit_priority_only = await scheduler.postTask(returnCurrentTaskSignal,
+          { priority: scheduler.currentTaskSignal.priority });
+      appendToContent('div', "Passing priority only should not use the same TaskSignal: " +
+          (inherit_priority_only != scheduler.currentTaskSignal).toString());
+      appendToContent('div', "But it should have the same priority: " +
+          (inherit_priority_only.priority == scheduler.currentTaskSignal.priority).toString());
+
+      var inherit_task_signal_with_custom_priority = await scheduler.postTask(returnCurrentTaskSignal,
+          { signal: scheduler.currentTaskSignal, priority: 'background' });
+      appendToContent('div', "Passing both signal and priority should not use the same TaskSignal: " +
+          (inherit_task_signal_with_custom_priority !== scheduler.currentTaskSignal).toString());
+      appendToContent('div', "And the priority parameter should be honored: " +
+          (inherit_task_signal_with_custom_priority.priority == 'background').toString());
+    }
+
+    function propagationAbort(controller) {
+      var inherit_task_signal = scheduler.postTask(() => {},
+          { signal: scheduler.currentTaskSignal });
+      inherit_task_signal.then(() => {
+        console.log('This task should never run!');
+      })
+      .catch(() => {
+        appendToContent('div', "Passing currentTaskSignal reuses it, so abort() works.");
+      });
+
+      var inherit_priority_only = scheduler.postTask(() => {},
+          { priority: scheduler.currentTaskSignal.priority });
+      inherit_priority_only.then(() => {
+        appendToContent('div', "Passing the currentTaskSignal's doesn't use the signal, so it doesn't get aborted.");
+      })
+
+      var inherit_task_signal_with_custom_priority = scheduler.postTask(() => {},
+          { signal: scheduler.currentTaskSignal, priority: 'background' });
+      inherit_task_signal_with_custom_priority.then(() => {
+        console.log('This task should never run!');
+      })
+      .catch(() => {
+        appendToContent('div',
+            "Passing both the currentTaskSignal and a custom priority uses an implicit TaskSignal that follows currentTaskSignal, so abort() works.");
+      });
+
+      controller.abort();
+    }
+
+    let controller = new TaskController('user-visible');
+    await scheduler.postTask(propagationEqualityAndPriorities, { signal: controller.signal });
+
+    scheduler.postTask(propagationAbort, { signal: controller.signal }, controller);
+  }
+  onload = runExample;
+
+</script>
