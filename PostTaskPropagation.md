@@ -82,7 +82,7 @@ function task1() {
 scheduler.postTask(task1, { priority: 'background' });
 ```
 
-It is also possible to mix and match priorities and 'TaskSignals'.
+It is also possible to mix and match priorities and `TaskSignals`.
 In this example, if `controller.abort()` is called before `asyncSubtask()`
 runs, it will still be cancelled, even though it is running at a different
 priority than `controller.signal.priority`. This is accomplished by creating an
