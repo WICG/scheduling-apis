@@ -309,7 +309,8 @@ the signal is still inherited by `foo`. But, the priority acts as an _override_.
 This approach enables use cases that involve posting lower priority dependent
 work, for example logging or cleanup work. We do note that there is a more
 verbose way to handle this use case, which involves listening for the parent
-signal's `onabort` events:
+signal's [`onabort`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/onabort)
+events:
 
 ```javascript
 const controller = new TaskController('user-blocking');
@@ -329,9 +330,10 @@ scheduler.postTask(() => {
 
 ##### Listening for priority changes
 
-Similar to how `AbortSignal` has an `onabort` event to listen for a change in
-abort state, `TaskSignal` supports an `onprioritychange` event to listen for
-changes in priority.
+Similar to how `AbortSignal` has an
+[`onabort`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/onabort)
+event to listen for a change in abort state, `TaskSignal` supports an
+`onprioritychange` event to listen for changes in priority.
 
 ```javascript
 const controller = new TaskController('user-blocking');
