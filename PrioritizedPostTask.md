@@ -278,6 +278,72 @@ if priority might need to be changed, otherwise an `AbortController` suffices.
 In the future, we plan to explore using `TaskController` in other existing APIs
 to communicate priority change.
 
+##### What happens when both a signal and priority are provided?
+
+Consider the following example:
+
+```javascript
+const controller = new TaskController('user-blocking');
+const signal = controller.signal;
+
+scheduler.postTask(() => {
+  scheduler.postTask(foo, { signal, priority: 'background' });
+});
+```
+
+What is the priority of `foo`?
+
+There are three options here:
+
+1. The provided priority overrides the signal's priority (`foo` has `'background'` priority)
+2. The signal's priority overrides the provided priority (`foo` has `'user-blocking'` priority)
+3. An error is thrown
+
+We are proposing option (1): if both a signal and a priority are provided to
+`postTask`, the **priority overrides the signal**.
+
+This enables something we call _partial signal inheritance_. In this case, the
+`TaskSignal` is treated as if it were an `AbortSignal`, and the _abort_ part of
+the signal is still inherited by `foo`. But, the priority acts as an _override_.
+
+This approach enables use cases that involve posting lower priority dependent
+work, for example logging or cleanup work. We do note that there is a more
+verbose way to handle this use case, which involves listening for the parent
+signal's `onabort` events:
+
+```javascript
+const controller = new TaskController('user-blocking');
+const signal = controller.signal;
+
+scheduler.postTask(() => {
+  // Priority change not needed.
+  const subtaskController = new AbortController();
+  const subtaskSignal = subtaskController.signal;
+
+  // Listen for the parent task being aborted.
+  signal.onabort = () => { subtaskController.abort(); };
+
+  scheduler.postTask(foo, { subtaskSignal, priority: 'background' });
+});
+```
+
+##### Listening for priority changes
+
+Similar to how `AbortSignal` has an `onabort` event to listen for a change in
+abort state, `TaskSignal` supports an `onprioritychange` event to listen for
+changes in priority.
+
+```javascript
+const controller = new TaskController('user-blocking');
+const signal = controller.signal;
+
+signal.onprioritychange = () => {
+  console.log('The priority is now ' + signal.priority;
+}
+
+controller.setPriority('background');
+```
+
 #### Posting Delayed Tasks
 
 An optional `delay` parameter can be specified in the `postTask` options,
