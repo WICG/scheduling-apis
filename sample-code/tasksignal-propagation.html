@@ -32,6 +32,11 @@
           (inherit_task_signal_with_custom_priority !== scheduler.currentTaskSignal).toString());
       appendToContent('div', "And the priority parameter should be honored: " +
           (inherit_task_signal_with_custom_priority.priority == 'background').toString());
+
+     var inherit_task_signal_through_fetch = await fetch('data:text/html,')
+         .then(() => scheduler.postTask(returnCurrentTaskSignal, { signal: scheduler.currentTaskSignal }));
+      appendToContent('div', "currentTaskSignal should be propagated even through a non-postTask promise like a fetch(): " +
+          (inherit_task_signal_through_fetch == scheduler.currentTaskSignal).toString());
     }
 
     function propagationAbort(controller) {
