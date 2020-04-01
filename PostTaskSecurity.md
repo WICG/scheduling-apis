@@ -26,10 +26,13 @@ fundamental to all tasks, not the ones introduced here.
 
 ### Recap of Prioritization
 
-The browser has freedom to choose between tasks in different task queues, which
-correspond to different task sources (e.g. network vs. user input). The
-`postTask` API does not change that, but adds a new prioritized task source with
-the following properties:
+The browser has freedom to choose between tasks in different task queues (step
+1 in the [Event Loop Processing
+Model](https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model)),
+which correspond to different [task
+sources](https://html.spec.whatwg.org/multipage/webappapis.html#task-source)
+(e.g. network vs. user input). The `postTask` API does not change that, but
+adds a new prioritized task source with the following properties:
 
 1. **Ordering between `postTask` tasks**: `user-blocking` tasks run before
    `user-visible` tasks, which run before `background` tasks.
