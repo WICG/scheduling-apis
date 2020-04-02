@@ -54,7 +54,7 @@ overhead caused by running the rendering lifecycle updates (they may early-out,
 but this is still more heavy-weight than may be needed if not updating DOM).
 
 rAF runs during the [update the
-renderinging](https://html.spec.whatwg.org/multipage/webappapis.html#update-the-rendering)
+rendering](https://html.spec.whatwg.org/multipage/webappapis.html#update-the-rendering)
 step of the event loop processing model. It is up to the UA to determine whether
 or not there is a rendering opportunity which will result in rAF to run.
 
@@ -481,6 +481,47 @@ developers. For example, latency can suffer because of the cost of thread hops
 and serialization overhead. And apps and frameworks have been investing heavily
 in the cooperative scheduling model to great success (e.g. React concurrent
 mode).
+
+## Security Considerations
+
+**Note**: This section summarizes [this much longer exploration](PostTaskSecurity.md).
+
+The main security concern is whether or not the API adds new surfaces to
+perform side-channel attacks, specifically for same-process cross-origin
+iframes. This might be a concern because `postTask`
+
+1. exposes priorities, which influence the order in which tasks run
+2. allows tasks to be posted with a delay
+
+The two main attacks we consider here are whether `postTask` leaks any new
+information through priorities, and  whether prioritized delayed tasks can be
+used as a new high-resolution timing source.
+
+**Information Leaks from Priorities**
+
+There do not appear to be any new information leaks caused by this API,
+specifically it doesn't appear possible for a frame to infer the priorities of
+tasks running in other frames by staging a timing-based attack and exploiting
+the ordering guarantees of the API.
+
+Attackers can attempt to learn priorities of other tasks in the system by
+queuing `postTask` tasks that are expected to run consecutively, e.g. two
+`'user-blocking'` tasks, and determining if they did run consecutively. If they
+didn't, then the UA chose another task in between. But since the UA is [free to
+choose between prioritized and unprioritized task
+sources](#scheduling-between-prioritized-tasks-and-other-task-sources), the
+attacker can't know what type of task type was run. The same applies to posting
+consecutive tasks of priority N and N-1.
+
+**Potential for high-res timing**
+
+Since `postTask` has a delay parameter, there is concern that it can be used to
+implement a high-resolution timer. But `postTask`'s delay parameter follows
+that of `setTimeout`'s, where delay is expressed in whole milliseconds (the
+minimum non-zero delay being 1 ms), and there is no guarantee that tasks
+will run exactly when the delay expires since tasks are queued when the delay
+expires, and UAs can add additional delay. This makes it unlikely that
+`postTask` can be used as a high resolution timing source.
 
 ## Further Reading / Viewing
 
