@@ -468,6 +468,22 @@ Some of the situations where this can occur are explored
 at this point that a native solution beyond `TaskController` is needed, and we
 await further developer feedback from Origin Trial.
 
+### Will this API be available on workers too?
+
+Yes, we plan to make this API available on workers as well
+([WindowOrWorkerGlobalScope](https://html.spec.whatwg.org/multipage/webappapis.html#windoworworkerglobalscope-mixin)).
+
+The main potential downside we considered is that the semantic priorities may
+not be as applicable for workers, e.g. does `'user-blocking'` still apply? But
+in cases where code is being offloaded to workers to keep the main thread free,
+that work can still vary in degree of importance and effect on user experience,
+so the semantic priorities can still be meaningful.
+
+Enabling `postTask` on workers has other compelling advantages as well. First,
+it will make porting any code that uses the scheduler simpler. Second,
+integrating `postTask` priorities with other async APIs will then work
+seamlessly on workers as well (e.g. `fetch` on workers).
+
 ## Alternatives Considered
 
 `postTask` is an incremental improvement to
@@ -478,9 +494,11 @@ The main alternative to the cooperative scheduling approach involves moving
 code *off* the main thread. While there has been a lot of exploration and
 promising ideas in this area, this is often not a pragmatic choice for
 developers. For example, latency can suffer because of the cost of thread hops
-and serialization overhead. And apps and frameworks have been investing heavily
-in the cooperative scheduling model to great success (e.g. React concurrent
-mode).
+and serialization overhead [1]. And apps and frameworks have been investing
+heavily in the cooperative scheduling model to great success (e.g. React
+concurrent mode).
+
+[1] [Conclusions from Off Main Thread & Worker Exploration](https://docs.google.com/document/d/1nu0EcVNC3jtmUVWL8Gs5eCj2p_984kamNhG2nS9gOC0/edit#)
 
 ## Security Considerations
 
