@@ -1,8 +1,8 @@
 ## Origin Trial Status of `scheduler.postTask`
 
-We'll be running an [Origin
-Trial](https://www.chromium.org/blink/origin-trials) in Chrome 82-84 to allow
-testing this API in the wild.
+We're running an [Origin
+Trial](https://www.chromium.org/blink/origin-trials) in Chrome 86&ndash;87 to allow
+testing this API in the wild (you can register [here](https://developers.chrome.com/origintrials/#/view_trial/2650368380707536897)).
 
 This page tracks the current status of what parts of the APIs are implemented
 as part of the trial. Please read the
