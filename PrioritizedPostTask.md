@@ -196,18 +196,6 @@ function myTask() {
 })();
 ```
 
-Additionally, arguments can be passed to postTask's callback:
-```javascript
-function myTask(a, b) {
-  return a + b;
-}
-
-(async function() {
-  const res = await scheduler.postTask(myTask, { priority: 'background' }, 3, 7);
-  console.log(res) // prints 10.
-})();
-```
-
 #### Controlling Posted Tasks
 
 The API supports two operations that modify a task once it has been queued:
@@ -486,6 +474,8 @@ seamlessly on workers as well (e.g. `fetch` on workers).
 
 ## Alternatives Considered
 
+### Off Main Thread
+
 `postTask` is an incremental improvement to
 [cooperative scheduling](https://www.w3.org/TR/requestidlecallback/), where main
 thread work is chunked and prioritized, periodically yielding to the browser.
@@ -499,6 +489,13 @@ heavily in the cooperative scheduling model to great success (e.g. React
 concurrent mode).
 
 [1] [Conclusions from Off Main Thread & Worker Exploration](https://docs.google.com/document/d/1nu0EcVNC3jtmUVWL8Gs5eCj2p_984kamNhG2nS9gOC0/edit#)
+
+### API Shape
+
+The proposal orignally included the ability to pass arguments to the callback,
+like in `setTimeout`, but was removed because modern JS supports arrow functions,
+which obviates the need to pass them through `postTask`
+(see [this issue](https://github.com/WICG/main-thread-scheduling/issues/18)).
 
 ## Security Considerations
 
