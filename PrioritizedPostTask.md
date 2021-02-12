@@ -319,17 +319,25 @@ scheduler.postTask(() => {
 ##### Listening for priority changes
 
 Similar to how `AbortSignal` has an
-[`onabort`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/onabort)
-event to listen for a change in abort state, `TaskSignal` supports an
-`onprioritychange` event to listen for changes in priority.
+[`abort`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/abort_event)
+event to listen for a change in abort state, `TaskSignal` supports a
+`prioritychange` event to listen for changes in priority. The event handler can
+be registered using either the `addEventListener` method or `onprioritychange`
+property of a `TaskSignal`.
 
 ```javascript
 const controller = new TaskController('user-blocking');
 const signal = controller.signal;
 
+// Method 1: using onprioritychange.
 signal.onprioritychange = () => {
-  console.log('The priority is now ' + signal.priority;
+  console.log('The priority is now ' + signal.priority);
 }
+
+// Method 2: using addEventListener.
+signal.addEventListener('prioritychange', () => {
+  console.log('The priority is now ' + signal.priority);
+});
 
 controller.setPriority('background');
 ```
