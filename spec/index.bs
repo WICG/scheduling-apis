@@ -1,0 +1,80 @@
+<pre class='metadata'>
+Title: Prioritized Task Scheduling
+Shortname: prioritized-task-scheduling
+Level: 1
+Status: CG-DRAFT
+Group: WICG
+URL: https://wicg.github.io/prioritized-task-scheduling/ **TODO(shaseley)**: Fix this.
+Editor: Scott Haseley, Google https://google.com/, shaseley@google.com
+Repository: wicg/scheduling-apis
+Abstract: A short description of your spec, one or two sentences. **TODO**(shaseley): Fill this in.
+Indent: 2
+Default Biblio Status: current
+Markup Shorthands: markdown yes
+</pre>
+
+<style>
+  /*
+   * This is in bikeshed's stylesheet.include, but not in W3C's base.css. And
+   * since stylesheet.include is not longer inlined when we link to it, this
+   * is omitted.
+   * 
+   * The culprit might be:
+   * https://github.com/tabatkins/bikeshed/commit/90652a820d408493d429e471a35a9c4a628d9f60
+   */
+
+	/* Put nice boxes around each algorithm. */
+	[data-algorithm]:not(.heading) {
+	  padding: .5em;
+	  border: thin solid #ddd; border-radius: .5em;
+	  margin: .5em calc(-0.5em - 1px);
+	}
+	[data-algorithm]:not(.heading) > :first-child {
+	  margin-top: 0;
+	}
+	[data-algorithm]:not(.heading) > :last-child {
+	  margin-bottom: 0;
+	}
+</style>
+
+<pre class=link-defaults>
+spec:infra; type:dfn; for:/; text:set
+spec:infra; type:dfn; for:/; text:map
+spec:infra; type:dfn; for:/; text:list
+spec:html; type:dfn; for:/; text:event loop
+spec:html; type:dfn; for:/; text:task queue
+</pre>
+
+<pre class='anchors'>
+spec: HTML; urlPrefix: https://html.spec.whatwg.org/multipage/;
+  type: attribute; text: steps; for:task; url: webappapis.html#concept-task-steps
+  type: attribute; text: source; for:task; url: webappapis.html#concept-source
+  type: attribute; text: document; for:task; url: webappapis.html#concept-document
+  type: attribute; text: script evaluation environment settings object set; for:task; url: webappapis.html#script-evaluation-environment-settings-object-set
+  type: attribute; text: runnable; for:task; url: webappapis.html#concept-task-runnable
+  type: attribute; text: associated Document; for:Window; url: window-object.html#concept-document-window
+</pre>
+
+<pre class=include>
+path: introduction.md
+</pre>
+
+<pre class=include>
+path: task-priorities.md
+</pre>
+
+<pre class=include>
+path:api.md
+</pre>
+
+<pre class=include>
+path:data-model.md
+</pre>
+
+<pre class=include>
+path:processing-model.md
+</pre>
+
+<pre class=include>
+path:security-privacy.md
+</pre>
