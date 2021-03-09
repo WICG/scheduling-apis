@@ -23,18 +23,18 @@ Markup Shorthands: markdown yes
    * https://github.com/tabatkins/bikeshed/commit/90652a820d408493d429e471a35a9c4a628d9f60
    */
 
-	/* Put nice boxes around each algorithm. */
-	[data-algorithm]:not(.heading) {
-	  padding: .5em;
-	  border: thin solid #ddd; border-radius: .5em;
-	  margin: .5em calc(-0.5em - 1px);
-	}
-	[data-algorithm]:not(.heading) > :first-child {
-	  margin-top: 0;
-	}
-	[data-algorithm]:not(.heading) > :last-child {
-	  margin-bottom: 0;
-	}
+  /* Put nice boxes around each algorithm. */
+  [data-algorithm]:not(.heading) {
+    padding: .5em;
+    border: thin solid #ddd; border-radius: .5em;
+    margin: .5em calc(-0.5em - 1px);
+  }
+  [data-algorithm]:not(.heading) > :first-child {
+    margin-top: 0;
+  }
+  [data-algorithm]:not(.heading) > :last-child {
+    margin-bottom: 0;
+  }
 </style>
 
 <pre class=link-defaults>
