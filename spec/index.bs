@@ -47,12 +47,17 @@ spec:html; type:dfn; for:/; text:task queue
 
 <pre class='anchors'>
 spec: HTML; urlPrefix: https://html.spec.whatwg.org/multipage/;
-  type: attribute; text: steps; for:task; url: webappapis.html#concept-task-steps
-  type: attribute; text: source; for:task; url: webappapis.html#concept-source
-  type: attribute; text: document; for:task; url: webappapis.html#concept-document
-  type: attribute; text: script evaluation environment settings object set; for:task; url: webappapis.html#script-evaluation-environment-settings-object-set
-  type: attribute; text: runnable; for:task; url: webappapis.html#concept-task-runnable
-  type: attribute; text: associated Document; for:Window; url: window-object.html#concept-document-window
+  type: attribute;
+    text: steps; for:task; url: webappapis.html#concept-task-steps
+    text: source; for:task; url: webappapis.html#concept-source
+    text: document; for:task; url: webappapis.html#concept-document
+    text: script evaluation environment settings object set; for:task; url: webappapis.html#script-evaluation-environment-settings-object-set
+    text: associated Document; for:Window; url: window-object.html#concept-document-window
+  type: dfn
+    text: runnable; for:task; url: webappapis.html#concept-task-runnable
+spec: dom; urlPrefix: https://dom.spec.whatwg.org/#;
+  type: dfn; 
+    text: signal; for: AbortController; url: abortcontroller-signal
 </pre>
 
 <pre class=include>

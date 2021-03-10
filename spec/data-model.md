@@ -17,6 +17,11 @@ A <dfn>scheduler task queue</dfn> is formally a [=struct=] with the following [=
 : <dfn for="scheduler task queue">tasks</dfn>
 :: A [=set=] of [=scheduler tasks=].
 
+Issue: Scheduler task queues in this spec are only created with an algorithm
+that initializes the fields, which was done because a priority is required when
+instantiating a STQ. Is this okay, or should they be initialized here? An example
+of this pattern is the Task struct in the event loop spec.
+
 Scheduler {#sec-dm-scheduler}
 ---------------------
 
@@ -37,3 +42,17 @@ same {{TaskPriority}} within the same {{Scheduler}}. A logically equivalent
 alternative would be to place the [=Scheduler/next enqueue order=] on the
 [=event loop=], since the only requirements are that the number be strictly
 increasing and never used more than once within a {{Scheduler}}.
+
+TaskSignal {#sec-dm-abort-signal}
+---------------------
+
+A {{TaskSignal}} object has an associated {{TaskPriority}}
+<dfn for=TaskSignal>priority</dfn>.
+
+A {{TaskSignal}} object has an associated <dfn attribute for=TaskSignal>priority changing</dfn>
+flag. It is unset unless otherwise specified.
+
+A {{TaskSignal}} object has associated <dfn attribute for=TaskSignal>priority change algorithms</dfn>,
+which is a [=set=] of algorithms which are to be executed when its
+{{TaskSignal/priority changing}} flag is set. Unless specified otherwise, its value is
+the empty set.

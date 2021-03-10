@@ -30,9 +30,16 @@ Controlling Tasks {#sec-api-controlling-tasks}
 <pre class='idl'>
   [Exposed=(Window,Worker)] interface TaskController : AbortController {
     constructor(optional TaskPriority priority = "user-visible");
+
+    [SameObject] readonly attribute AbortSignal signal;
+
     undefined setPriority(TaskPriority priority);
   };
 </pre>
+
+Issue: Note that this is different from the current implemenation (signal
+property), but I have a patch for this that works **if** this is what we want
+to do here.
 
 ### TaskSignal ### {#sec-api-task-signal}
 
@@ -47,4 +54,3 @@ Usage Examples {#sec-usage-examples}
 ---------------------
 
 **TODO**(shaseley): Fill this in.
-

@@ -46,14 +46,16 @@ Scheduler Task Queue Algorithms {#sec-scheduler-task-queue-algorithms}
   1. Set |task|'s <a attribute for="task">source</a> to |source|.
   1. Set |task|'s <a attribute for="task">document</a> to |document|.
   1. Set |task|'s <a attribute for="task">script evaluation environment settings object set</a> to a new [=set=].
-  1. [=set/append=] |task| to |queue|'s [=scheduler task queue/tasks=].
+  1. [=set/Append=] |task| to |queue|'s [=scheduler task queue/tasks=].
   1. Return |task|.
 </div>
 
 Issue: Should we refactor the event loop task creation code and remove the duplicatation?
 
 <div algorithm>
-  To <dfn for="scheduler task queue">remove</dfn> [=scheduler task=] |task| from [=scheduler task queue=] |queue|, [=set/remove=] |task| from |queue|'s [=scheduler task queue/tasks=].
+  To <dfn for="scheduler task queue">remove</dfn> [=scheduler task=] |task| from
+  [=scheduler task queue=] |queue|, [=set/remove=] |task| from |queue|'s
+  [=scheduler task queue/tasks=].
 </div>
 
 
@@ -70,7 +72,7 @@ Scheduler Algorithms {#sec-scheduler-algorithms}
     1. If |scheduler|'s [=Scheduler/dynamic priority task queue map=] does not [=map/contain=] |signal|, then
       1. Let |queue| be the result of [=creating a scheduler task queue=] given |signal|'s {{TaskSignal/priority}}.
       1. Set [=Scheduler/dynamic priority task queue map=][|signal|] to |queue|.
-      1. Add the following priority change steps to |signal|:
+      1. <a for=TaskSignal>Add a priority change algorithm</a> to |signal| that runs the following steps:
         1. Set |queue|'s [=scheduler task queue/priority=] to |signal|'s {{TaskSignal/priority}}.
     1. Return [=Scheduler/dynamic priority task queue map=][|signal|].
   1. Otherwise
@@ -81,7 +83,8 @@ Scheduler Algorithms {#sec-scheduler-algorithms}
     1. Return [=Scheduler/static priority task queue map=][|priority|].
 </div>
 
-Issue: Link the priority change algorithm.
+Issue: Link the priority change algorithm. Also, maybe change the name of this since it also
+creates the task queue if needed.
 
 ### Scheduling Tasks ### {#sec-scheduler-alg-scheduling-tasks}
 
@@ -126,7 +129,6 @@ Issue: Link the priority change algorithm.
     1. Reject |task result promise| with an "{{AbortError!!exception}}" {{DOMException}}.
 
   Issue: Parts of this need to be atomic, but how do we do that?
-
 </div>
 
 ### Selecting the Next Task To Run ### {#sec-scheduler-alg-select-next-task}
@@ -136,7 +138,7 @@ Issue: Link the priority change algorithm.
 
   1. Let |queues| be the result of <a for="map" lt="get the values">getting the values</a> [=Scheduler/static priority task queue map=].
   1. [=list/extend=] |queues| with the result of <a for="map" lt="get the values">getting the values</a> of |scheduler|'s [=Scheduler/dynamic priority task queue map=].
-  1. [=list/remove=] from |queues| any |queue| such that |queue|'s [=scheduler task queue/tasks=] do not contain a <a attribute for="task">runnable</a> [=scheduler task=].
+  1. [=list/remove=] from |queues| any |queue| such that |queue|'s [=scheduler task queue/tasks=] do not contain a <a for="task">runnable</a> [=scheduler task=].
   1. Return |queues|.
 </div>
 
@@ -151,12 +153,66 @@ Issue: Link the priority change algorithm.
   1. Let |candidate task| be null.
   1. Let |candidate queue| be null.
   1. <a for="list" lt="iterate">For each</a> |queue| of |queues|:
-    1. Let |task| be the first <a attribute for="task">runnable</a> [=scheduler task=] in |queue|'s [=scheduler task queue/tasks=].
+    1. Let |task| be the first <a for="task">runnable</a> [=scheduler task=] in |queue|'s [=scheduler task queue/tasks=].
     1. If |candidate task| is null, or  if |queue|'s [=scheduler task queue/priority=] is
        <a for="TaskPriority">greater than</a> |candidate queue|'s [=scheduler task queue/priority=], or if (|queue|'s [=scheduler task queue/priority=] equals |candidate queue|'s [=scheduler task queue/priority=] and |task| is [=scheduler task/older than=] |candidate task|) then
       1. Set |candidate task| to |task|.
       1. Set |candidate queue| to |queue|.
   1. Return |candidate queue|.
+</div>
+
+
+`TaskController` {#sec-pm-task-controller}
+---------------------
+
+<div algorithm>
+  The <dfn constructor for="TaskController" lt="TaskController()"><code>new TaskController(|priority|)</code></dfn> constructor steps are:
+
+  1. Let |signal| be a new {{TaskSignal}} object.
+  1. Set |signal|'s <a for=TaskSignal>priority</a> to |priority|.
+  1. [=Construct an AbortController=] given |signal|.
+
+  Issue: Do we need to indicate that priority is optional, or is the IDL sufficient?
+</div>
+
+The <dfn attribute for="TaskController">signal</dfn> getter steps are to return [=this=]'s <a for=AbortController>signal</a>.
+
+The <dfn method for=TaskController><code>setPriority(|priority|)</code></dfn>
+method steps are to <a for=TaskSignal>signal priority change</a> on [=this=]'s
+<a for=AbortController>signal</a> given |priority|.
+
+`TaskSignal` {#sec-pm-task-signal}
+---------------------
+
+The <dfn attribute for="TaskSignal">priority</dfn> getter steps are to return [=this=]'s <a for=TaskSignal>priority</a>.
+
+<div algorithm="onprioritychange">
+  The <dfn attribute for=TaskSignal><code>onprioritychange</code></dfn>
+  attribute is an [=event handler IDL attribute=] for the
+  {{TaskSignal/onprioritychange}} [=event handler=], whose
+  [=event handler event type=] is <dfn event for=TaskSignal>prioritychange</dfn>
+</div>
+
+<div algorithm>
+  To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
+  {{TaskSignal}} object |signal|, [=set/append=] |algorithm| to |signal|'s
+  {{TaskSignal/priority change algorithms}}.
+</div>
+
+<div algorithm>
+  To <dfn for="TaskSignal">signal priority change</dfn> on a {{TaskSignal}}
+  object |signal|, given a {{TaskPriority}} |priority|, run these steps:
+
+  1. If |signal|'s {{TaskSignal/priority changing}} flag is set, then [=exception/throw=] a {{NotAllowedError!!exception}}
+     {{DOMException}} with {{DOMException/message}} set to "Cannot change priority while a priority change is in progress."
+  1. If |signal|'s <a for=TaskSignal>priority</a> equals |priority| then return.
+  1. Set |signal|'s {{TaskSignal/priority changing}} flag.
+  1. Set |signal|'s <a for=TaskSignal>priority</a> to |priority|.
+  1. <a for="list" lt="iterate">For each</a> |algorithm| of |signal|'s {{TaskSignal/priority change algorithms}}, run |algorithm|.
+  1. [=Fire an event=] named {{TaskSignal/prioritychange}} at |signal|.
+  1. Unset |signal|'s {{TaskSignal/priority changing}} flag.
+
+  Issue: We should consider subclassing Event so we can include a previousPriority attribute (<a href=https://github.com/WICG/scheduling-apis/issues/21>(GH Issue)</a>).
 </div>
 
 Modifications to the HTML Standard {#sec-patches-html}
@@ -186,7 +242,7 @@ With: For each [=event loop=], every [=task source=] that is not a [=scheduler t
 Add the following steps to the event loop processing steps, before step 1:
 
   1. Let |queues| be the [=set=] of the [=event loop=]'s [=task queues=] that
-     contain at least one <a attribute for="task">runnable</a> <a for="/">task</a>.
+     contain at least one <a for="task">runnable</a> <a for="/">task</a>.
   1. Let |schedulers| be the [=set=] of all {{Scheduler}} objects whose
      [=relevant agent's=] [=event loop=] is this event loop and that [=have a runnable task=].
   1. If |schedulers| and |queues| are both [=list/empty=], skip to the <code>microtasks</code> step below.
@@ -199,3 +255,27 @@ Modify step 1 to read:
     1. If |schedulers| is not [=list/empty=], the result of running the
        [=select the task queue of the next scheduler task=] from one of the {{Scheduler}}s
        in |schedulers|, chosen in an [=implementation-defined=] manner.
+
+Modifications to the DOM Standard {#sec-patches-dom}
+---------------------
+
+### `Abortcontroller` ### {#sec-patches-dom-abort-controller}
+
+{{TaskController}} extends {{AbortController}} and needs a way to change set the
+associated {{AbortController/signal}}, which is created in {{AbortController}}'s
+{{AbortController/constructor()}}. We achieve this by adding an internal
+construction algorithm that takes an {{AbortSignal}} argument.
+
+Add the following algorithm to the [Interface AbortController section](https://dom.spec.whatwg.org/#interface-abortcontroller):
+
+<div algorithm>
+  To <dfn>construct an AbortController</dfn>, given an {{AbortSignal}} |signal|:
+
+  1. Set [=this's=] <a for=AbortController>signal</a> to |signal|.
+</div>
+
+Modify {{AbortController}}'s {{AbortController()}} algorithm to be:
+
+<div algorithm="new AbortController">
+  1. [=Construct an AbortController=] given a new {{AbortSignal}} object.
+</div>
