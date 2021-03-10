@@ -65,19 +65,15 @@ path: introduction.md
 </pre>
 
 <pre class=include>
-path: task-priorities.md
+path:scheduling-tasks.md
 </pre>
 
 <pre class=include>
-path:api.md
+path:controlling-tasks.md
 </pre>
 
 <pre class=include>
-path:data-model.md
-</pre>
-
-<pre class=include>
-path:processing-model.md
+path:patches.md
 </pre>
 
 <pre class=include>
