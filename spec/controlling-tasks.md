@@ -1,6 +1,8 @@
 Controlling Tasks {#sec-controlling-tasks}
 =====================
 
+**TODO**: Add an intro for this section.
+
 The `TaskController` Interface {#sec-task-controller}
 ---------------------
 
@@ -41,6 +43,7 @@ The `TaskSignal` Interface {#sec-task-signal}
 <pre class='idl'>
   [Exposed=(Window, Worker)] interface TaskSignal : AbortSignal {
     readonly attribute TaskPriority priority;
+
     attribute EventHandler onprioritychange;
   };
 </pre>
@@ -58,22 +61,18 @@ the empty set.
 
 The <dfn attribute for="TaskSignal">priority</dfn> getter steps are to return [=this=]'s <a for=TaskSignal>priority</a>.
 
-<div algorithm="onprioritychange">
-  The <dfn attribute for=TaskSignal><code>onprioritychange</code></dfn>
-  attribute is an [=event handler IDL attribute=] for the
-  {{TaskSignal/onprioritychange}} [=event handler=], whose
-  [=event handler event type=] is <dfn event for=TaskSignal>prioritychange</dfn>
-</div>
+The <dfn attribute for=TaskSignal><code>onprioritychange</code></dfn> attribute
+is an [=event handler IDL attribute=] for the {{TaskSignal/onprioritychange}}
+[=event handler=], whose [=event handler event type=] is
+<dfn event for=TaskSignal>prioritychange</dfn>.
 
-<div algorithm>
-  To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
-  {{TaskSignal}} object |signal|, [=set/append=] |algorithm| to |signal|'s
-  {{TaskSignal/priority change algorithms}}.
-</div>
+To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
+{{TaskSignal}} object |signal|, [=set/append=] |algorithm| to |signal|'s
+{{TaskSignal/priority change algorithms}}.
 
 <div algorithm>
   To <dfn for="TaskSignal">signal priority change</dfn> on a {{TaskSignal}}
-  object |signal|, given a {{TaskPriority}} |priority|, run these steps:
+  object |signal|, given a {{TaskPriority}} |priority|, run the following steps:
 
   1. If |signal|'s {{TaskSignal/priority changing}} flag is set, then [=exception/throw=] a {{NotAllowedError!!exception}}
      {{DOMException}} with {{DOMException/message}} set to "Cannot change priority while a priority change is in progress."
@@ -84,5 +83,6 @@ The <dfn attribute for="TaskSignal">priority</dfn> getter steps are to return [=
   1. [=Fire an event=] named {{TaskSignal/prioritychange}} at |signal|.
   1. Unset |signal|'s {{TaskSignal/priority changing}} flag.
 
-  Issue: We should consider subclassing Event so we can include a previousPriority attribute (<a href=https://github.com/WICG/scheduling-apis/issues/21>(GH Issue)</a>).
+  Issue: We should consider subclassing Event so we can include a previousPriority
+  attribute (<a href=https://github.com/WICG/scheduling-apis/issues/21>GH Issue</a>).
 </div>

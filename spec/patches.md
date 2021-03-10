@@ -1,12 +1,16 @@
 Modifications to Other Standards {#sec-patches}
 =====================
 
+**TODO**: Add an intro for this section.
+
 The HTML Standard {#sec-patches-html}
 ---------------------
 
 ### `WindowOrWorkerGlobalScope` ### {#sec-patches-html-windoworworkerglobalscope}
 
-Each object implementing the {{WindowOrWorkerGlobalScope}} mixin has a corresponding <dfn for="WindowOrWorkerGlobalScope">task scheduler</dfn>, which is initialized as a new {{Scheduler}}.
+Each object implementing the {{WindowOrWorkerGlobalScope}} mixin has a
+corresponding <dfn for="WindowOrWorkerGlobalScope">scheduler</dfn>, which
+is initialized as a new {{Scheduler}}.
 
 <pre class='idl'>
   partial interface mixin WindowOrWorkerGlobalScope {
@@ -14,16 +18,17 @@ Each object implementing the {{WindowOrWorkerGlobalScope}} mixin has a correspon
   };
 </pre>
 
-The <dfn attribute for="WindowOrWorkerGlobalScope">scheduler</dfn> attribute's getter steps are to return [=this=]'s [=WindowOrWorkerGlobalScope/task scheduler=].
+The <dfn attribute for="WindowOrWorkerGlobalScope">scheduler</dfn> attribute's
+getter steps are to return [=this=]'s [=WindowOrWorkerGlobalScope/scheduler=].
 
 
-### <a href="https://html.spec.whatwg.org/multipage/webappapis.html#definitions-3">Event loop: definitions</a> ### {#html-html-event-loop-definitions}
+### <a href="https://html.spec.whatwg.org/multipage/webappapis.html#definitions-3">Event loop: definitions</a> ### {#sec-patches-html-event-loop-definitions}
 
 Replace: For each [=event loop=], every [=task source=] must be associated with a specific [=task queue=].
 
 With: For each [=event loop=], every [=task source=] that is not a [=scheduler task source=] must be associated with a specific [=task queue=].
 
-### <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model">Event loop: processing model</a> ### {#html-event-loop}
+### <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model">Event loop: processing model</a> ### {#sec-patches-html-event-loop-processing}
 
 Add the following steps to the event loop processing steps, before step 1:
 
@@ -42,6 +47,8 @@ Modify step 1 to read:
        [=select the task queue of the next scheduler task=] from one of the {{Scheduler}}s
        in |schedulers|, chosen in an [=implementation-defined=] manner.
 
+Issue: Probably add a note here about what this means and some possible approaches.
+
 The DOM Standard {#sec-patches-dom}
 ---------------------
 
@@ -59,6 +66,8 @@ Add the following algorithm to the [Interface AbortController section](https://d
 
   1. Set [=this's=] <a for=AbortController>signal</a> to |signal|.
 </div>
+
+Issue: This next step is optional; should we include it?
 
 Modify {{AbortController}}'s {{AbortController()}} algorithm to be:
 

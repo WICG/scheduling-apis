@@ -4,16 +4,19 @@ Shortname: prioritized-task-scheduling
 Level: 1
 Status: CG-DRAFT
 Group: WICG
-URL: https://wicg.github.io/prioritized-task-scheduling/ **TODO(shaseley)**: Fix this.
+URL: https://wicg.github.io/prioritized-task-scheduling/
 Editor: Scott Haseley, Google https://google.com/, shaseley@google.com
 Repository: wicg/scheduling-apis
-Abstract: A short description of your spec, one or two sentences. **TODO**(shaseley): Fill this in.
+Abstract: A short description of your spec, one or two sentences.
 Indent: 2
 Default Biblio Status: current
 Markup Shorthands: markdown yes
 </pre>
 
-<style>
+<!-- TODO: Fix the metadata -->
+
+
+<!--
   /*
    * This is in bikeshed's stylesheet.include, but not in W3C's base.css. And
    * since stylesheet.include is not longer inlined when we link to it, this
@@ -22,7 +25,9 @@ Markup Shorthands: markdown yes
    * The culprit might be:
    * https://github.com/tabatkins/bikeshed/commit/90652a820d408493d429e471a35a9c4a628d9f60
    */
+-->
 
+<style>
   /* Put nice boxes around each algorithm. */
   [data-algorithm]:not(.heading) {
     padding: .5em;
@@ -42,7 +47,6 @@ spec:infra; type:dfn; for:/; text:set
 spec:infra; type:dfn; for:/; text:map
 spec:infra; type:dfn; for:/; text:list
 spec:html; type:dfn; for:/; text:event loop
-spec:html; type:dfn; for:/; text:task queue
 </pre>
 
 <pre class='anchors'>
