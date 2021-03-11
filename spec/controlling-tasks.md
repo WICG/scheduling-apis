@@ -16,11 +16,12 @@ The `TaskController` Interface {#sec-task-controller}
   };
 </pre>
 
-Issue: Note that this is different from the current implemenation (signal
-property), but I have a patch for this that works **if** this is what we want
-to do here.
-
 The <dfn attribute for="TaskController">signal</dfn> getter steps are to return [=this=]'s <a for=AbortController>signal</a>.
+
+Note: {{TaskController}}'s {{TaskController/signal}} attribute shadows
+{{AbortController}}'s {{AbortController/signal}}, and is defined this way
+since a {{TaskController}}'s signal is always a {{TaskSignal}} object. Both
+attributes return the same object, however.
 
 <div algorithm>
   The <dfn constructor for="TaskController" lt="TaskController()"><code>new TaskController(|priority|)</code></dfn> constructor steps are:
@@ -28,8 +29,6 @@ The <dfn attribute for="TaskController">signal</dfn> getter steps are to return 
   1. Let |signal| be a new {{TaskSignal}} object.
   1. Set |signal|'s <a for=TaskSignal>priority</a> to |priority|.
   1. [=Construct an AbortController=] given |signal|.
-
-  Issue: Do we need to indicate that priority is optional, or is the IDL sufficient?
 </div>
 
 The <dfn method for=TaskController><code>setPriority(|priority|)</code></dfn>
@@ -75,7 +74,7 @@ To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
   object |signal|, given a {{TaskPriority}} |priority|, run the following steps:
 
   1. If |signal|'s {{TaskSignal/priority changing}} flag is set, then [=exception/throw=] a {{NotAllowedError!!exception}}
-     {{DOMException}} with {{DOMException/message}} set to "Cannot change priority while a priority change is in progress."
+     {{DOMException}}.
   1. If |signal|'s <a for=TaskSignal>priority</a> equals |priority| then return.
   1. Set |signal|'s {{TaskSignal/priority changing}} flag.
   1. Set |signal|'s <a for=TaskSignal>priority</a> to |priority|.

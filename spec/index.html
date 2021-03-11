@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version b94c7e755, updated Fri Feb 19 16:28:59 2021 -0800" name="generator">
   <link href="https://wicg.github.io/prioritized-task-scheduling/" rel="canonical">
-  <meta content="ca39991d637d6a46cb8a802dbd78eb64d88d3176" name="document-revision">
+  <meta content="f6c73cc75a4a971b7c83a96e4b88c10f2f2af5e7" name="document-revision">
 <style>
   /* Put nice boxes around each algorithm. */
   [data-algorithm]:not(.heading) {
@@ -592,7 +592,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2021-03-09">9 March 2021</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2021-03-10">10 March 2021</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -601,7 +601,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
      <dd><a href="https://github.com/wicg/scheduling-apis/issues/">GitHub</a>
      <dd><a href="#issues-index">Inline In Spec</a>
      <dt class="editor">Editor:
-     <dd class="editor p-author h-card vcard"><a class="p-name fn u-email email" href="mailto:shaseley@google.com">Scott Haseley</a> (<a class="p-org org" href="https://google.com/">Google</a>)
+     <dd class="editor p-author h-card vcard" data-editor-id="122093"><a class="p-name fn u-email email" href="mailto:shaseley@google.com">Scott Haseley</a> (<a class="p-org org" href="https://google.com/">Google</a>)
     </dl>
    </div>
    <div data-fill-with="warning"></div>
@@ -611,7 +611,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
   </div>
   <div class="p-summary" data-fill-with="abstract">
    <h2 class="no-num no-toc no-ref heading settled" id="abstract"><span class="content">Abstract</span></h2>
-   <p>A short description of your spec, one or two sentences.</p>
+   <p>This specification defines APIs for scheduling and interacting with prioritized tasks.</p>
   </div>
   <div data-fill-with="at-risk"></div>
   <h2 class="no-num no-toc no-ref heading settled" id="status"><span class="content">Status of this document</span></h2>
@@ -644,10 +644,9 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
       <li>
        <a href="#sec-scheduling-tasks-processing-model"><span class="secno">2.4</span> <span class="content">Processing Model</span></a>
        <ol class="toc">
-        <li><a href="#sec-selecting-creating-scheduler-task-queues"><span class="secno">2.4.1</span> <span class="content">Creating Scheduler Task Queues</span></a>
-        <li><a href="#sec-queuing-scheduler-tasks"><span class="secno">2.4.2</span> <span class="content">Queueing and Removing Scheduler Tasks</span></a>
-        <li><a href="#sec-scheduler-alg-scheduling-tasks"><span class="secno">2.4.3</span> <span class="content">Scheduling Tasks</span></a>
-        <li><a href="#sec-scheduler-alg-select-next-task"><span class="secno">2.4.4</span> <span class="content">Selecting the Next Task to Run</span></a>
+        <li><a href="#sec-queuing-scheduler-tasks"><span class="secno">2.4.1</span> <span class="content">Queueing and Removing Scheduler Tasks</span></a>
+        <li><a href="#sec-scheduler-alg-scheduling-tasks"><span class="secno">2.4.2</span> <span class="content">Scheduling Tasks</span></a>
+        <li><a href="#sec-scheduler-alg-select-next-task"><span class="secno">2.4.3</span> <span class="content">Selecting the Next Task to Run</span></a>
        </ol>
      </ol>
     <li>
@@ -669,7 +668,7 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
       <li>
        <a href="#sec-patches-dom"><span class="secno">4.2</span> <span class="content">The DOM Standard</span></a>
        <ol class="toc">
-        <li><a href="#sec-patches-dom-abort-controller"><span class="secno">4.2.1</span> <span class="content"><code>Abortcontroller</code></span></a>
+        <li><a href="#sec-patches-dom-abort-controller"><span class="secno">4.2.1</span> <span class="content"><code>AbortController</code></span></a>
        </ol>
      </ol>
     <li><a href="#sec-security"><span class="secno">5</span> <span class="content">Security and Privacy Considerations</span></a>
@@ -721,17 +720,16 @@ initializing certain third party libraries.</p>
 order</em>, meaning the scheduler will always run <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-blocking" id="ref-for-dom-taskpriority-user-blocking①">user-blocking</a></code> tasks before <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-visible" id="ref-for-dom-taskpriority-user-visible①">user-visible</a></code> tasks, which in turn always run
 before <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-background" id="ref-for-dom-taskpriority-background①">background</a></code> tasks.</p>
    <div class="algorithm" data-algorithm="less than" data-algorithm-for="TaskPriority">
-     <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority">TaskPriority</a></code> <var>priority1</var> is <dfn class="dfn-paneled" data-dfn-for="TaskPriority" data-dfn-type="dfn" data-noexport id="taskpriority-less-than">less than</dfn> <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①">TaskPriority</a></code> <var>priority2</var> if the following steps return true: 
-    <ol>
+     <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority">TaskPriority</a></code> <var>p1</var> is <dfn class="dfn-paneled" data-dfn-for="TaskPriority" data-dfn-type="dfn" data-noexport id="taskpriority-less-than">less than</dfn> <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①">TaskPriority</a></code> <var>p2</var> if <var>p1</var> is less than <var>p2</var> in the
+  following total ordering: 
+    <ul>
      <li data-md>
-      <p>Let <var>priorities</var> be the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map">map</a> «[ <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-blocking" id="ref-for-dom-taskpriority-user-blocking②">user-blocking</a></code> → 2, <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-visible" id="ref-for-dom-taskpriority-user-visible②">user-visible</a></code> → 1, <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-background" id="ref-for-dom-taskpriority-background②">background</a></code> → 0 ]».</p>
-     <li data-md>
-      <p>Return true if <var>priorities</var>[<var>priority1</var>] is less than <var>priorities</var>[<var>priority2</var>], otherwise false.</p>
-    </ol>
+      <p><code class="idl"><a data-link-type="idl" href="#dom-taskpriority-background" id="ref-for-dom-taskpriority-background②">background</a></code> &lt; <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-visible" id="ref-for-dom-taskpriority-user-visible②">user-visible</a></code> &lt; <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-blocking" id="ref-for-dom-taskpriority-user-blocking②">user-blocking</a></code></p>
+    </ul>
    </div>
    <h3 class="heading settled" data-level="2.2" id="sec-scheduler"><span class="secno">2.2. </span><span class="content">The <code>Scheduler</code> Interface</span><a class="self-link" href="#sec-scheduler"></a></h3>
 <pre class="idl highlight def"><c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-schedulerposttaskoptions"><code><c- g>SchedulerPostTaskOptions</c-></code></dfn> {
-    (<a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal"><c- n>AbortSignal</c-></a> <c- b>or</c-> <a data-link-type="idl-name" href="#tasksignal" id="ref-for-tasksignal"><c- n>TaskSignal</c-></a>)? <dfn class="dfn-paneled idl-code" data-default="null" data-dfn-for="SchedulerPostTaskOptions" data-dfn-type="dict-member" data-export data-type="(AbortSignal or TaskSignal)? " id="dom-schedulerposttaskoptions-signal"><code><c- g>signal</c-></code></dfn> = <c- b>null</c->;
+    <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal"><c- n>AbortSignal</c-></a>? <dfn class="dfn-paneled idl-code" data-default="null" data-dfn-for="SchedulerPostTaskOptions" data-dfn-type="dict-member" data-export data-type="AbortSignal? " id="dom-schedulerposttaskoptions-signal"><code><c- g>signal</c-></code></dfn> = <c- b>null</c->;
     <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority②"><c- n>TaskPriority</c-></a>? <dfn class="dfn-paneled idl-code" data-default="null" data-dfn-for="SchedulerPostTaskOptions" data-dfn-type="dict-member" data-export data-type="TaskPriority? " id="dom-schedulerposttaskoptions-priority"><code><c- g>priority</c-></code></dfn> = <c- b>null</c->;
     <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-long" id="ref-for-idl-long"><c- b>long</c-></a> <dfn class="dfn-paneled idl-code" data-default="0" data-dfn-for="SchedulerPostTaskOptions" data-dfn-type="dict-member" data-export data-type="long " id="dom-schedulerposttaskoptions-delay"><code><c- g>delay</c-></code></dfn> = 0;
 };
@@ -739,31 +737,44 @@ before <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-backgro
 <c- b>callback</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="callback" data-export id="callbackdef-schedulerposttaskcallback"><code><c- g>SchedulerPostTaskCallback</c-></code></dfn> = <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-any" id="ref-for-idl-any"><c- b>any</c-></a> ();
 
 [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)] <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="scheduler"><code><c- g>Scheduler</c-></code></dfn> {
-  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-promise" id="ref-for-idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-any" id="ref-for-idl-any①"><c- b>any</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask"><c- g>postTask</c-></a>(<a data-link-type="idl-name" href="#callbackdef-schedulerposttaskcallback" id="ref-for-callbackdef-schedulerposttaskcallback"><c- n>SchedulerPostTaskCallback</c-></a> <dfn class="idl-code" data-dfn-for="Scheduler/postTask(callback, options), Scheduler/postTask(callback)" data-dfn-type="argument" data-export id="dom-scheduler-posttask-callback-options-callback"><code><c- g>callback</c-></code><a class="self-link" href="#dom-scheduler-posttask-callback-options-callback"></a></dfn>, <c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-schedulerposttaskoptions" id="ref-for-dictdef-schedulerposttaskoptions"><c- n>SchedulerPostTaskOptions</c-></a> <dfn class="idl-code" data-dfn-for="Scheduler/postTask(callback, options), Scheduler/postTask(callback)" data-dfn-type="argument" data-export id="dom-scheduler-posttask-callback-options-options"><code><c- g>options</c-></code><a class="self-link" href="#dom-scheduler-posttask-callback-options-options"></a></dfn> = {});
+  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-promise" id="ref-for-idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-any" id="ref-for-idl-any①"><c- b>any</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask"><c- g>postTask</c-></a>(<a data-link-type="idl-name" href="#callbackdef-schedulerposttaskcallback" id="ref-for-callbackdef-schedulerposttaskcallback"><c- n>SchedulerPostTaskCallback</c-></a> <dfn class="idl-code" data-dfn-for="Scheduler/postTask(callback, options), Scheduler/postTask(callback)" data-dfn-type="argument" data-export id="dom-scheduler-posttask-callback-options-callback"><code><c- g>callback</c-></code><a class="self-link" href="#dom-scheduler-posttask-callback-options-callback"></a></dfn>,
+                        <c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-schedulerposttaskoptions" id="ref-for-dictdef-schedulerposttaskoptions"><c- n>SchedulerPostTaskOptions</c-></a> <dfn class="idl-code" data-dfn-for="Scheduler/postTask(callback, options), Scheduler/postTask(callback)" data-dfn-type="argument" data-export id="dom-scheduler-posttask-callback-options-options"><code><c- g>options</c-></code><a class="self-link" href="#dom-scheduler-posttask-callback-options-options"></a></dfn> = {});
 };
 </pre>
-   <p class="issue" id="issue-8de4c154"><a class="self-link" href="#issue-8de4c154"></a> Is that the right way to define signal? It’s currently defined as an AbortSignal in our implementation.</p>
-   <p class="issue" id="issue-eb3bb1ff"><a class="self-link" href="#issue-eb3bb1ff"></a> Is it common to add line breaks for long IDL?</p>
+   <p class="note" role="note"><span>Note:</span> The <code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-signal" id="ref-for-dom-schedulerposttaskoptions-signal">signal</a></code> option can be either an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal①">AbortSignal</a></code> or a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal">TaskSignal</a></code>, but is defined as an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal②">AbortSignal</a></code> since
+it is a superclass of <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①">TaskSignal</a></code>. For cases where the priority might
+change, a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal②">TaskSignal</a></code> is needed. But for cases where only cancellation is
+needed, an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal③">AbortSignal</a></code> would suffice, potentially making it easier to
+integrate the API into existing code that uses <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal④">AbortSignal</a></code>s.</p>
+   <p class="note" role="note"><span>Note:</span> If the <code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-signal" id="ref-for-dom-schedulerposttaskoptions-signal①">signal</a></code> is set to a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal③">TaskSignal</a></code> and
+a <code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-priority" id="ref-for-dom-schedulerposttaskoptions-priority">priority</a></code> is also provided, the <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal④">TaskSignal</a></code> is
+treated as an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal⑤">AbortSignal</a></code>, meaning priority change events will not impact
+the task, but abort events will.</p>
    <p>A <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler①">Scheduler</a></code> object has an associated <dfn class="dfn-paneled" data-dfn-for="Scheduler" data-dfn-type="dfn" data-lt="static priority task queue map" data-noexport id="scheduler-static-priority-task-queue-map">static priority
-task queue map</dfn>, which is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map①">map</a> of <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue">scheduler task queues</a> indexed
-by <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority③">TaskPriority</a></code>. This map is empty unless otherwise stated.</p>
+task queue map</dfn>, which is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map">map</a> from <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority③">TaskPriority</a></code> to <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue">scheduler
+task queue</a>.  This map is empty unless otherwise stated.</p>
    <p>A <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler②">Scheduler</a></code> object has an associated <dfn class="dfn-paneled" data-dfn-for="Scheduler" data-dfn-type="dfn" data-lt="dynamic priority task queue map" data-noexport id="scheduler-dynamic-priority-task-queue-map">dynamic priority
-task queue map</dfn>, which is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map②">map</a> of <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue①">scheduler task queues</a> indexed
-by <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①">TaskSignal</a></code>. This map is empty unless otherwise stated.</p>
+task queue map</dfn>, which is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map①">map</a> from <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal⑤">TaskSignal</a></code> to <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue①">scheduler
+task queue</a>. This map is empty unless otherwise stated.</p>
+   <p class="note" role="note"><span>Note:</span> These two <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map" id="ref-for-ordered-map②">maps</a> are how this specification implements <em>dynamic prioritization</em>, or changing a tasks’s priority in response
+to an invocation of a <code class="idl"><a data-link-type="idl" href="#taskcontroller" id="ref-for-taskcontroller">TaskController</a></code>'s <code class="idl"><a data-link-type="idl" href="#dom-taskcontroller-setpriority" id="ref-for-dom-taskcontroller-setpriority">setPriority()</a></code>. <br><br> The values of the <a data-link-type="dfn" href="#scheduler-static-priority-task-queue-map" id="ref-for-scheduler-static-priority-task-queue-map">static priority task queue map</a> are <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue②">scheduler task queues</a> whose <a data-link-type="dfn" href="#scheduler-task-queue-priority" id="ref-for-scheduler-task-queue-priority">priority</a> is fixed.
+We use these task queues for tasks where a <code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-priority" id="ref-for-dom-schedulerposttaskoptions-priority①">priority</a></code> is specified, or where the <code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-signal" id="ref-for-dom-schedulerposttaskoptions-signal②">signal</a></code> is null or is an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal⑥">AbortSignal</a></code>. <br><br> Other tasks — those with a null <code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-priority" id="ref-for-dom-schedulerposttaskoptions-priority②">priority</a></code> and an associated <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal⑥">TaskSignal</a></code> — have <em>dynamic priorities</em>, and we
+create a <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue③">scheduler task queue</a> per-<code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal⑦">TaskSignal</a></code>, stored in the <a data-link-type="dfn" href="#scheduler-dynamic-priority-task-queue-map" id="ref-for-scheduler-dynamic-priority-task-queue-map">dynamic priority task queue map</a>. To change the priority of
+all tasks associated with a particular <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal⑧">TaskSignal</a></code>, we simply change the <a data-link-type="dfn" href="#scheduler-task-queue-priority" id="ref-for-scheduler-task-queue-priority①">priority</a> of the corresponding <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue④">scheduler task queue</a>. <br><br> An alternative, and logicially equivalent implementation, would be to maintain a
+single <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue⑤">scheduler task queue</a> per-<code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority④">TaskPriority</a></code>, and move tasks between <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue⑥">scheduler task queues</a> in response to a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal⑨">TaskSignal</a></code>'s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority">priority</a> changing, inserting based on <a data-link-type="dfn" href="#scheduler-task-enqueue-order" id="ref-for-scheduler-task-enqueue-order">enqueue order</a>. This approach would simplify <a data-link-type="dfn" href="#selecting-the-task-queue-of-the-next-scheduler-task" id="ref-for-selecting-the-task-queue-of-the-next-scheduler-task">selecting the task queue of the next scheduler task</a>, but make priority
+changes more complex.</p>
    <p>A <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler③">Scheduler</a></code> object has a numeric <dfn class="dfn-paneled" data-dfn-for="Scheduler" data-dfn-type="dfn" data-lt="next enqueue order" data-noexport id="scheduler-next-enqueue-order">next enqueue
 order</dfn> which is initialized to 1.</p>
-   <p class="issue" id="issue-115f50c0"><a class="self-link" href="#issue-115f50c0"></a> Is this how we define numeric attributes?</p>
    <p class="note" role="note"><span>Note:</span> The <a data-link-type="dfn" href="#scheduler-next-enqueue-order" id="ref-for-scheduler-next-enqueue-order">next enqueue order</a> is a strictly increasing number that
-is used to determine task execution order across <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue②">scheduler task queues</a> of the
-same <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority④">TaskPriority</a></code> within the same <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler④">Scheduler</a></code>. A logically equivalent
+is used to determine task execution order across <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue⑦">scheduler task queues</a> of the
+same <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority⑤">TaskPriority</a></code> within the same <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler④">Scheduler</a></code>. A logically equivalent
 alternative would be to place the <a data-link-type="dfn" href="#scheduler-next-enqueue-order" id="ref-for-scheduler-next-enqueue-order①">next enqueue order</a> on the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop">event loop</a>, since the only requirements are that the number be strictly
 increasing and not be repeated within a <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler⑤">Scheduler</a></code>.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="Scheduler" data-dfn-type="method" data-export data-lt="postTask(callback, options)|postTask(callback)" id="dom-scheduler-posttask" optionsU00029 title="postTask(callback,"><code>postTask(<var>callback</var>, <var>options</var>)</code></dfn> method must return the result of <a data-link-type="dfn" href="#schedule-a-posttask-task" id="ref-for-schedule-a-posttask-task">scheduling a postTask task</a> for <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this">this</a> given <var>callback</var> and <var>options</var>.</p>
-   <p class="issue" id="issue-00f0be2e"><a class="self-link" href="#issue-00f0be2e"></a> Do we need to explicitly create <var>options</var>, or is the IDL that defaults it sufficient?</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="Scheduler" data-dfn-type="method" data-export data-lt="postTask(callback, options)|postTask(callback)" id="dom-scheduler-posttask" title="postTask(callback, options)"><code>postTask(<var>callback</var>, <var>options</var>)</code></dfn> method must return the result of <a data-link-type="dfn" href="#schedule-a-posttask-task" id="ref-for-schedule-a-posttask-task">scheduling a postTask task</a> for <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this">this</a> given <var>callback</var> and <var>options</var>.</p>
    <h3 class="heading settled" data-level="2.3" id="sec-scheduling-tasks-definitions"><span class="secno">2.3. </span><span class="content">Definitions</span><a class="self-link" href="#sec-scheduling-tasks-definitions"></a></h3>
    <h4 class="heading settled" data-level="2.3.1" id="sec-def-scheduler-tasks"><span class="secno">2.3.1. </span><span class="content">Scheduler Tasks</span><a class="self-link" href="#sec-def-scheduler-tasks"></a></h4>
    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="scheduler-task">scheduler task</dfn> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task">task</a> with an additional numeric <dfn class="dfn-paneled" data-dfn-for="scheduler task" data-dfn-type="dfn" data-noexport id="scheduler-task-enqueue-order">enqueue order</dfn> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct-item" id="ref-for-struct-item">item</a>, initially set to 0.</p>
-   <p>A <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task">scheduler task</a> <var>t1</var> is <dfn class="dfn-paneled" data-dfn-for="scheduler task" data-dfn-type="dfn" data-noexport id="scheduler-task-older-than">older than</dfn> <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task①">scheduler task</a> <var>t2</var> if <var>t1</var>’s <a data-link-type="dfn" href="#scheduler-task-enqueue-order" id="ref-for-scheduler-task-enqueue-order">enqueue order</a> less than <var>t2</var>’s <a data-link-type="dfn" href="#scheduler-task-enqueue-order" id="ref-for-scheduler-task-enqueue-order①">enqueue order</a>.</p>
+   <p>A <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task">scheduler task</a> <var>t1</var> is <dfn class="dfn-paneled" data-dfn-for="scheduler task" data-dfn-type="dfn" data-noexport id="scheduler-task-older-than">older than</dfn> <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task①">scheduler task</a> <var>t2</var> if <var>t1</var>’s <a data-link-type="dfn" href="#scheduler-task-enqueue-order" id="ref-for-scheduler-task-enqueue-order①">enqueue order</a> less than <var>t2</var>’s <a data-link-type="dfn" href="#scheduler-task-enqueue-order" id="ref-for-scheduler-task-enqueue-order②">enqueue order</a>.</p>
    <h4 class="heading settled" data-level="2.3.2" id="sec-def-scheduler-task-sources"><span class="secno">2.3.2. </span><span class="content">Scheduler Task Sources</span><a class="self-link" href="#sec-def-scheduler-task-sources"></a></h4>
    <p>The following <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source">task sources</a> are defined as <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="scheduler-task-sources">scheduler task sources</dfn>,
 and must only be used for <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task②">scheduler tasks</a>.</p>
@@ -777,42 +788,35 @@ and must only be used for <a data-link-type="dfn" href="#scheduler-task" id="ref
    <dl>
     <dt data-md><dfn class="dfn-paneled" data-dfn-for="scheduler task queue" data-dfn-type="dfn" data-noexport id="scheduler-task-queue-priority">priority</dfn>
     <dd data-md>
-     <p>A <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority⑤">TaskPriority</a></code>.</p>
+     <p>A <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority⑥">TaskPriority</a></code>.</p>
     <dt data-md><dfn class="dfn-paneled" data-dfn-for="scheduler task queue" data-dfn-type="dfn" data-noexport id="scheduler-task-queue-tasks">tasks</dfn>
     <dd data-md>
      <p>A <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set">set</a> of <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task③">scheduler tasks</a>.</p>
    </dl>
-   <p class="issue" id="issue-2dae6142"><a class="self-link" href="#issue-2dae6142"></a> Scheduler task queues in this spec are only created with an algorithm
-that initializes the fields, which was done because a priority is required when
-instantiating a STQ. Is this okay, or should they be initialized here? An example
-of this pattern is the Task struct in the event loop spec.</p>
-   <p class="issue" id="issue-5a7e2f96"><a class="self-link" href="#issue-5a7e2f96"></a> Is it okay to rely on a task queue being defined as a set, rather than
-using a task queue in the data structure? I wanted a set of scheduler tasks,
-not tasks, and it’s spec inheritance semantics/rules are not clear to me.</p>
-   <h3 class="heading settled" data-level="2.4" id="sec-scheduling-tasks-processing-model"><span class="secno">2.4. </span><span class="content">Processing Model</span><a class="self-link" href="#sec-scheduling-tasks-processing-model"></a></h3>
-   <h4 class="heading settled" data-level="2.4.1" id="sec-selecting-creating-scheduler-task-queues"><span class="secno">2.4.1. </span><span class="content">Creating Scheduler Task Queues</span><a class="self-link" href="#sec-selecting-creating-scheduler-task-queues"></a></h4>
    <div class="algorithm" data-algorithm="create a scheduler task queue">
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="create a scheduler task queue|creating a scheduler task queue" data-noexport id="create-a-scheduler-task-queue">create a scheduler task queue</dfn> with <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority⑥">TaskPriority</a></code> <var>priority</var>: 
+     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="create a scheduler task queue|creating a scheduler task queue" data-noexport id="create-a-scheduler-task-queue">create a scheduler task queue</dfn> with <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority⑦">TaskPriority</a></code> <var>priority</var>: 
     <ol>
      <li data-md>
-      <p>Let <var>queue</var> be a new <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue③">scheduler task queue</a>.</p>
+      <p>Let <var>queue</var> be a new <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue⑧">scheduler task queue</a>.</p>
      <li data-md>
-      <p>Set <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-priority" id="ref-for-scheduler-task-queue-priority">priority</a> to <var>priority</var>.</p>
+      <p>Set <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-priority" id="ref-for-scheduler-task-queue-priority②">priority</a> to <var>priority</var>.</p>
      <li data-md>
-      <p>Set <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-tasks" id="ref-for-scheduler-task-queue-tasks">tasks</a> to a new <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set①">set</a>.</p>
+      <p>Set <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-tasks" id="ref-for-scheduler-task-queue-tasks">tasks</a> to a new empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set①">set</a>.</p>
      <li data-md>
       <p>Return <var>queue</var>.</p>
     </ol>
    </div>
-   <h4 class="heading settled" data-level="2.4.2" id="sec-queuing-scheduler-tasks"><span class="secno">2.4.2. </span><span class="content">Queueing and Removing Scheduler Tasks</span><a class="self-link" href="#sec-queuing-scheduler-tasks"></a></h4>
+   <p>A <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue⑨">scheduler task queue</a> <var>queue</var>’s <dfn class="dfn-paneled" data-dfn-for="scheduler task queue" data-dfn-type="dfn" data-noexport id="scheduler-task-queue-first-runnable-task">first runnable task</dfn> is the first <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task④">scheduler task</a> in <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-tasks" id="ref-for-scheduler-task-queue-tasks①">tasks</a> that is <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-runnable" id="ref-for-concept-task-runnable">runnable</a>.</p>
+   <h3 class="heading settled" data-level="2.4" id="sec-scheduling-tasks-processing-model"><span class="secno">2.4. </span><span class="content">Processing Model</span><a class="self-link" href="#sec-scheduling-tasks-processing-model"></a></h3>
+   <h4 class="heading settled" data-level="2.4.1" id="sec-queuing-scheduler-tasks"><span class="secno">2.4.1. </span><span class="content">Queueing and Removing Scheduler Tasks</span><a class="self-link" href="#sec-queuing-scheduler-tasks"></a></h4>
    <div class="algorithm" data-algorithm="queue a scheduler task">
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="queue a scheduler task|queuing a scheduler task" data-noexport id="queue-a-scheduler-task">queue a scheduler task</dfn> on a <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue④">scheduler task queue</a> <var>queue</var>,
+     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="queue a scheduler task|queuing a scheduler task" data-noexport id="queue-a-scheduler-task">queue a scheduler task</dfn> on a <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue①⓪">scheduler task queue</a> <var>queue</var>,
   which performs a series of steps <var>steps</var>, given a numeric <var>enqueue order</var>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source②">task source</a> <var>source</var>, and a <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-document" id="ref-for-concept-document">document</a> <var>document</var>: 
     <ol>
      <li data-md>
-      <p>Let <var>task</var> be a new <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task④">scheduler task</a>.</p>
+      <p>Let <var>task</var> be a new <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task⑤">scheduler task</a>.</p>
      <li data-md>
-      <p>Set <var>task</var>’s <a data-link-type="dfn" href="#scheduler-task-enqueue-order" id="ref-for-scheduler-task-enqueue-order②">enqueue order</a> to <var>enqueue order</var>.</p>
+      <p>Set <var>task</var>’s <a data-link-type="dfn" href="#scheduler-task-enqueue-order" id="ref-for-scheduler-task-enqueue-order③">enqueue order</a> to <var>enqueue order</var>.</p>
      <li data-md>
       <p>Set <var>task</var>’s <a class="idl-code" data-link-type="attribute" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-steps" id="ref-for-concept-task-steps">steps</a> to <var>steps</var>.</p>
      <li data-md>
@@ -820,37 +824,31 @@ not tasks, and it’s spec inheritance semantics/rules are not clear to me.</p>
      <li data-md>
       <p>Set <var>task</var>’s <a class="idl-code" data-link-type="attribute" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-document" id="ref-for-concept-document①">document</a> to <var>document</var>.</p>
      <li data-md>
-      <p>Set <var>task</var>’s <a class="idl-code" data-link-type="attribute" href="https://html.spec.whatwg.org/multipage/webappapis.html#script-evaluation-environment-settings-object-set" id="ref-for-script-evaluation-environment-settings-object-set">script evaluation environment settings object set</a> to a new <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set②">set</a>.</p>
+      <p>Set <var>task</var>’s <a class="idl-code" data-link-type="attribute" href="https://html.spec.whatwg.org/multipage/webappapis.html#script-evaluation-environment-settings-object-set" id="ref-for-script-evaluation-environment-settings-object-set">script evaluation environment settings object set</a> to a new empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set②">set</a>.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#set-append" id="ref-for-set-append">Append</a> <var>task</var> to <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-tasks" id="ref-for-scheduler-task-queue-tasks①">tasks</a>.</p>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#set-append" id="ref-for-set-append">Append</a> <var>task</var> to <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-tasks" id="ref-for-scheduler-task-queue-tasks②">tasks</a>.</p>
      <li data-md>
       <p>Return <var>task</var>.</p>
     </ol>
-    <p class="issue" id="issue-78a65b9e"><a class="self-link" href="#issue-78a65b9e"></a> Should we refactor the event loop task creation code and remove the duplicatation?</p>
+    <p class="issue" id="issue-930c6f89"><a class="self-link" href="#issue-930c6f89"></a> We should submit a PR to the HTML spec that adds a constructor for <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task①">task</a>.</p>
    </div>
-   <div class="algorithm" data-algorithm="remove" data-algorithm-for="scheduler task queue"> To <dfn class="dfn-paneled" data-dfn-for="scheduler task queue" data-dfn-type="dfn" data-noexport id="scheduler-task-queue-remove">remove</dfn> a <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task⑤">scheduler task</a> <var>task</var> from <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue⑤">scheduler task queue</a> <var>queue</var>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-remove" id="ref-for-list-remove">remove</a> <var>task</var> from <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-tasks" id="ref-for-scheduler-task-queue-tasks②">tasks</a>. </div>
-   <h4 class="heading settled" data-level="2.4.3" id="sec-scheduler-alg-scheduling-tasks"><span class="secno">2.4.3. </span><span class="content">Scheduling Tasks</span><a class="self-link" href="#sec-scheduler-alg-scheduling-tasks"></a></h4>
+   <div class="algorithm" data-algorithm="remove" data-algorithm-for="scheduler task queue"> To <dfn class="dfn-paneled" data-dfn-for="scheduler task queue" data-dfn-type="dfn" data-noexport id="scheduler-task-queue-remove">remove</dfn> a <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task⑥">scheduler task</a> <var>task</var> from <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue①①">scheduler task queue</a> <var>queue</var>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-remove" id="ref-for-list-remove">remove</a> <var>task</var> from <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-tasks" id="ref-for-scheduler-task-queue-tasks③">tasks</a>. </div>
+   <h4 class="heading settled" data-level="2.4.2" id="sec-scheduler-alg-scheduling-tasks"><span class="secno">2.4.2. </span><span class="content">Scheduling Tasks</span><a class="self-link" href="#sec-scheduler-alg-scheduling-tasks"></a></h4>
    <div class="algorithm" data-algorithm="schedule a postTask task">
      To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="schedule a postTask task|scheduling a postTask task" data-noexport id="schedule-a-posttask-task">schedule a postTask task</dfn> for <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler⑥">Scheduler</a></code> <var>scheduler</var> given a <code class="idl"><a data-link-type="idl" href="#callbackdef-schedulerposttaskcallback" id="ref-for-callbackdef-schedulerposttaskcallback①">SchedulerPostTaskCallback</a></code> <var>callback</var> and <code class="idl"><a data-link-type="idl" href="#dictdef-schedulerposttaskoptions" id="ref-for-dictdef-schedulerposttaskoptions①">SchedulerPostTaskOptions</a></code> options, run the following steps: 
     <ol>
      <li data-md>
-      <p>Let <var>result</var> be a new promise.</p>
+      <p>Let <var>result</var> be <a data-link-type="dfn" href="https://heycam.github.io/webidl/#a-new-promise" id="ref-for-a-new-promise">a new promise</a>.</p>
      <li data-md>
-      <p>Let <var>signal</var> be null.</p>
-     <li data-md>
-      <p>If <var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-signal" id="ref-for-dom-schedulerposttaskoptions-signal">signal</a></code>"] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">exists</a>, then set <var>signal</var> to <var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-signal" id="ref-for-dom-schedulerposttaskoptions-signal①">signal</a></code>"].</p>
+      <p>Let <var>signal</var> be <var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-signal" id="ref-for-dom-schedulerposttaskoptions-signal③">signal</a></code>"].</p>
      <li data-md>
       <p>If <var>signal</var> is not null and its <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortsignal-aborted-flag" id="ref-for-abortsignal-aborted-flag">aborted flag</a> is set, then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#reject" id="ref-for-reject">reject</a> <var>result</var> with an "<code class="idl"><a class="idl-code" data-link-type="exception" href="https://heycam.github.io/webidl/#aborterror" id="ref-for-aborterror">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException">DOMException</a></code> and return <var>result</var>.</p>
      <li data-md>
-      <p>Let <var>priority</var> be null.</p>
-     <li data-md>
-      <p>If <var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-priority" id="ref-for-dom-schedulerposttaskoptions-priority">priority</a></code>"] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists①">exists</a>, then set <var>priority</var> to <var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-priority" id="ref-for-dom-schedulerposttaskoptions-priority①">priority</a></code>"].</p>
+      <p>Let <var>priority</var> be <var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-priority" id="ref-for-dom-schedulerposttaskoptions-priority③">priority</a></code>"].</p>
      <li data-md>
       <p>Let <var>queue</var> be the result of <a data-link-type="dfn" href="#select-the-scheduler-task-queue" id="ref-for-select-the-scheduler-task-queue">selecting the scheduler task queue</a> for <var>scheduler</var> given <var>signal</var> and <var>priority</var>.</p>
      <li data-md>
-      <p>Let <var>delay</var> be 0.</p>
-     <li data-md>
-      <p>If <var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-delay" id="ref-for-dom-schedulerposttaskoptions-delay">delay</a></code>"] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists②">exists</a>, then set <var>delay</var> to <var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-delay" id="ref-for-dom-schedulerposttaskoptions-delay①">delay</a></code>"].</p>
+      <p>Let <var>delay</var> be <var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-delay" id="ref-for-dom-schedulerposttaskoptions-delay">delay</a></code>"].</p>
      <li data-md>
       <p>If <var>delay</var> is less than 0 then set <var>delay</var> to 0.</p>
      <li data-md>
@@ -866,57 +864,52 @@ not tasks, and it’s spec inheritance semantics/rules are not clear to me.</p>
      <li data-md>
       <p><strong>TODO</strong>: Define waiting, potentially refactoring the timer spec.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="#schedule-a-task-to-invoke-a-callback" id="ref-for-schedule-a-task-to-invoke-a-callback①">schedule a task to invoke a callback</a> for <var>scheduler</var> given <var>queue</var>, <var>signal</var>, <var>callback</var>, and <var>result</var>.</p>
+      <p><a data-link-type="dfn" href="#schedule-a-task-to-invoke-a-callback" id="ref-for-schedule-a-task-to-invoke-a-callback①">Schedule a task to invoke a callback</a> for <var>scheduler</var> given <var>queue</var>, <var>signal</var>, <var>callback</var>, and <var>result</var>.</p>
     </ol>
    </div>
    <div class="algorithm" data-algorithm="select the scheduler task queue">
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="select the scheduler task queue|selecting the scheduler task queue" data-noexport id="select-the-scheduler-task-queue">select the scheduler task queue</dfn> for a <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler⑦">Scheduler</a></code> <var>scheduler</var> given (<code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal②">TaskSignal</a></code> or <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal①">AbortSignal</a></code>) <var>signal</var>, and a <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority⑦">TaskPriority</a></code> <var>priority</var>: 
+     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="select the scheduler task queue|selecting the scheduler task queue" data-noexport id="select-the-scheduler-task-queue">select the scheduler task queue</dfn> for a <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler⑦">Scheduler</a></code> <var>scheduler</var> given (<code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⓪">TaskSignal</a></code> or <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal⑦">AbortSignal</a></code>) <var>signal</var>, and a <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority⑧">TaskPriority</a></code> <var>priority</var>: 
     <ol>
      <li data-md>
-      <p>If <var>priority</var> is null and <var>signal</var> is not null and <var>signal</var> is a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal③">TaskSignal</a></code>, then</p>
+      <p>If <var>priority</var> is null and <var>signal</var> is not null and <var>signal</var> is a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①①">TaskSignal</a></code>, then</p>
       <ol>
        <li data-md>
-        <p>If <var>scheduler</var>’s <a data-link-type="dfn" href="#scheduler-dynamic-priority-task-queue-map" id="ref-for-scheduler-dynamic-priority-task-queue-map">dynamic priority task queue map</a> does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists③">contain</a> <var>signal</var>, then</p>
+        <p>If <var>scheduler</var>’s <a data-link-type="dfn" href="#scheduler-dynamic-priority-task-queue-map" id="ref-for-scheduler-dynamic-priority-task-queue-map①">dynamic priority task queue map</a> does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">contain</a> <var>signal</var>, then</p>
         <ol>
          <li data-md>
-          <p>Let <var>queue</var> be the result of <a data-link-type="dfn" href="#create-a-scheduler-task-queue" id="ref-for-create-a-scheduler-task-queue">creating a scheduler task queue</a> given <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority">priority</a>.</p>
+          <p>Let <var>queue</var> be the result of <a data-link-type="dfn" href="#create-a-scheduler-task-queue" id="ref-for-create-a-scheduler-task-queue">creating a scheduler task queue</a> given <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority①">priority</a>.</p>
          <li data-md>
-          <p>Set <a data-link-type="dfn" href="#scheduler-dynamic-priority-task-queue-map" id="ref-for-scheduler-dynamic-priority-task-queue-map①">dynamic priority task queue map</a>[<var>signal</var>] to <var>queue</var>.</p>
+          <p>Set <a data-link-type="dfn" href="#scheduler-dynamic-priority-task-queue-map" id="ref-for-scheduler-dynamic-priority-task-queue-map②">dynamic priority task queue map</a>[<var>signal</var>] to <var>queue</var>.</p>
          <li data-md>
           <p><a data-link-type="dfn" href="#tasksignal-add-a-priority-change-algorithm" id="ref-for-tasksignal-add-a-priority-change-algorithm">Add a priority change algorithm</a> to <var>signal</var> that runs the following steps:</p>
           <ol>
            <li data-md>
-            <p>Set <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-priority" id="ref-for-scheduler-task-queue-priority①">priority</a> to <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority" id="ref-for-dom-tasksignal-priority">priority</a></code>.</p>
+            <p>Set <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-priority" id="ref-for-scheduler-task-queue-priority③">priority</a> to <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority" id="ref-for-dom-tasksignal-priority">priority</a></code>.</p>
           </ol>
         </ol>
        <li data-md>
-        <p>Return <a data-link-type="dfn" href="#scheduler-dynamic-priority-task-queue-map" id="ref-for-scheduler-dynamic-priority-task-queue-map②">dynamic priority task queue map</a>[<var>signal</var>].</p>
+        <p>Return <a data-link-type="dfn" href="#scheduler-dynamic-priority-task-queue-map" id="ref-for-scheduler-dynamic-priority-task-queue-map③">dynamic priority task queue map</a>[<var>signal</var>].</p>
       </ol>
      <li data-md>
-      <p>Otherwise</p>
+      <p>Otherwise <var>priority</var> is used to determine the task queue:</p>
       <ol>
        <li data-md>
         <p>If <var>priority</var> is null, set <var>priority</var> to <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-visible" id="ref-for-dom-taskpriority-user-visible③">user-visible</a></code>.</p>
        <li data-md>
-        <p>If <var>scheduler</var>’s <a data-link-type="dfn" href="#scheduler-static-priority-task-queue-map" id="ref-for-scheduler-static-priority-task-queue-map">static priority task queue map</a> does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists④">contain</a> <var>priority</var>, then</p>
+        <p>If <var>scheduler</var>’s <a data-link-type="dfn" href="#scheduler-static-priority-task-queue-map" id="ref-for-scheduler-static-priority-task-queue-map①">static priority task queue map</a> does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists①">contain</a> <var>priority</var>, then</p>
         <ol>
          <li data-md>
           <p>Let <var>queue</var> be the result of <a data-link-type="dfn" href="#create-a-scheduler-task-queue" id="ref-for-create-a-scheduler-task-queue①">creating a scheduler task queue</a> given <var>priority</var>.</p>
          <li data-md>
-          <p>Set <a data-link-type="dfn" href="#scheduler-static-priority-task-queue-map" id="ref-for-scheduler-static-priority-task-queue-map①">static priority task queue map</a>[<var>priority</var>] to <var>queue</var>.</p>
+          <p>Set <a data-link-type="dfn" href="#scheduler-static-priority-task-queue-map" id="ref-for-scheduler-static-priority-task-queue-map②">static priority task queue map</a>[<var>priority</var>] to <var>queue</var>.</p>
         </ol>
        <li data-md>
-        <p>Return <a data-link-type="dfn" href="#scheduler-static-priority-task-queue-map" id="ref-for-scheduler-static-priority-task-queue-map②">static priority task queue map</a>[<var>priority</var>].</p>
+        <p>Return <a data-link-type="dfn" href="#scheduler-static-priority-task-queue-map" id="ref-for-scheduler-static-priority-task-queue-map③">static priority task queue map</a>[<var>priority</var>].</p>
       </ol>
     </ol>
-    <p class="note" role="note"><span>Note:</span> When an explicit priority is passed to <code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask②">postTask()</a></code>, the <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal④">TaskSignal</a></code> option is ignored for priority, and the task’s priority is
-  immutable. The signal is still relevant for <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-abortcontroller-abort" id="ref-for-dom-abortcontroller-abort">abort()</a></code>, however.</p>
-    <p class="issue" id="issue-6d6b5bfd"><a class="self-link" href="#issue-6d6b5bfd"></a> I’m not sure if ^^ that note belongs there, but it seems like it should
-  go somewhere.</p>
-    <p class="issue" id="issue-96351175"><a class="self-link" href="#issue-96351175"></a> Maybe change the name of this since it also creates the task queue if needed.</p>
    </div>
    <div class="algorithm" data-algorithm="schedule a task to invoke a callback">
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="schedule-a-task-to-invoke-a-callback">schedule a task to invoke a callback</dfn> for <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler⑧">Scheduler</a></code> <var>scheduler</var> given a <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue⑥">scheduler task queue</a> <var>queue</var>, an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal②">AbortSignal</a></code> <var>signal</var>,
+     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="schedule-a-task-to-invoke-a-callback">schedule a task to invoke a callback</dfn> for <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler⑧">Scheduler</a></code> <var>scheduler</var> given a <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue①②">scheduler task queue</a> <var>queue</var>, an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal⑧">AbortSignal</a></code> <var>signal</var>,
   SchedulerPostTaskCallback <var>callback</var>, and promise <var>result</var>: 
     <ol>
      <li data-md>
@@ -942,103 +935,97 @@ not tasks, and it’s spec inheritance semantics/rules are not clear to me.</p>
         <p><a data-link-type="dfn" href="https://heycam.github.io/webidl/#reject" id="ref-for-reject②">Reject</a> <var>result</var> with an "<code class="idl"><a class="idl-code" data-link-type="exception" href="https://heycam.github.io/webidl/#aborterror" id="ref-for-aborterror①">AbortError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException①">DOMException</a></code>.</p>
       </ol>
     </ol>
-    <p class="issue" id="issue-4bae1ee2"><a class="self-link" href="#issue-4bae1ee2"></a> Parts of this need to be atomic, but how do we do that?</p>
+    <p class="issue" id="issue-44b44706"><a class="self-link" href="#issue-44b44706"></a> Because this algorithm can be called from <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel①">in parallel</a> steps, parts
+  of this and other algorithms are racy. Specifically, the <a data-link-type="dfn" href="#scheduler-next-enqueue-order" id="ref-for-scheduler-next-enqueue-order④">next enqueue order</a> should be updated atomically, and accessing
+  the <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue①③">scheduler task queues</a> should occur atomically. The latter also affects
+  the event loop task queues (see https://github.com/whatwg/html/issues/6475).</p>
    </div>
-   <h4 class="heading settled" data-level="2.4.4" id="sec-scheduler-alg-select-next-task"><span class="secno">2.4.4. </span><span class="content">Selecting the Next Task to Run</span><a class="self-link" href="#sec-scheduler-alg-select-next-task"></a></h4>
+   <h4 class="heading settled" data-level="2.4.3" id="sec-scheduler-alg-select-next-task"><span class="secno">2.4.3. </span><span class="content">Selecting the Next Task to Run</span><a class="self-link" href="#sec-scheduler-alg-select-next-task"></a></h4>
    <div class="algorithm" data-algorithm="has a runnable task"> A <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler⑨">Scheduler</a></code> <var>scheduler</var> <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="has a runnable task|have a runnable task" data-noexport id="has-a-runnable-task">has a runnable task</dfn> if the result of <a data-link-type="dfn" href="#get-the-runnable-task-queues" id="ref-for-get-the-runnable-task-queues">getting the runnable task queues</a> for <var>scheduler</var> is non-<a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-empty" id="ref-for-list-empty">empty</a>. </div>
    <div class="algorithm" data-algorithm="get the runnable task queues">
      To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="get the runnable task queues|getting the runnable task queues" data-noexport id="get-the-runnable-task-queues">get the runnable task queues</dfn> for a <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler①⓪">Scheduler</a></code> <var>scheduler</var>, run the following steps: 
     <ol>
      <li data-md>
-      <p>Let <var>queues</var> be the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-getting-the-values" id="ref-for-map-getting-the-values">getting the values</a> <a data-link-type="dfn" href="#scheduler-static-priority-task-queue-map" id="ref-for-scheduler-static-priority-task-queue-map③">static priority task queue map</a>.</p>
+      <p>Let <var>queues</var> be the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-getting-the-values" id="ref-for-map-getting-the-values">getting the values</a> of <var>scheduler</var>’s <a data-link-type="dfn" href="#scheduler-static-priority-task-queue-map" id="ref-for-scheduler-static-priority-task-queue-map④">static priority task queue map</a>.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-extend" id="ref-for-list-extend">Extend</a> <var>queues</var> with the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-getting-the-values" id="ref-for-map-getting-the-values①">getting the values</a> of <var>scheduler</var>’s <a data-link-type="dfn" href="#scheduler-dynamic-priority-task-queue-map" id="ref-for-scheduler-dynamic-priority-task-queue-map③">dynamic priority task queue map</a>.</p>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-extend" id="ref-for-list-extend">Extend</a> <var>queues</var> with the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-getting-the-values" id="ref-for-map-getting-the-values①">getting the values</a> of <var>scheduler</var>’s <a data-link-type="dfn" href="#scheduler-dynamic-priority-task-queue-map" id="ref-for-scheduler-dynamic-priority-task-queue-map④">dynamic priority task queue map</a>.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-remove" id="ref-for-list-remove①">Remove</a> from <var>queues</var> any <var>queue</var> such that <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-tasks" id="ref-for-scheduler-task-queue-tasks③">tasks</a> do not contain a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-runnable" id="ref-for-concept-task-runnable">runnable</a> <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task⑥">scheduler task</a>.</p>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-remove" id="ref-for-list-remove①">Remove</a> from <var>queues</var> any <var>queue</var> such that <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-tasks" id="ref-for-scheduler-task-queue-tasks④">tasks</a> do not contain a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-runnable" id="ref-for-concept-task-runnable①">runnable</a> <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task⑦">scheduler task</a>.</p>
      <li data-md>
       <p>Return <var>queues</var>.</p>
     </ol>
    </div>
-   <div class="algorithm" data-algorithm="select the task queue of the next scheduler task">
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-lt="select the task queue of the next scheduler task|selecting the task queue of the next scheduler task v2" data-noexport id="select-the-task-queue-of-the-next-scheduler-task">select the task queue of the next scheduler task</dfn> for a <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler①①">Scheduler</a></code> <var>scheduler</var>: 
+   <div class="algorithm" data-algorithm="selecting the task queue of the next scheduler task">
+     The result of <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="selecting-the-task-queue-of-the-next-scheduler-task">selecting the task queue of the next scheduler task</dfn> for <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler①①">Scheduler</a></code> <var>scheduler</var> is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set③">set</a> of <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task⑧">scheduler tasks</a> as defined
+  by the following steps: 
     <ol>
      <li data-md>
       <p>Let <var>queues</var> be the result of <a data-link-type="dfn" href="#get-the-runnable-task-queues" id="ref-for-get-the-runnable-task-queues①">getting the runnable task queues</a> for <var>scheduler</var>.</p>
      <li data-md>
       <p>If <var>queues</var> is <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-empty" id="ref-for-list-empty①">empty</a> return null.</p>
      <li data-md>
-      <p>Set <var>queues</var> to the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-sort-in-descending-order" id="ref-for-list-sort-in-descending-order">sorting in descending order</a> <var>queues</var> with <var>a</var> being less than <var>b</var> if the following steps return true:</p>
-      <ol>
-       <li data-md>
-        <p>If <var>a</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-priority" id="ref-for-scheduler-task-queue-priority②">priority</a> is <a data-link-type="dfn" href="#taskpriority-less-than" id="ref-for-taskpriority-less-than">less than</a> <var>b</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-priority" id="ref-for-scheduler-task-queue-priority③">priority</a>, then return true.</p>
-       <li data-md>
-        <p>If <var>a</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-priority" id="ref-for-scheduler-task-queue-priority④">priority</a> equals <var>b</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-priority" id="ref-for-scheduler-task-queue-priority⑤">priority</a> and
- the first <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-runnable" id="ref-for-concept-task-runnable①">runnable</a> <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task⑦">scheduler task</a> in <var>a</var> is <a data-link-type="dfn" href="#scheduler-task-older-than" id="ref-for-scheduler-task-older-than">older than</a> the first <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-runnable" id="ref-for-concept-task-runnable②">runnable</a> <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task⑧">scheduler task</a> in <var>b</var>, then return true.</p>
-       <li data-md>
-        <p>Otherwise return false.</p>
-      </ol>
+      <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-remove" id="ref-for-list-remove②">Remove</a> from <var>queues</var> any <var>queue</var> such that <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-priority" id="ref-for-scheduler-task-queue-priority④">priority</a> is <a data-link-type="dfn" href="#taskpriority-less-than" id="ref-for-taskpriority-less-than">less than</a> any other <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-item" id="ref-for-list-item">item</a> of <var>queues</var>.</p>
      <li data-md>
-      <p>Return <var>queues</var>[0]'s <a data-link-type="dfn" href="#scheduler-task-queue-tasks" id="ref-for-scheduler-task-queue-tasks④">tasks</a>.</p>
+      <p>Let <var>queue</var> be the <a data-link-type="dfn" href="#scheduler-task-queue" id="ref-for-scheduler-task-queue①④">scheduler task queue</a> in <var>queues</var> whose <a data-link-type="dfn" href="#scheduler-task-queue-first-runnable-task" id="ref-for-scheduler-task-queue-first-runnable-task">first runnable task</a> is the <a data-link-type="dfn" href="#scheduler-task-older-than" id="ref-for-scheduler-task-older-than">oldest</a>. <br><span class="note">Two tasks cannot have the same age since <a data-link-type="dfn" href="#scheduler-task-enqueue-order" id="ref-for-scheduler-task-enqueue-order④">enqueue order</a> is unique.</span></p>
+     <li data-md>
+      <p>Return <var>queue</var>’s <a data-link-type="dfn" href="#scheduler-task-queue-tasks" id="ref-for-scheduler-task-queue-tasks⑤">tasks</a>.</p>
     </ol>
-    <p class="issue" id="issue-572b0544"><a class="self-link" href="#issue-572b0544"></a> Is it okay to rely on a task queue being defined as a set, rather than
-  using a task queue in the data structure? I wanted a set of scheduler tasks,
-  not tasks.</p>
+    <p class="note" role="note"><span>Note:</span> The next task to run is the oldest, highest priority <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-runnable" id="ref-for-concept-task-runnable②">runnable</a> <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task⑨">scheduler task</a>.</p>
    </div>
    <h2 class="heading settled" data-level="3" id="sec-controlling-tasks"><span class="secno">3. </span><span class="content">Controlling Tasks</span><a class="self-link" href="#sec-controlling-tasks"></a></h2>
    <p><strong>TODO</strong>: Add an intro for this section.</p>
    <h3 class="heading settled" data-level="3.1" id="sec-task-controller"><span class="secno">3.1. </span><span class="content">The <code>TaskController</code> Interface</span><a class="self-link" href="#sec-task-controller"></a></h3>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)] <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="taskcontroller"><code><c- g>TaskController</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller"><c- n>AbortController</c-></a> {
-  <a class="idl-code" data-link-type="constructor" href="#dom-taskcontroller-taskcontroller" id="ref-for-dom-taskcontroller-taskcontroller"><c- g>constructor</c-></a>(<c- b>optional</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority⑧"><c- n>TaskPriority</c-></a> <dfn class="idl-code" data-dfn-for="TaskController/TaskController(priority), TaskController/constructor(priority), TaskController/TaskController(), TaskController/constructor()" data-dfn-type="argument" data-export id="dom-taskcontroller-taskcontroller-priority-priority"><code><c- g>priority</c-></code><a class="self-link" href="#dom-taskcontroller-taskcontroller-priority-priority"></a></dfn> = "user-visible");
+  <a class="idl-code" data-link-type="constructor" href="#dom-taskcontroller-taskcontroller" id="ref-for-dom-taskcontroller-taskcontroller"><c- g>constructor</c-></a>(<c- b>optional</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority⑨"><c- n>TaskPriority</c-></a> <dfn class="idl-code" data-dfn-for="TaskController/TaskController(priority), TaskController/constructor(priority), TaskController/TaskController(), TaskController/constructor()" data-dfn-type="argument" data-export id="dom-taskcontroller-taskcontroller-priority-priority"><code><c- g>priority</c-></code><a class="self-link" href="#dom-taskcontroller-taskcontroller-priority-priority"></a></dfn> = "user-visible");
 
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject" id="ref-for-SameObject"><c- g>SameObject</c-></a>] <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#tasksignal" id="ref-for-tasksignal⑤"><c- n>TaskSignal</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="TaskSignal" href="#dom-taskcontroller-signal" id="ref-for-dom-taskcontroller-signal"><c- g>signal</c-></a>;
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject" id="ref-for-SameObject"><c- g>SameObject</c-></a>] <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#tasksignal" id="ref-for-tasksignal①②"><c- n>TaskSignal</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="TaskSignal" href="#dom-taskcontroller-signal" id="ref-for-dom-taskcontroller-signal"><c- g>signal</c-></a>;
 
-  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-undefined" id="ref-for-idl-undefined"><c- b>undefined</c-></a> <a class="idl-code" data-link-type="method" href="#dom-taskcontroller-setpriority" id="ref-for-dom-taskcontroller-setpriority"><c- g>setPriority</c-></a>(<a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority⑨"><c- n>TaskPriority</c-></a> <dfn class="idl-code" data-dfn-for="TaskController/setPriority(priority)" data-dfn-type="argument" data-export id="dom-taskcontroller-setpriority-priority-priority"><code><c- g>priority</c-></code><a class="self-link" href="#dom-taskcontroller-setpriority-priority-priority"></a></dfn>);
+  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-undefined" id="ref-for-idl-undefined"><c- b>undefined</c-></a> <a class="idl-code" data-link-type="method" href="#dom-taskcontroller-setpriority" id="ref-for-dom-taskcontroller-setpriority①"><c- g>setPriority</c-></a>(<a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①⓪"><c- n>TaskPriority</c-></a> <dfn class="idl-code" data-dfn-for="TaskController/setPriority(priority)" data-dfn-type="argument" data-export id="dom-taskcontroller-setpriority-priority-priority"><code><c- g>priority</c-></code><a class="self-link" href="#dom-taskcontroller-setpriority-priority-priority"></a></dfn>);
 };
 </pre>
-   <p class="issue" id="issue-bdbf6a08"><a class="self-link" href="#issue-bdbf6a08"></a> Note that this is different from the current implemenation (signal
-property), but I have a patch for this that works <strong>if</strong> this is what we want
-to do here.</p>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskController" data-dfn-type="attribute" data-export id="dom-taskcontroller-signal"><code>signal</code></dfn> getter steps are to return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①">this</a>'s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortcontroller-signal" id="ref-for-abortcontroller-signal">signal</a>.</p>
+   <p class="note" role="note"><span>Note:</span> <code class="idl"><a data-link-type="idl" href="#taskcontroller" id="ref-for-taskcontroller①">TaskController</a></code>'s <code class="idl"><a data-link-type="idl" href="#dom-taskcontroller-signal" id="ref-for-dom-taskcontroller-signal①">signal</a></code> attribute shadows <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller①">AbortController</a></code>'s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-abortcontroller-signal" id="ref-for-dom-abortcontroller-signal">signal</a></code>, and is defined this way
+since a <code class="idl"><a data-link-type="idl" href="#taskcontroller" id="ref-for-taskcontroller②">TaskController</a></code>'s signal is always a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①③">TaskSignal</a></code> object. Both
+attributes return the same object, however.</p>
    <div class="algorithm" data-algorithm="TaskController()" data-algorithm-for="TaskController">
      The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskController" data-dfn-type="constructor" data-export data-lt="TaskController(priority)|constructor(priority)|TaskController()|constructor()" id="dom-taskcontroller-taskcontroller"><code>new TaskController(<var>priority</var>)</code></dfn> constructor steps are: 
     <ol>
      <li data-md>
-      <p>Let <var>signal</var> be a new <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal⑥">TaskSignal</a></code> object.</p>
+      <p>Let <var>signal</var> be a new <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①④">TaskSignal</a></code> object.</p>
      <li data-md>
-      <p>Set <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority①">priority</a> to <var>priority</var>.</p>
+      <p>Set <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority②">priority</a> to <var>priority</var>.</p>
      <li data-md>
       <p><a data-link-type="dfn" href="#construct-an-abortcontroller" id="ref-for-construct-an-abortcontroller">Construct an AbortController</a> given <var>signal</var>.</p>
     </ol>
-    <p class="issue" id="issue-098f6d60"><a class="self-link" href="#issue-098f6d60"></a> Do we need to indicate that priority is optional, or is the IDL sufficient?</p>
    </div>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskController" data-dfn-type="method" data-export id="dom-taskcontroller-setpriority"><code>setPriority(<var>priority</var>)</code></dfn> method steps are to <a data-link-type="dfn" href="#tasksignal-signal-priority-change" id="ref-for-tasksignal-signal-priority-change">signal priority change</a> on <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②">this</a>'s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortcontroller-signal" id="ref-for-abortcontroller-signal①">signal</a> given <var>priority</var>.</p>
    <h3 class="heading settled" data-level="3.2" id="sec-task-signal"><span class="secno">3.2. </span><span class="content">The <code>TaskSignal</code> Interface</span><a class="self-link" href="#sec-task-signal"></a></h3>
-<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)] <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="tasksignal"><code><c- g>TaskSignal</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal③"><c- n>AbortSignal</c-></a> {
-  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①⓪"><c- n>TaskPriority</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="TaskPriority" href="#dom-tasksignal-priority" id="ref-for-dom-tasksignal-priority①"><c- g>priority</c-></a>;
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)] <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="tasksignal"><code><c- g>TaskSignal</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal⑨"><c- n>AbortSignal</c-></a> {
+  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①①"><c- n>TaskPriority</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="TaskPriority" href="#dom-tasksignal-priority" id="ref-for-dom-tasksignal-priority①"><c- g>priority</c-></a>;
 
   <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-tasksignal-onprioritychange" id="ref-for-dom-tasksignal-onprioritychange"><c- g>onprioritychange</c-></a>;
 };
 </pre>
-   <p>A <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal⑦">TaskSignal</a></code> object has an associated <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①①">TaskPriority</a></code> <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-priority">priority</dfn>.</p>
-   <p>A <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal⑧">TaskSignal</a></code> object has an associated <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-priority-changing"><code>priority changing</code></dfn> flag. It is unset unless otherwise specified.</p>
-   <p>A <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal⑨">TaskSignal</a></code> object has associated <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-priority-change-algorithms"><code>priority change algorithms</code></dfn>,
-which is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set③">set</a> of algorithms which are to be executed when its <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-changing" id="ref-for-dom-tasksignal-priority-changing">priority changing</a></code> flag is set. Unless specified otherwise, its value is
+   <p>A <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⑤">TaskSignal</a></code> object has an associated <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①②">TaskPriority</a></code> <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-priority">priority</dfn>.</p>
+   <p>A <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⑥">TaskSignal</a></code> object has an associated <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-priority-changing"><code>priority changing</code></dfn> flag. It is unset unless otherwise specified.</p>
+   <p>A <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⑦">TaskSignal</a></code> object has associated <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-priority-change-algorithms"><code>priority change algorithms</code></dfn>,
+which is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set④">set</a> of algorithms which are to be executed when its <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-changing" id="ref-for-dom-tasksignal-priority-changing">priority changing</a></code> flag is set. Unless specified otherwise, its value is
 the empty set.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-priority"><code>priority</code></dfn> getter steps are to return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this③">this</a>'s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority②">priority</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-priority"><code>priority</code></dfn> getter steps are to return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this③">this</a>'s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority③">priority</a>.</p>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-onprioritychange"><code>onprioritychange</code></dfn> attribute
 is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes">event handler IDL attribute</a> for the <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-onprioritychange" id="ref-for-dom-tasksignal-onprioritychange①">onprioritychange</a></code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers">event handler</a>, whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type">event handler event type</a> is <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="event" data-export id="eventdef-tasksignal-prioritychange"><code>prioritychange</code></dfn>.</p>
-   <p>To <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-add-a-priority-change-algorithm">add a priority change algorithm</dfn> <var>algorithm</var> to a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⓪">TaskSignal</a></code> object <var>signal</var>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#set-append" id="ref-for-set-append①">append</a> <var>algorithm</var> to <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-change-algorithms" id="ref-for-dom-tasksignal-priority-change-algorithms">priority change algorithms</a></code>.</p>
+   <p>To <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-add-a-priority-change-algorithm">add a priority change algorithm</dfn> <var>algorithm</var> to a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⑧">TaskSignal</a></code> object <var>signal</var>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#set-append" id="ref-for-set-append①">append</a> <var>algorithm</var> to <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-change-algorithms" id="ref-for-dom-tasksignal-priority-change-algorithms">priority change algorithms</a></code>.</p>
    <div class="algorithm" data-algorithm="signal priority change" data-algorithm-for="TaskSignal">
-     To <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-signal-priority-change">signal priority change</dfn> on a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①①">TaskSignal</a></code> object <var>signal</var>, given a <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①②">TaskPriority</a></code> <var>priority</var>, run the following steps: 
+     To <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-signal-priority-change">signal priority change</dfn> on a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⑨">TaskSignal</a></code> object <var>signal</var>, given a <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①③">TaskPriority</a></code> <var>priority</var>, run the following steps: 
     <ol>
      <li data-md>
-      <p>If <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-changing" id="ref-for-dom-tasksignal-priority-changing①">priority changing</a></code> flag is set, then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw">throw</a> a <code class="idl"><a class="idl-code" data-link-type="exception" href="https://heycam.github.io/webidl/#notallowederror" id="ref-for-notallowederror">NotAllowedError</a></code> <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException②">DOMException</a></code> with <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#dom-domexception-message" id="ref-for-dom-domexception-message">message</a></code> set to "Cannot change priority while a priority change is in progress."</p>
+      <p>If <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-changing" id="ref-for-dom-tasksignal-priority-changing①">priority changing</a></code> flag is set, then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw">throw</a> a <code class="idl"><a class="idl-code" data-link-type="exception" href="https://heycam.github.io/webidl/#notallowederror" id="ref-for-notallowederror">NotAllowedError</a></code> <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException②">DOMException</a></code>.</p>
      <li data-md>
-      <p>If <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority③">priority</a> equals <var>priority</var> then return.</p>
+      <p>If <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority④">priority</a> equals <var>priority</var> then return.</p>
      <li data-md>
       <p>Set <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-changing" id="ref-for-dom-tasksignal-priority-changing②">priority changing</a></code> flag.</p>
      <li data-md>
-      <p>Set <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority④">priority</a> to <var>priority</var>.</p>
+      <p>Set <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority⑤">priority</a> to <var>priority</var>.</p>
      <li data-md>
       <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate">For each</a> <var>algorithm</var> of <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-change-algorithms" id="ref-for-dom-tasksignal-priority-change-algorithms①">priority change algorithms</a></code>, run <var>algorithm</var>.</p>
      <li data-md>
@@ -1063,16 +1050,16 @@ is initialized as a new <code class="idl"><a data-link-type="idl" href="#schedul
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="WindowOrWorkerGlobalScope" data-dfn-type="attribute" data-export id="dom-windoworworkerglobalscope-scheduler"><code>scheduler</code></dfn> attribute’s
 getter steps are to return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this④">this</a>'s <a data-link-type="dfn" href="#windoworworkerglobalscope-scheduler" id="ref-for-windoworworkerglobalscope-scheduler">scheduler</a>.</p>
    <h4 class="heading settled" data-level="4.1.2" id="sec-patches-html-event-loop-definitions"><span class="secno">4.1.2. </span><span class="content"><a href="https://html.spec.whatwg.org/multipage/webappapis.html#definitions-3">Event loop: definitions</a></span><a class="self-link" href="#sec-patches-html-event-loop-definitions"></a></h4>
-   <p>Replace: For each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop①">event loop</a>, every <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source③">task source</a> must be associated with a specific <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration-task-queue" id="ref-for-dfn-service-worker-registration-task-queue">task queue</a>.</p>
-   <p>With: For each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop②">event loop</a>, every <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source④">task source</a> that is not a <a data-link-type="dfn" href="#scheduler-task-sources" id="ref-for-scheduler-task-sources">scheduler task source</a> must be associated with a specific <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration-task-queue" id="ref-for-dfn-service-worker-registration-task-queue①">task queue</a>.</p>
+   <p>Replace: For each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop①">event loop</a>, every <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source③">task source</a> must be associated with a specific <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue" id="ref-for-task-queue">task queue</a>.</p>
+   <p>With: For each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop②">event loop</a>, every <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source④">task source</a> that is not a <a data-link-type="dfn" href="#scheduler-task-sources" id="ref-for-scheduler-task-sources">scheduler task source</a> must be associated with a specific <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue" id="ref-for-task-queue①">task queue</a>.</p>
    <h4 class="heading settled" data-level="4.1.3" id="sec-patches-html-event-loop-processing"><span class="secno">4.1.3. </span><span class="content"><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model">Event loop: processing model</a></span><a class="self-link" href="#sec-patches-html-event-loop-processing"></a></h4>
    <p>Add the following steps to the event loop processing steps, before step 1:</p>
    <ol>
     <li data-md>
-     <p>Let <var>queues</var> be the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set④">set</a> of the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop③">event loop</a>'s <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration-task-queue" id="ref-for-dfn-service-worker-registration-task-queue②">task queues</a> that
- contain at least one <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-runnable" id="ref-for-concept-task-runnable③">runnable</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task①">task</a>.</p>
+     <p>Let <var>queues</var> be the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set⑤">set</a> of the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop③">event loop</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue" id="ref-for-task-queue②">task queues</a> that
+ contain at least one <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-runnable" id="ref-for-concept-task-runnable③">runnable</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task②">task</a>.</p>
     <li data-md>
-     <p>Let <var>schedulers</var> be the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set⑤">set</a> of all <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler①④">Scheduler</a></code> objects whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent">relevant agent’s</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop④">event loop</a> is this event loop and that <a data-link-type="dfn" href="#has-a-runnable-task" id="ref-for-has-a-runnable-task">have a runnable task</a>.</p>
+     <p>Let <var>schedulers</var> be the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set⑥">set</a> of all <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler①④">Scheduler</a></code> objects whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent">relevant agent’s</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop④">event loop</a> is this event loop and that <a data-link-type="dfn" href="#has-a-runnable-task" id="ref-for-has-a-runnable-task">have a runnable task</a>.</p>
     <li data-md>
      <p>If <var>schedulers</var> and <var>queues</var> are both <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-empty" id="ref-for-list-empty②">empty</a>, skip to the <code>microtasks</code> step below.</p>
    </ol>
@@ -1082,35 +1069,37 @@ getter steps are to return <a data-link-type="dfn" href="https://heycam.github.i
      <p>Let <code>taskQueue</code> be one of the following:</p>
      <ol>
       <li data-md>
-       <p>If <var>queues</var> is not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-empty" id="ref-for-list-empty③">empty</a>, one of <a data-link-type="dfn" href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration-task-queue" id="ref-for-dfn-service-worker-registration-task-queue③">task queues</a> in <var>queues</var>,
+       <p>If <var>queues</var> is not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-empty" id="ref-for-list-empty③">empty</a>, one of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue" id="ref-for-task-queue③">task queues</a> in <var>queues</var>,
  chosen in an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined">implementation-defined</a> manner.</p>
       <li data-md>
-       <p>If <var>schedulers</var> is not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-empty" id="ref-for-list-empty④">empty</a>, the result of running the <a data-link-type="dfn" href="#select-the-task-queue-of-the-next-scheduler-task" id="ref-for-select-the-task-queue-of-the-next-scheduler-task">select the task queue of the next scheduler task</a> from one of the <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler①⑤">Scheduler</a></code>s
+       <p>If <var>schedulers</var> is not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-empty" id="ref-for-list-empty④">empty</a>, the result of <a data-link-type="dfn" href="#selecting-the-task-queue-of-the-next-scheduler-task" id="ref-for-selecting-the-task-queue-of-the-next-scheduler-task①">selecting the task queue of the next scheduler task</a> from one of the <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler①⑤">Scheduler</a></code>s
  in <var>schedulers</var>, chosen in an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#implementation-defined" id="ref-for-implementation-defined①">implementation-defined</a> manner.</p>
      </ol>
    </ol>
-   <p class="issue" id="issue-a9923911"><a class="self-link" href="#issue-a9923911"></a> Probably add a note here about what this means and some possible approaches.</p>
+   <p class="issue" id="issue-67b23491"><a class="self-link" href="#issue-67b23491"></a> The <code>taskQueue</code> in this step will either be a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set⑦">set</a> of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task③">tasks</a> or a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set⑧">set</a> of <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task①⓪">scheduler tasks</a>. The steps that follow only <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-remove" id="ref-for-list-remove③">remove</a> an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-item" id="ref-for-list-item①">item</a>, so they are <em>roughly</em> compatible. Ideally, there would be a
+common task queue interface that supports a <code>pop()</code> method that would return a
+plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task④">task</a>, but that would invlove a fair amount of refactoring.</p>
    <h3 class="heading settled" data-level="4.2" id="sec-patches-dom"><span class="secno">4.2. </span><span class="content">The DOM Standard</span><a class="self-link" href="#sec-patches-dom"></a></h3>
-   <h4 class="heading settled" data-level="4.2.1" id="sec-patches-dom-abort-controller"><span class="secno">4.2.1. </span><span class="content"><code>Abortcontroller</code></span><a class="self-link" href="#sec-patches-dom-abort-controller"></a></h4>
-   <p><code class="idl"><a data-link-type="idl" href="#taskcontroller" id="ref-for-taskcontroller">TaskController</a></code> extends <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller①">AbortController</a></code> and needs a way to change set the
-associated <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-abortcontroller-signal" id="ref-for-dom-abortcontroller-signal">signal</a></code>, which is created in <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller②">AbortController</a></code>'s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-abortcontroller-abortcontroller" id="ref-for-dom-abortcontroller-abortcontroller">AbortController()</a></code>. We achieve this by adding an internal
-construction algorithm that takes an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal④">AbortSignal</a></code> argument.</p>
+   <h4 class="heading settled" data-level="4.2.1" id="sec-patches-dom-abort-controller"><span class="secno">4.2.1. </span><span class="content"><code>AbortController</code></span><a class="self-link" href="#sec-patches-dom-abort-controller"></a></h4>
+   <p><code class="idl"><a data-link-type="idl" href="#taskcontroller" id="ref-for-taskcontroller③">TaskController</a></code> extends <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller②">AbortController</a></code> and needs a way to set the
+associated <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-abortcontroller-signal" id="ref-for-dom-abortcontroller-signal①">signal</a></code>, which is created in <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller③">AbortController</a></code>'s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-abortcontroller-abortcontroller" id="ref-for-dom-abortcontroller-abortcontroller">AbortController()</a></code>. We achieve this by adding an internal
+construction algorithm that takes an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal①⓪">AbortSignal</a></code> argument.</p>
    <p>Add the following algorithm to the <a href="https://dom.spec.whatwg.org/#interface-abortcontroller">Interface AbortController section</a>:</p>
    <div class="algorithm" data-algorithm="construct an AbortController">
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="construct-an-abortcontroller">construct an AbortController</dfn>, given an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal⑤">AbortSignal</a></code> <var>signal</var>: 
+     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="construct-an-abortcontroller">construct an AbortController</dfn>, given an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal①①">AbortSignal</a></code> <var>signal</var>: 
     <ol>
      <li data-md>
       <p>Set <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑤">this’s</a> <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortcontroller-signal" id="ref-for-abortcontroller-signal②">signal</a> to <var>signal</var>.</p>
     </ol>
    </div>
-   <p class="issue" id="issue-ced42067"><a class="self-link" href="#issue-ced42067"></a> This next step is optional; should we include it?</p>
-   <p>Modify <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller③">AbortController</a></code>'s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-abortcontroller-abortcontroller" id="ref-for-dom-abortcontroller-abortcontroller①">AbortController()</a></code> algorithm to be:</p>
+   <p>Modify <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller④">AbortController</a></code>'s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-abortcontroller-abortcontroller" id="ref-for-dom-abortcontroller-abortcontroller①">AbortController()</a></code> algorithm to be:</p>
    <div class="algorithm" data-algorithm="new AbortController">
     <ol>
      <li data-md>
-      <p><a data-link-type="dfn" href="#construct-an-abortcontroller" id="ref-for-construct-an-abortcontroller①">Construct an AbortController</a> given a new <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal⑥">AbortSignal</a></code> object.</p>
+      <p><a data-link-type="dfn" href="#construct-an-abortcontroller" id="ref-for-construct-an-abortcontroller①">Construct an AbortController</a> given a new <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal①②">AbortSignal</a></code> object.</p>
     </ol>
    </div>
+   <p class="issue" id="issue-0ce31339"><a class="self-link" href="#issue-0ce31339"></a> We should file a PR to add this to the DOM specification.</p>
    <h2 class="heading settled" data-level="5" id="sec-security"><span class="secno">5. </span><span class="content">Security and Privacy Considerations</span><a class="self-link" href="#sec-security"></a></h2>
    <p><strong>TODO</strong>(shaseley): Fill this in.</p>
   </main>
@@ -1164,15 +1153,16 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
    <li><a href="#construct-an-abortcontroller">construct an AbortController</a><span>, in §4.2.1</span>
    <li><a href="#dom-taskcontroller-taskcontroller">constructor()</a><span>, in §3.1</span>
    <li><a href="#dom-taskcontroller-taskcontroller">constructor(priority)</a><span>, in §3.1</span>
-   <li><a href="#create-a-scheduler-task-queue">create a scheduler task queue</a><span>, in §2.4.1</span>
-   <li><a href="#create-a-scheduler-task-queue">creating a scheduler task queue</a><span>, in §2.4.1</span>
+   <li><a href="#create-a-scheduler-task-queue">create a scheduler task queue</a><span>, in §2.3.3</span>
+   <li><a href="#create-a-scheduler-task-queue">creating a scheduler task queue</a><span>, in §2.3.3</span>
    <li><a href="#dom-schedulerposttaskoptions-delay">delay</a><span>, in §2.2</span>
    <li><a href="#scheduler-dynamic-priority-task-queue-map">dynamic priority task queue map</a><span>, in §2.2</span>
    <li><a href="#scheduler-task-enqueue-order">enqueue order</a><span>, in §2.3.1</span>
-   <li><a href="#get-the-runnable-task-queues">get the runnable task queues</a><span>, in §2.4.4</span>
-   <li><a href="#get-the-runnable-task-queues">getting the runnable task queues</a><span>, in §2.4.4</span>
-   <li><a href="#has-a-runnable-task">has a runnable task</a><span>, in §2.4.4</span>
-   <li><a href="#has-a-runnable-task">have a runnable task</a><span>, in §2.4.4</span>
+   <li><a href="#scheduler-task-queue-first-runnable-task">first runnable task</a><span>, in §2.3.3</span>
+   <li><a href="#get-the-runnable-task-queues">get the runnable task queues</a><span>, in §2.4.3</span>
+   <li><a href="#get-the-runnable-task-queues">getting the runnable task queues</a><span>, in §2.4.3</span>
+   <li><a href="#has-a-runnable-task">has a runnable task</a><span>, in §2.4.3</span>
+   <li><a href="#has-a-runnable-task">have a runnable task</a><span>, in §2.4.3</span>
    <li><a href="#taskpriority-less-than">less than</a><span>, in §2.1</span>
    <li><a href="#scheduler-next-enqueue-order">next enqueue order</a><span>, in §2.2</span>
    <li><a href="#scheduler-task-older-than">older than</a><span>, in §2.3.1</span>
@@ -1190,11 +1180,11 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
    <li><a href="#eventdef-tasksignal-prioritychange">prioritychange</a><span>, in §3.2</span>
    <li><a href="#dom-tasksignal-priority-change-algorithms">priority change algorithms</a><span>, in §3.2</span>
    <li><a href="#dom-tasksignal-priority-changing">priority changing</a><span>, in §3.2</span>
-   <li><a href="#queue-a-scheduler-task">queue a scheduler task</a><span>, in §2.4.2</span>
-   <li><a href="#queue-a-scheduler-task">queuing a scheduler task</a><span>, in §2.4.2</span>
-   <li><a href="#scheduler-task-queue-remove">remove</a><span>, in §2.4.2</span>
-   <li><a href="#schedule-a-posttask-task">schedule a postTask task</a><span>, in §2.4.3</span>
-   <li><a href="#schedule-a-task-to-invoke-a-callback">schedule a task to invoke a callback</a><span>, in §2.4.3</span>
+   <li><a href="#queue-a-scheduler-task">queue a scheduler task</a><span>, in §2.4.1</span>
+   <li><a href="#queue-a-scheduler-task">queuing a scheduler task</a><span>, in §2.4.1</span>
+   <li><a href="#scheduler-task-queue-remove">remove</a><span>, in §2.4.1</span>
+   <li><a href="#schedule-a-posttask-task">schedule a postTask task</a><span>, in §2.4.2</span>
+   <li><a href="#schedule-a-task-to-invoke-a-callback">schedule a task to invoke a callback</a><span>, in §2.4.2</span>
    <li><a href="#scheduler">Scheduler</a><span>, in §2.2</span>
    <li>
     scheduler
@@ -1207,11 +1197,10 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
    <li><a href="#scheduler-task">scheduler task</a><span>, in §2.3.1</span>
    <li><a href="#scheduler-task-queue">scheduler task queue</a><span>, in §2.3.3</span>
    <li><a href="#scheduler-task-sources">scheduler task sources</a><span>, in §2.3.2</span>
-   <li><a href="#schedule-a-posttask-task">scheduling a postTask task</a><span>, in §2.4.3</span>
-   <li><a href="#select-the-scheduler-task-queue">selecting the scheduler task queue</a><span>, in §2.4.3</span>
-   <li><a href="#select-the-task-queue-of-the-next-scheduler-task">selecting the task queue of the next scheduler task v2</a><span>, in §2.4.4</span>
-   <li><a href="#select-the-scheduler-task-queue">select the scheduler task queue</a><span>, in §2.4.3</span>
-   <li><a href="#select-the-task-queue-of-the-next-scheduler-task">select the task queue of the next scheduler task</a><span>, in §2.4.4</span>
+   <li><a href="#schedule-a-posttask-task">scheduling a postTask task</a><span>, in §2.4.2</span>
+   <li><a href="#select-the-scheduler-task-queue">selecting the scheduler task queue</a><span>, in §2.4.2</span>
+   <li><a href="#selecting-the-task-queue-of-the-next-scheduler-task">selecting the task queue of the next scheduler task</a><span>, in §2.4.3</span>
+   <li><a href="#select-the-scheduler-task-queue">select the scheduler task queue</a><span>, in §2.4.2</span>
    <li><a href="#dom-taskcontroller-setpriority">setPriority(priority)</a><span>, in §3.1</span>
    <li>
     signal
@@ -1234,53 +1223,47 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
   <aside class="dfn-panel" data-for="term-for-abortcontroller">
    <a href="https://dom.spec.whatwg.org/#abortcontroller">https://dom.spec.whatwg.org/#abortcontroller</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-abortcontroller">3.1. The TaskController Interface</a>
-    <li><a href="#ref-for-abortcontroller①">4.2.1. Abortcontroller</a> <a href="#ref-for-abortcontroller②">(2)</a> <a href="#ref-for-abortcontroller③">(3)</a>
+    <li><a href="#ref-for-abortcontroller">3.1. The TaskController Interface</a> <a href="#ref-for-abortcontroller①">(2)</a>
+    <li><a href="#ref-for-abortcontroller②">4.2.1. AbortController</a> <a href="#ref-for-abortcontroller③">(2)</a> <a href="#ref-for-abortcontroller④">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-dom-abortcontroller-abortcontroller">
    <a href="https://dom.spec.whatwg.org/#dom-abortcontroller-abortcontroller">https://dom.spec.whatwg.org/#dom-abortcontroller-abortcontroller</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-abortcontroller-abortcontroller">4.2.1. Abortcontroller</a> <a href="#ref-for-dom-abortcontroller-abortcontroller①">(2)</a>
+    <li><a href="#ref-for-dom-abortcontroller-abortcontroller">4.2.1. AbortController</a> <a href="#ref-for-dom-abortcontroller-abortcontroller①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-abortsignal">
    <a href="https://dom.spec.whatwg.org/#abortsignal">https://dom.spec.whatwg.org/#abortsignal</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-abortsignal">2.2. The Scheduler Interface</a>
-    <li><a href="#ref-for-abortsignal①">2.4.3. Scheduling Tasks</a> <a href="#ref-for-abortsignal②">(2)</a>
-    <li><a href="#ref-for-abortsignal③">3.2. The TaskSignal Interface</a>
-    <li><a href="#ref-for-abortsignal④">4.2.1. Abortcontroller</a> <a href="#ref-for-abortsignal⑤">(2)</a> <a href="#ref-for-abortsignal⑥">(3)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="term-for-dom-abortcontroller-abort">
-   <a href="https://dom.spec.whatwg.org/#dom-abortcontroller-abort">https://dom.spec.whatwg.org/#dom-abortcontroller-abort</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-dom-abortcontroller-abort">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-abortsignal">2.2. The Scheduler Interface</a> <a href="#ref-for-abortsignal①">(2)</a> <a href="#ref-for-abortsignal②">(3)</a> <a href="#ref-for-abortsignal③">(4)</a> <a href="#ref-for-abortsignal④">(5)</a> <a href="#ref-for-abortsignal⑤">(6)</a> <a href="#ref-for-abortsignal⑥">(7)</a>
+    <li><a href="#ref-for-abortsignal⑦">2.4.2. Scheduling Tasks</a> <a href="#ref-for-abortsignal⑧">(2)</a>
+    <li><a href="#ref-for-abortsignal⑨">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-abortsignal①⓪">4.2.1. AbortController</a> <a href="#ref-for-abortsignal①①">(2)</a> <a href="#ref-for-abortsignal①②">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-abortsignal-aborted-flag">
    <a href="https://dom.spec.whatwg.org/#abortsignal-aborted-flag">https://dom.spec.whatwg.org/#abortsignal-aborted-flag</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-abortsignal-aborted-flag">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-abortsignal-aborted-flag">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-abortsignal-add">
    <a href="https://dom.spec.whatwg.org/#abortsignal-add">https://dom.spec.whatwg.org/#abortsignal-add</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-abortsignal-add">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-abortsignal-add">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-dom-abortcontroller-abortcontroller">
    <a href="https://dom.spec.whatwg.org/#dom-abortcontroller-abortcontroller">https://dom.spec.whatwg.org/#dom-abortcontroller-abortcontroller</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-abortcontroller-abortcontroller">4.2.1. Abortcontroller</a> <a href="#ref-for-dom-abortcontroller-abortcontroller①">(2)</a>
+    <li><a href="#ref-for-dom-abortcontroller-abortcontroller">4.2.1. AbortController</a> <a href="#ref-for-dom-abortcontroller-abortcontroller①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-document">
    <a href="https://dom.spec.whatwg.org/#concept-document">https://dom.spec.whatwg.org/#concept-document</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-document">2.4.2. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-concept-document">2.4.1. Queueing and Removing Scheduler Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-event-fire">
@@ -1293,7 +1276,7 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
    <a href="https://dom.spec.whatwg.org/#abortcontroller-signal">https://dom.spec.whatwg.org/#abortcontroller-signal</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-abortcontroller-signal">3.1. The TaskController Interface</a> <a href="#ref-for-abortcontroller-signal①">(2)</a>
-    <li><a href="#ref-for-abortcontroller-signal②">4.2.1. Abortcontroller</a>
+    <li><a href="#ref-for-abortcontroller-signal②">4.2.1. AbortController</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-eventhandler">
@@ -1305,7 +1288,7 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
   <aside class="dfn-panel" data-for="term-for-window">
    <a href="https://html.spec.whatwg.org/multipage/window-object.html#window">https://html.spec.whatwg.org/multipage/window-object.html#window</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-window">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-window">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-windoworworkerglobalscope">
@@ -1317,13 +1300,13 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
   <aside class="dfn-panel" data-for="term-for-concept-document-window">
    <a href="https://html.spec.whatwg.org/multipage/window-object.html#concept-document-window">https://html.spec.whatwg.org/multipage/window-object.html#concept-document-window</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-document-window">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-concept-document-window">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-document">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-document">https://html.spec.whatwg.org/multipage/webappapis.html#concept-document</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-document①">2.4.2. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-concept-document①">2.4.1. Queueing and Removing Scheduler Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-event-handlers">
@@ -1355,7 +1338,7 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
   <aside class="dfn-panel" data-for="term-for-in-parallel">
    <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-in-parallel">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-in-parallel">2.4.2. Scheduling Tasks</a> <a href="#ref-for-in-parallel①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-relevant-agent">
@@ -1367,85 +1350,88 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
   <aside class="dfn-panel" data-for="term-for-concept-relevant-global">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-relevant-global">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-concept-relevant-global">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-task-runnable">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-runnable">https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-runnable</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-task-runnable">2.4.4. Selecting the Next Task to Run</a> <a href="#ref-for-concept-task-runnable①">(2)</a> <a href="#ref-for-concept-task-runnable②">(3)</a>
+    <li><a href="#ref-for-concept-task-runnable">2.3.3. Scheduler Task Queues</a>
+    <li><a href="#ref-for-concept-task-runnable①">2.4.3. Selecting the Next Task to Run</a> <a href="#ref-for-concept-task-runnable②">(2)</a>
     <li><a href="#ref-for-concept-task-runnable③">4.1.3. Event loop: processing model</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-script-evaluation-environment-settings-object-set">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#script-evaluation-environment-settings-object-set">https://html.spec.whatwg.org/multipage/webappapis.html#script-evaluation-environment-settings-object-set</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-script-evaluation-environment-settings-object-set">2.4.2. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-script-evaluation-environment-settings-object-set">2.4.1. Queueing and Removing Scheduler Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-source">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-source">https://html.spec.whatwg.org/multipage/webappapis.html#concept-source</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-source">2.4.2. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-concept-source">2.4.1. Queueing and Removing Scheduler Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-task-steps">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-steps">https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-steps</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-task-steps">2.4.2. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-concept-task-steps">2.4.1. Queueing and Removing Scheduler Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-task">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">https://html.spec.whatwg.org/multipage/webappapis.html#concept-task</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-task">2.3.1. Scheduler Tasks</a>
-    <li><a href="#ref-for-concept-task①">4.1.3. Event loop: processing model</a>
+    <li><a href="#ref-for-concept-task①">2.4.1. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-concept-task②">4.1.3. Event loop: processing model</a> <a href="#ref-for-concept-task③">(2)</a> <a href="#ref-for-concept-task④">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-task-queue">
+   <a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">https://html.spec.whatwg.org/multipage/webappapis.html#task-queue</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-task-queue">4.1.2. Event loop: definitions</a> <a href="#ref-for-task-queue①">(2)</a>
+    <li><a href="#ref-for-task-queue②">4.1.3. Event loop: processing model</a> <a href="#ref-for-task-queue③">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-task-source">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source">https://html.spec.whatwg.org/multipage/webappapis.html#task-source</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-task-source">2.3.2. Scheduler Task Sources</a> <a href="#ref-for-task-source①">(2)</a>
-    <li><a href="#ref-for-task-source②">2.4.2. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-task-source②">2.4.1. Queueing and Removing Scheduler Tasks</a>
     <li><a href="#ref-for-task-source③">4.1.2. Event loop: definitions</a> <a href="#ref-for-task-source④">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-set-append">
    <a href="https://infra.spec.whatwg.org/#set-append">https://infra.spec.whatwg.org/#set-append</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-set-append">2.4.2. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-set-append">2.4.1. Queueing and Removing Scheduler Tasks</a>
     <li><a href="#ref-for-set-append①">3.2. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-map-exists">
    <a href="https://infra.spec.whatwg.org/#map-exists">https://infra.spec.whatwg.org/#map-exists</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-map-exists">2.4.3. Scheduling Tasks</a> <a href="#ref-for-map-exists①">(2)</a> <a href="#ref-for-map-exists②">(3)</a> <a href="#ref-for-map-exists③">(4)</a> <a href="#ref-for-map-exists④">(5)</a>
+    <li><a href="#ref-for-map-exists">2.4.2. Scheduling Tasks</a> <a href="#ref-for-map-exists①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-list-empty">
    <a href="https://infra.spec.whatwg.org/#list-empty">https://infra.spec.whatwg.org/#list-empty</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-list-empty">2.4.4. Selecting the Next Task to Run</a> <a href="#ref-for-list-empty①">(2)</a>
+    <li><a href="#ref-for-list-empty">2.4.3. Selecting the Next Task to Run</a> <a href="#ref-for-list-empty①">(2)</a>
     <li><a href="#ref-for-list-empty②">4.1.3. Event loop: processing model</a> <a href="#ref-for-list-empty③">(2)</a> <a href="#ref-for-list-empty④">(3)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="term-for-map-exists">
-   <a href="https://infra.spec.whatwg.org/#map-exists">https://infra.spec.whatwg.org/#map-exists</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-map-exists">2.4.3. Scheduling Tasks</a> <a href="#ref-for-map-exists①">(2)</a> <a href="#ref-for-map-exists②">(3)</a> <a href="#ref-for-map-exists③">(4)</a> <a href="#ref-for-map-exists④">(5)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-list-extend">
    <a href="https://infra.spec.whatwg.org/#list-extend">https://infra.spec.whatwg.org/#list-extend</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-list-extend">2.4.4. Selecting the Next Task to Run</a>
+    <li><a href="#ref-for-list-extend">2.4.3. Selecting the Next Task to Run</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-map-getting-the-values">
    <a href="https://infra.spec.whatwg.org/#map-getting-the-values">https://infra.spec.whatwg.org/#map-getting-the-values</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-map-getting-the-values">2.4.4. Selecting the Next Task to Run</a> <a href="#ref-for-map-getting-the-values①">(2)</a>
+    <li><a href="#ref-for-map-getting-the-values">2.4.3. Selecting the Next Task to Run</a> <a href="#ref-for-map-getting-the-values①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-implementation-defined">
@@ -1470,31 +1456,25 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
   <aside class="dfn-panel" data-for="term-for-ordered-map">
    <a href="https://infra.spec.whatwg.org/#ordered-map">https://infra.spec.whatwg.org/#ordered-map</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-ordered-map">2.1. Task Priorities</a>
-    <li><a href="#ref-for-ordered-map①">2.2. The Scheduler Interface</a> <a href="#ref-for-ordered-map②">(2)</a>
+    <li><a href="#ref-for-ordered-map">2.2. The Scheduler Interface</a> <a href="#ref-for-ordered-map①">(2)</a> <a href="#ref-for-ordered-map②">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-list-remove">
    <a href="https://infra.spec.whatwg.org/#list-remove">https://infra.spec.whatwg.org/#list-remove</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-list-remove">2.4.2. Queueing and Removing Scheduler Tasks</a>
-    <li><a href="#ref-for-list-remove①">2.4.4. Selecting the Next Task to Run</a>
+    <li><a href="#ref-for-list-remove">2.4.1. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-list-remove①">2.4.3. Selecting the Next Task to Run</a> <a href="#ref-for-list-remove②">(2)</a>
+    <li><a href="#ref-for-list-remove③">4.1.3. Event loop: processing model</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-ordered-set">
    <a href="https://infra.spec.whatwg.org/#ordered-set">https://infra.spec.whatwg.org/#ordered-set</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-ordered-set">2.3.3. Scheduler Task Queues</a>
-    <li><a href="#ref-for-ordered-set①">2.4.1. Creating Scheduler Task Queues</a>
-    <li><a href="#ref-for-ordered-set②">2.4.2. Queueing and Removing Scheduler Tasks</a>
-    <li><a href="#ref-for-ordered-set③">3.2. The TaskSignal Interface</a>
-    <li><a href="#ref-for-ordered-set④">4.1.3. Event loop: processing model</a> <a href="#ref-for-ordered-set⑤">(2)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="term-for-list-sort-in-descending-order">
-   <a href="https://infra.spec.whatwg.org/#list-sort-in-descending-order">https://infra.spec.whatwg.org/#list-sort-in-descending-order</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-list-sort-in-descending-order">2.4.4. Selecting the Next Task to Run</a>
+    <li><a href="#ref-for-ordered-set">2.3.3. Scheduler Task Queues</a> <a href="#ref-for-ordered-set①">(2)</a>
+    <li><a href="#ref-for-ordered-set②">2.4.1. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-ordered-set③">2.4.3. Selecting the Next Task to Run</a>
+    <li><a href="#ref-for-ordered-set④">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-ordered-set⑤">4.1.3. Event loop: processing model</a> <a href="#ref-for-ordered-set⑥">(2)</a> <a href="#ref-for-ordered-set⑦">(3)</a> <a href="#ref-for-ordered-set⑧">(4)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-struct">
@@ -1503,23 +1483,16 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
     <li><a href="#ref-for-struct">2.3.3. Scheduler Task Queues</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="term-for-dfn-service-worker-registration-task-queue">
-   <a href="https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration-task-queue">https://w3c.github.io/ServiceWorker/#dfn-service-worker-registration-task-queue</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-dfn-service-worker-registration-task-queue">4.1.2. Event loop: definitions</a> <a href="#ref-for-dfn-service-worker-registration-task-queue①">(2)</a>
-    <li><a href="#ref-for-dfn-service-worker-registration-task-queue②">4.1.3. Event loop: processing model</a> <a href="#ref-for-dfn-service-worker-registration-task-queue③">(2)</a>
-   </ul>
-  </aside>
   <aside class="dfn-panel" data-for="term-for-aborterror">
    <a href="https://heycam.github.io/webidl/#aborterror">https://heycam.github.io/webidl/#aborterror</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-aborterror">2.4.3. Scheduling Tasks</a> <a href="#ref-for-aborterror①">(2)</a>
+    <li><a href="#ref-for-aborterror">2.4.2. Scheduling Tasks</a> <a href="#ref-for-aborterror①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-idl-DOMException">
    <a href="https://heycam.github.io/webidl/#idl-DOMException">https://heycam.github.io/webidl/#idl-DOMException</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-idl-DOMException">2.4.3. Scheduling Tasks</a> <a href="#ref-for-idl-DOMException①">(2)</a>
+    <li><a href="#ref-for-idl-DOMException">2.4.2. Scheduling Tasks</a> <a href="#ref-for-idl-DOMException①">(2)</a>
     <li><a href="#ref-for-idl-DOMException②">3.2. The TaskSignal Interface</a>
    </ul>
   </aside>
@@ -1549,6 +1522,12 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
     <li><a href="#ref-for-SameObject">3.1. The TaskController Interface</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-a-new-promise">
+   <a href="https://heycam.github.io/webidl/#a-new-promise">https://heycam.github.io/webidl/#a-new-promise</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-a-new-promise">2.4.2. Scheduling Tasks</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-idl-any">
    <a href="https://heycam.github.io/webidl/#idl-any">https://heycam.github.io/webidl/#idl-any</a><b>Referenced in:</b>
    <ul>
@@ -1558,7 +1537,7 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
   <aside class="dfn-panel" data-for="term-for-invoke-a-callback-function">
    <a href="https://heycam.github.io/webidl/#invoke-a-callback-function">https://heycam.github.io/webidl/#invoke-a-callback-function</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-invoke-a-callback-function">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-invoke-a-callback-function">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-idl-long">
@@ -1567,16 +1546,10 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
     <li><a href="#ref-for-idl-long">2.2. The Scheduler Interface</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="term-for-dom-domexception-message">
-   <a href="https://heycam.github.io/webidl/#dom-domexception-message">https://heycam.github.io/webidl/#dom-domexception-message</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-dom-domexception-message">3.2. The TaskSignal Interface</a>
-   </ul>
-  </aside>
   <aside class="dfn-panel" data-for="term-for-reject">
    <a href="https://heycam.github.io/webidl/#reject">https://heycam.github.io/webidl/#reject</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-reject">2.4.3. Scheduling Tasks</a> <a href="#ref-for-reject①">(2)</a> <a href="#ref-for-reject②">(3)</a>
+    <li><a href="#ref-for-reject">2.4.2. Scheduling Tasks</a> <a href="#ref-for-reject①">(2)</a> <a href="#ref-for-reject②">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-this">
@@ -1586,7 +1559,7 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
     <li><a href="#ref-for-this①">3.1. The TaskController Interface</a> <a href="#ref-for-this②">(2)</a>
     <li><a href="#ref-for-this③">3.2. The TaskSignal Interface</a>
     <li><a href="#ref-for-this④">4.1.1. WindowOrWorkerGlobalScope</a>
-    <li><a href="#ref-for-this⑤">4.2.1. Abortcontroller</a>
+    <li><a href="#ref-for-this⑤">4.2.1. AbortController</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-dfn-throw">
@@ -1609,7 +1582,6 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
      <li><span class="dfn-paneled" id="term-for-abortcontroller">AbortController</span>
      <li><span class="dfn-paneled" id="term-for-dom-abortcontroller-abortcontroller">AbortController()</span>
      <li><span class="dfn-paneled" id="term-for-abortsignal">AbortSignal</span>
-     <li><span class="dfn-paneled" id="term-for-dom-abortcontroller-abort">abort()</span>
      <li><span class="dfn-paneled" id="term-for-abortsignal-aborted-flag">aborted flag</span>
      <li><span class="dfn-paneled" id="term-for-abortsignal-add">add</span>
      <li><span class="dfn-paneled" id="term-for-dom-abortcontroller-abortcontroller①">constructor()</span>
@@ -1637,6 +1609,7 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
      <li><span class="dfn-paneled" id="term-for-concept-source">source</span>
      <li><span class="dfn-paneled" id="term-for-concept-task-steps">steps</span>
      <li><span class="dfn-paneled" id="term-for-concept-task">task</span>
+     <li><span class="dfn-paneled" id="term-for-task-queue">task queues</span>
      <li><span class="dfn-paneled" id="term-for-task-source">task source</span>
     </ul>
    <li>
@@ -1645,22 +1618,15 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
      <li><span class="dfn-paneled" id="term-for-set-append">append</span>
      <li><span class="dfn-paneled" id="term-for-map-exists">contain</span>
      <li><span class="dfn-paneled" id="term-for-list-empty">empty</span>
-     <li><span class="dfn-paneled" id="term-for-map-exists①">exist</span>
      <li><span class="dfn-paneled" id="term-for-list-extend">extend</span>
      <li><span class="dfn-paneled" id="term-for-map-getting-the-values">get the values</span>
      <li><span class="dfn-paneled" id="term-for-implementation-defined">implementation-defined</span>
-     <li><span class="dfn-paneled" id="term-for-struct-item">item</span>
+     <li><span class="dfn-paneled" id="term-for-struct-item">item <small>(for struct)</small></span>
      <li><span class="dfn-paneled" id="term-for-list-iterate">iterate</span>
      <li><span class="dfn-paneled" id="term-for-ordered-map">map</span>
      <li><span class="dfn-paneled" id="term-for-list-remove">remove</span>
      <li><span class="dfn-paneled" id="term-for-ordered-set">set</span>
-     <li><span class="dfn-paneled" id="term-for-list-sort-in-descending-order">sorting in descending order</span>
      <li><span class="dfn-paneled" id="term-for-struct">struct</span>
-    </ul>
-   <li>
-    <a data-link-type="biblio">[service-workers-1]</a> defines the following terms:
-    <ul>
-     <li><span class="dfn-paneled" id="term-for-dfn-service-worker-registration-task-queue">task queues</span>
     </ul>
    <li>
     <a data-link-type="biblio">[WebIDL]</a> defines the following terms:
@@ -1671,10 +1637,10 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
      <li><span class="dfn-paneled" id="term-for-notallowederror">NotAllowedError</span>
      <li><span class="dfn-paneled" id="term-for-idl-promise">Promise</span>
      <li><span class="dfn-paneled" id="term-for-SameObject">SameObject</span>
+     <li><span class="dfn-paneled" id="term-for-a-new-promise">a new promise</span>
      <li><span class="dfn-paneled" id="term-for-idl-any">any</span>
      <li><span class="dfn-paneled" id="term-for-invoke-a-callback-function">invoke</span>
      <li><span class="dfn-paneled" id="term-for-idl-long">long</span>
-     <li><span class="dfn-paneled" id="term-for-dom-domexception-message">message</span>
      <li><span class="dfn-paneled" id="term-for-reject">reject</span>
      <li><span class="dfn-paneled" id="term-for-this">this</span>
      <li><span class="dfn-paneled" id="term-for-dfn-throw">throw</span>
@@ -1692,8 +1658,6 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
    <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/">Infra Standard</a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
    <dt id="biblio-rfc2119">[RFC2119]
    <dd>S. Bradner. <a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>. March 1997. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc2119">https://tools.ietf.org/html/rfc2119</a>
-   <dt id="biblio-service-workers-1">[SERVICE-WORKERS-1]
-   <dd>Alex Russell; et al. <a href="https://w3c.github.io/ServiceWorker/">Service Workers 1</a>. URL: <a href="https://w3c.github.io/ServiceWorker/">https://w3c.github.io/ServiceWorker/</a>
    <dt id="biblio-webidl">[WebIDL]
    <dd>Boris Zbarsky. <a href="https://heycam.github.io/webidl/">Web IDL</a>. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
   </dl>
@@ -1705,7 +1669,7 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
 };
 
 <c- b>dictionary</c-> <a href="#dictdef-schedulerposttaskoptions"><code><c- g>SchedulerPostTaskOptions</c-></code></a> {
-    (<a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal"><c- n>AbortSignal</c-></a> <c- b>or</c-> <a data-link-type="idl-name" href="#tasksignal"><c- n>TaskSignal</c-></a>)? <a data-default="null" data-type="(AbortSignal or TaskSignal)? " href="#dom-schedulerposttaskoptions-signal"><code><c- g>signal</c-></code></a> = <c- b>null</c->;
+    <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal"><c- n>AbortSignal</c-></a>? <a data-default="null" data-type="AbortSignal? " href="#dom-schedulerposttaskoptions-signal"><code><c- g>signal</c-></code></a> = <c- b>null</c->;
     <a data-link-type="idl-name" href="#enumdef-taskpriority"><c- n>TaskPriority</c-></a>? <a data-default="null" data-type="TaskPriority? " href="#dom-schedulerposttaskoptions-priority"><code><c- g>priority</c-></code></a> = <c- b>null</c->;
     <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-long"><c- b>long</c-></a> <a data-default="0" data-type="long " href="#dom-schedulerposttaskoptions-delay"><code><c- g>delay</c-></code></a> = 0;
 };
@@ -1713,7 +1677,8 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
 <c- b>callback</c-> <a href="#callbackdef-schedulerposttaskcallback"><code><c- g>SchedulerPostTaskCallback</c-></code></a> = <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-any"><c- b>any</c-></a> ();
 
 [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)] <c- b>interface</c-> <a href="#scheduler"><code><c- g>Scheduler</c-></code></a> {
-  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-any"><c- b>any</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-scheduler-posttask"><c- g>postTask</c-></a>(<a data-link-type="idl-name" href="#callbackdef-schedulerposttaskcallback"><c- n>SchedulerPostTaskCallback</c-></a> <a href="#dom-scheduler-posttask-callback-options-callback"><code><c- g>callback</c-></code></a>, <c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-schedulerposttaskoptions"><c- n>SchedulerPostTaskOptions</c-></a> <a href="#dom-scheduler-posttask-callback-options-options"><code><c- g>options</c-></code></a> = {});
+  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-promise"><c- b>Promise</c-></a>&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-any"><c- b>any</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-scheduler-posttask"><c- g>postTask</c-></a>(<a data-link-type="idl-name" href="#callbackdef-schedulerposttaskcallback"><c- n>SchedulerPostTaskCallback</c-></a> <a href="#dom-scheduler-posttask-callback-options-callback"><code><c- g>callback</c-></code></a>,
+                        <c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-schedulerposttaskoptions"><c- n>SchedulerPostTaskOptions</c-></a> <a href="#dom-scheduler-posttask-callback-options-options"><code><c- g>options</c-></code></a> = {});
 };
 
 [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)] <c- b>interface</c-> <a href="#taskcontroller"><code><c- g>TaskController</c-></code></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortcontroller"><c- n>AbortController</c-></a> {
@@ -1737,44 +1702,27 @@ construction algorithm that takes an <code class="idl"><a data-link-type="idl" h
 </pre>
   <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
-   <div class="issue"> Is that the right way to define signal? It’s currently defined as an AbortSignal in our implementation.<a href="#issue-8de4c154"> ↵ </a></div>
-   <div class="issue"> Is it common to add line breaks for long IDL?<a href="#issue-eb3bb1ff"> ↵ </a></div>
-   <div class="issue"> Is this how we define numeric attributes?<a href="#issue-115f50c0"> ↵ </a></div>
-   <div class="issue"> Do we need to explicitly create <var>options</var>, or is the IDL that defaults it sufficient?<a href="#issue-00f0be2e"> ↵ </a></div>
-   <div class="issue"> Scheduler task queues in this spec are only created with an algorithm
-that initializes the fields, which was done because a priority is required when
-instantiating a STQ. Is this okay, or should they be initialized here? An example
-of this pattern is the Task struct in the event loop spec.<a href="#issue-2dae6142"> ↵ </a></div>
-   <div class="issue"> Is it okay to rely on a task queue being defined as a set, rather than
-using a task queue in the data structure? I wanted a set of scheduler tasks,
-not tasks, and it’s spec inheritance semantics/rules are not clear to me.<a href="#issue-5a7e2f96"> ↵ </a></div>
-   <div class="issue"> Should we refactor the event loop task creation code and remove the duplicatation?<a href="#issue-78a65b9e"> ↵ </a></div>
-   <div class="issue"> I’m not sure if ^^ that note belongs there, but it seems like it should
-  go somewhere.<a href="#issue-6d6b5bfd"> ↵ </a></div>
-   <div class="issue"> Maybe change the name of this since it also creates the task queue if needed.<a href="#issue-96351175"> ↵ </a></div>
-   <div class="issue"> Parts of this need to be atomic, but how do we do that?<a href="#issue-4bae1ee2"> ↵ </a></div>
-   <div class="issue"> Is it okay to rely on a task queue being defined as a set, rather than
-  using a task queue in the data structure? I wanted a set of scheduler tasks,
-  not tasks.<a href="#issue-572b0544"> ↵ </a></div>
-   <div class="issue"> Note that this is different from the current implemenation (signal
-property), but I have a patch for this that works <strong>if</strong> this is what we want
-to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
-   <div class="issue"> Do we need to indicate that priority is optional, or is the IDL sufficient?<a href="#issue-098f6d60"> ↵ </a></div>
+   <div class="issue"> We should submit a PR to the HTML spec that adds a constructor for <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a>.<a href="#issue-930c6f89"> ↵ </a></div>
+   <div class="issue"> Because this algorithm can be called from <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a> steps, parts
+  of this and other algorithms are racy. Specifically, the <a data-link-type="dfn" href="#scheduler-next-enqueue-order">next enqueue order</a> should be updated atomically, and accessing
+  the <a data-link-type="dfn" href="#scheduler-task-queue">scheduler task queues</a> should occur atomically. The latter also affects
+  the event loop task queues (see https://github.com/whatwg/html/issues/6475).<a href="#issue-44b44706"> ↵ </a></div>
    <div class="issue"> We should consider subclassing Event so we can include a previousPriority
   attribute (<a href="https://github.com/WICG/scheduling-apis/issues/21">GH Issue</a>).<a href="#issue-55ed36f5"> ↵ </a></div>
-   <div class="issue"> Probably add a note here about what this means and some possible approaches.<a href="#issue-a9923911"> ↵ </a></div>
-   <div class="issue"> This next step is optional; should we include it?<a href="#issue-ced42067"> ↵ </a></div>
+   <div class="issue"> The <code>taskQueue</code> in this step will either be a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set">set</a> of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">tasks</a> or a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set">set</a> of <a data-link-type="dfn" href="#scheduler-task">scheduler tasks</a>. The steps that follow only <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-remove">remove</a> an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-item">item</a>, so they are <em>roughly</em> compatible. Ideally, there would be a
+common task queue interface that supports a <code>pop()</code> method that would return a
+plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a>, but that would invlove a fair amount of refactoring.<a href="#issue-67b23491"> ↵ </a></div>
+   <div class="issue"> We should file a PR to add this to the DOM specification.<a href="#issue-0ce31339"> ↵ </a></div>
   </div>
   <aside class="dfn-panel" data-for="enumdef-taskpriority">
    <b><a href="#enumdef-taskpriority">#enumdef-taskpriority</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-enumdef-taskpriority">2.1. Task Priorities</a> <a href="#ref-for-enumdef-taskpriority①">(2)</a>
-    <li><a href="#ref-for-enumdef-taskpriority②">2.2. The Scheduler Interface</a> <a href="#ref-for-enumdef-taskpriority③">(2)</a> <a href="#ref-for-enumdef-taskpriority④">(3)</a>
-    <li><a href="#ref-for-enumdef-taskpriority⑤">2.3.3. Scheduler Task Queues</a>
-    <li><a href="#ref-for-enumdef-taskpriority⑥">2.4.1. Creating Scheduler Task Queues</a>
-    <li><a href="#ref-for-enumdef-taskpriority⑦">2.4.3. Scheduling Tasks</a>
-    <li><a href="#ref-for-enumdef-taskpriority⑧">3.1. The TaskController Interface</a> <a href="#ref-for-enumdef-taskpriority⑨">(2)</a>
-    <li><a href="#ref-for-enumdef-taskpriority①⓪">3.2. The TaskSignal Interface</a> <a href="#ref-for-enumdef-taskpriority①①">(2)</a> <a href="#ref-for-enumdef-taskpriority①②">(3)</a>
+    <li><a href="#ref-for-enumdef-taskpriority②">2.2. The Scheduler Interface</a> <a href="#ref-for-enumdef-taskpriority③">(2)</a> <a href="#ref-for-enumdef-taskpriority④">(3)</a> <a href="#ref-for-enumdef-taskpriority⑤">(4)</a>
+    <li><a href="#ref-for-enumdef-taskpriority⑥">2.3.3. Scheduler Task Queues</a> <a href="#ref-for-enumdef-taskpriority⑦">(2)</a>
+    <li><a href="#ref-for-enumdef-taskpriority⑧">2.4.2. Scheduling Tasks</a>
+    <li><a href="#ref-for-enumdef-taskpriority⑨">3.1. The TaskController Interface</a> <a href="#ref-for-enumdef-taskpriority①⓪">(2)</a>
+    <li><a href="#ref-for-enumdef-taskpriority①①">3.2. The TaskSignal Interface</a> <a href="#ref-for-enumdef-taskpriority①②">(2)</a> <a href="#ref-for-enumdef-taskpriority①③">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-taskpriority-user-blocking">
@@ -1787,7 +1735,7 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
    <b><a href="#dom-taskpriority-user-visible">#dom-taskpriority-user-visible</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-taskpriority-user-visible">2.1. Task Priorities</a> <a href="#ref-for-dom-taskpriority-user-visible①">(2)</a> <a href="#ref-for-dom-taskpriority-user-visible②">(3)</a>
-    <li><a href="#ref-for-dom-taskpriority-user-visible③">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-dom-taskpriority-user-visible③">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-taskpriority-background">
@@ -1799,39 +1747,41 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
   <aside class="dfn-panel" data-for="taskpriority-less-than">
    <b><a href="#taskpriority-less-than">#taskpriority-less-than</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-taskpriority-less-than">2.4.4. Selecting the Next Task to Run</a>
+    <li><a href="#ref-for-taskpriority-less-than">2.4.3. Selecting the Next Task to Run</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dictdef-schedulerposttaskoptions">
    <b><a href="#dictdef-schedulerposttaskoptions">#dictdef-schedulerposttaskoptions</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dictdef-schedulerposttaskoptions">2.2. The Scheduler Interface</a>
-    <li><a href="#ref-for-dictdef-schedulerposttaskoptions①">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-dictdef-schedulerposttaskoptions①">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-schedulerposttaskoptions-signal">
    <b><a href="#dom-schedulerposttaskoptions-signal">#dom-schedulerposttaskoptions-signal</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-schedulerposttaskoptions-signal">2.4.3. Scheduling Tasks</a> <a href="#ref-for-dom-schedulerposttaskoptions-signal①">(2)</a>
+    <li><a href="#ref-for-dom-schedulerposttaskoptions-signal">2.2. The Scheduler Interface</a> <a href="#ref-for-dom-schedulerposttaskoptions-signal①">(2)</a> <a href="#ref-for-dom-schedulerposttaskoptions-signal②">(3)</a>
+    <li><a href="#ref-for-dom-schedulerposttaskoptions-signal③">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-schedulerposttaskoptions-priority">
    <b><a href="#dom-schedulerposttaskoptions-priority">#dom-schedulerposttaskoptions-priority</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-schedulerposttaskoptions-priority">2.4.3. Scheduling Tasks</a> <a href="#ref-for-dom-schedulerposttaskoptions-priority①">(2)</a>
+    <li><a href="#ref-for-dom-schedulerposttaskoptions-priority">2.2. The Scheduler Interface</a> <a href="#ref-for-dom-schedulerposttaskoptions-priority①">(2)</a> <a href="#ref-for-dom-schedulerposttaskoptions-priority②">(3)</a>
+    <li><a href="#ref-for-dom-schedulerposttaskoptions-priority③">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-schedulerposttaskoptions-delay">
    <b><a href="#dom-schedulerposttaskoptions-delay">#dom-schedulerposttaskoptions-delay</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-schedulerposttaskoptions-delay">2.4.3. Scheduling Tasks</a> <a href="#ref-for-dom-schedulerposttaskoptions-delay①">(2)</a>
+    <li><a href="#ref-for-dom-schedulerposttaskoptions-delay">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="callbackdef-schedulerposttaskcallback">
    <b><a href="#callbackdef-schedulerposttaskcallback">#callbackdef-schedulerposttaskcallback</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-callbackdef-schedulerposttaskcallback">2.2. The Scheduler Interface</a>
-    <li><a href="#ref-for-callbackdef-schedulerposttaskcallback①">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-callbackdef-schedulerposttaskcallback①">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler">
@@ -1839,8 +1789,8 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
    <ul>
     <li><a href="#ref-for-scheduler">2.1. Task Priorities</a>
     <li><a href="#ref-for-scheduler①">2.2. The Scheduler Interface</a> <a href="#ref-for-scheduler②">(2)</a> <a href="#ref-for-scheduler③">(3)</a> <a href="#ref-for-scheduler④">(4)</a> <a href="#ref-for-scheduler⑤">(5)</a>
-    <li><a href="#ref-for-scheduler⑥">2.4.3. Scheduling Tasks</a> <a href="#ref-for-scheduler⑦">(2)</a> <a href="#ref-for-scheduler⑧">(3)</a>
-    <li><a href="#ref-for-scheduler⑨">2.4.4. Selecting the Next Task to Run</a> <a href="#ref-for-scheduler①⓪">(2)</a> <a href="#ref-for-scheduler①①">(3)</a>
+    <li><a href="#ref-for-scheduler⑥">2.4.2. Scheduling Tasks</a> <a href="#ref-for-scheduler⑦">(2)</a> <a href="#ref-for-scheduler⑧">(3)</a>
+    <li><a href="#ref-for-scheduler⑨">2.4.3. Selecting the Next Task to Run</a> <a href="#ref-for-scheduler①⓪">(2)</a> <a href="#ref-for-scheduler①①">(3)</a>
     <li><a href="#ref-for-scheduler①②">4.1.1. WindowOrWorkerGlobalScope</a> <a href="#ref-for-scheduler①③">(2)</a>
     <li><a href="#ref-for-scheduler①④">4.1.3. Event loop: processing model</a> <a href="#ref-for-scheduler①⑤">(2)</a>
    </ul>
@@ -1848,22 +1798,24 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
   <aside class="dfn-panel" data-for="scheduler-static-priority-task-queue-map">
    <b><a href="#scheduler-static-priority-task-queue-map">#scheduler-static-priority-task-queue-map</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-scheduler-static-priority-task-queue-map">2.4.3. Scheduling Tasks</a> <a href="#ref-for-scheduler-static-priority-task-queue-map①">(2)</a> <a href="#ref-for-scheduler-static-priority-task-queue-map②">(3)</a>
-    <li><a href="#ref-for-scheduler-static-priority-task-queue-map③">2.4.4. Selecting the Next Task to Run</a>
+    <li><a href="#ref-for-scheduler-static-priority-task-queue-map">2.2. The Scheduler Interface</a>
+    <li><a href="#ref-for-scheduler-static-priority-task-queue-map①">2.4.2. Scheduling Tasks</a> <a href="#ref-for-scheduler-static-priority-task-queue-map②">(2)</a> <a href="#ref-for-scheduler-static-priority-task-queue-map③">(3)</a>
+    <li><a href="#ref-for-scheduler-static-priority-task-queue-map④">2.4.3. Selecting the Next Task to Run</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler-dynamic-priority-task-queue-map">
    <b><a href="#scheduler-dynamic-priority-task-queue-map">#scheduler-dynamic-priority-task-queue-map</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-scheduler-dynamic-priority-task-queue-map">2.4.3. Scheduling Tasks</a> <a href="#ref-for-scheduler-dynamic-priority-task-queue-map①">(2)</a> <a href="#ref-for-scheduler-dynamic-priority-task-queue-map②">(3)</a>
-    <li><a href="#ref-for-scheduler-dynamic-priority-task-queue-map③">2.4.4. Selecting the Next Task to Run</a>
+    <li><a href="#ref-for-scheduler-dynamic-priority-task-queue-map">2.2. The Scheduler Interface</a>
+    <li><a href="#ref-for-scheduler-dynamic-priority-task-queue-map①">2.4.2. Scheduling Tasks</a> <a href="#ref-for-scheduler-dynamic-priority-task-queue-map②">(2)</a> <a href="#ref-for-scheduler-dynamic-priority-task-queue-map③">(3)</a>
+    <li><a href="#ref-for-scheduler-dynamic-priority-task-queue-map④">2.4.3. Selecting the Next Task to Run</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler-next-enqueue-order">
    <b><a href="#scheduler-next-enqueue-order">#scheduler-next-enqueue-order</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-scheduler-next-enqueue-order">2.2. The Scheduler Interface</a> <a href="#ref-for-scheduler-next-enqueue-order①">(2)</a>
-    <li><a href="#ref-for-scheduler-next-enqueue-order②">2.4.3. Scheduling Tasks</a> <a href="#ref-for-scheduler-next-enqueue-order③">(2)</a>
+    <li><a href="#ref-for-scheduler-next-enqueue-order②">2.4.2. Scheduling Tasks</a> <a href="#ref-for-scheduler-next-enqueue-order③">(2)</a> <a href="#ref-for-scheduler-next-enqueue-order④">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-scheduler-posttask">
@@ -1871,7 +1823,6 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
    <ul>
     <li><a href="#ref-for-dom-scheduler-posttask">2.2. The Scheduler Interface</a>
     <li><a href="#ref-for-dom-scheduler-posttask①">2.3.2. Scheduler Task Sources</a>
-    <li><a href="#ref-for-dom-scheduler-posttask②">2.4.3. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler-task">
@@ -1879,22 +1830,25 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
    <ul>
     <li><a href="#ref-for-scheduler-task">2.3.1. Scheduler Tasks</a> <a href="#ref-for-scheduler-task①">(2)</a>
     <li><a href="#ref-for-scheduler-task②">2.3.2. Scheduler Task Sources</a>
-    <li><a href="#ref-for-scheduler-task③">2.3.3. Scheduler Task Queues</a>
-    <li><a href="#ref-for-scheduler-task④">2.4.2. Queueing and Removing Scheduler Tasks</a> <a href="#ref-for-scheduler-task⑤">(2)</a>
-    <li><a href="#ref-for-scheduler-task⑥">2.4.4. Selecting the Next Task to Run</a> <a href="#ref-for-scheduler-task⑦">(2)</a> <a href="#ref-for-scheduler-task⑧">(3)</a>
+    <li><a href="#ref-for-scheduler-task③">2.3.3. Scheduler Task Queues</a> <a href="#ref-for-scheduler-task④">(2)</a>
+    <li><a href="#ref-for-scheduler-task⑤">2.4.1. Queueing and Removing Scheduler Tasks</a> <a href="#ref-for-scheduler-task⑥">(2)</a>
+    <li><a href="#ref-for-scheduler-task⑦">2.4.3. Selecting the Next Task to Run</a> <a href="#ref-for-scheduler-task⑧">(2)</a> <a href="#ref-for-scheduler-task⑨">(3)</a>
+    <li><a href="#ref-for-scheduler-task①⓪">4.1.3. Event loop: processing model</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler-task-enqueue-order">
    <b><a href="#scheduler-task-enqueue-order">#scheduler-task-enqueue-order</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-scheduler-task-enqueue-order">2.3.1. Scheduler Tasks</a> <a href="#ref-for-scheduler-task-enqueue-order①">(2)</a>
-    <li><a href="#ref-for-scheduler-task-enqueue-order②">2.4.2. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-scheduler-task-enqueue-order">2.2. The Scheduler Interface</a>
+    <li><a href="#ref-for-scheduler-task-enqueue-order①">2.3.1. Scheduler Tasks</a> <a href="#ref-for-scheduler-task-enqueue-order②">(2)</a>
+    <li><a href="#ref-for-scheduler-task-enqueue-order③">2.4.1. Queueing and Removing Scheduler Tasks</a>
+    <li><a href="#ref-for-scheduler-task-enqueue-order④">2.4.3. Selecting the Next Task to Run</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler-task-older-than">
    <b><a href="#scheduler-task-older-than">#scheduler-task-older-than</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-scheduler-task-older-than">2.4.4. Selecting the Next Task to Run</a>
+    <li><a href="#ref-for-scheduler-task-older-than">2.4.3. Selecting the Next Task to Run</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler-task-sources">
@@ -1906,50 +1860,58 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
   <aside class="dfn-panel" data-for="the-posted-task-task-source">
    <b><a href="#the-posted-task-task-source">#the-posted-task-task-source</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-the-posted-task-task-source">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-the-posted-task-task-source">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler-task-queue">
    <b><a href="#scheduler-task-queue">#scheduler-task-queue</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-scheduler-task-queue">2.2. The Scheduler Interface</a> <a href="#ref-for-scheduler-task-queue①">(2)</a> <a href="#ref-for-scheduler-task-queue②">(3)</a>
-    <li><a href="#ref-for-scheduler-task-queue③">2.4.1. Creating Scheduler Task Queues</a>
-    <li><a href="#ref-for-scheduler-task-queue④">2.4.2. Queueing and Removing Scheduler Tasks</a> <a href="#ref-for-scheduler-task-queue⑤">(2)</a>
-    <li><a href="#ref-for-scheduler-task-queue⑥">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-scheduler-task-queue">2.2. The Scheduler Interface</a> <a href="#ref-for-scheduler-task-queue①">(2)</a> <a href="#ref-for-scheduler-task-queue②">(3)</a> <a href="#ref-for-scheduler-task-queue③">(4)</a> <a href="#ref-for-scheduler-task-queue④">(5)</a> <a href="#ref-for-scheduler-task-queue⑤">(6)</a> <a href="#ref-for-scheduler-task-queue⑥">(7)</a> <a href="#ref-for-scheduler-task-queue⑦">(8)</a>
+    <li><a href="#ref-for-scheduler-task-queue⑧">2.3.3. Scheduler Task Queues</a> <a href="#ref-for-scheduler-task-queue⑨">(2)</a>
+    <li><a href="#ref-for-scheduler-task-queue①⓪">2.4.1. Queueing and Removing Scheduler Tasks</a> <a href="#ref-for-scheduler-task-queue①①">(2)</a>
+    <li><a href="#ref-for-scheduler-task-queue①②">2.4.2. Scheduling Tasks</a> <a href="#ref-for-scheduler-task-queue①③">(2)</a>
+    <li><a href="#ref-for-scheduler-task-queue①④">2.4.3. Selecting the Next Task to Run</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler-task-queue-priority">
    <b><a href="#scheduler-task-queue-priority">#scheduler-task-queue-priority</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-scheduler-task-queue-priority">2.4.1. Creating Scheduler Task Queues</a>
-    <li><a href="#ref-for-scheduler-task-queue-priority①">2.4.3. Scheduling Tasks</a>
-    <li><a href="#ref-for-scheduler-task-queue-priority②">2.4.4. Selecting the Next Task to Run</a> <a href="#ref-for-scheduler-task-queue-priority③">(2)</a> <a href="#ref-for-scheduler-task-queue-priority④">(3)</a> <a href="#ref-for-scheduler-task-queue-priority⑤">(4)</a>
+    <li><a href="#ref-for-scheduler-task-queue-priority">2.2. The Scheduler Interface</a> <a href="#ref-for-scheduler-task-queue-priority①">(2)</a>
+    <li><a href="#ref-for-scheduler-task-queue-priority②">2.3.3. Scheduler Task Queues</a>
+    <li><a href="#ref-for-scheduler-task-queue-priority③">2.4.2. Scheduling Tasks</a>
+    <li><a href="#ref-for-scheduler-task-queue-priority④">2.4.3. Selecting the Next Task to Run</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler-task-queue-tasks">
    <b><a href="#scheduler-task-queue-tasks">#scheduler-task-queue-tasks</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-scheduler-task-queue-tasks">2.4.1. Creating Scheduler Task Queues</a>
-    <li><a href="#ref-for-scheduler-task-queue-tasks①">2.4.2. Queueing and Removing Scheduler Tasks</a> <a href="#ref-for-scheduler-task-queue-tasks②">(2)</a>
-    <li><a href="#ref-for-scheduler-task-queue-tasks③">2.4.4. Selecting the Next Task to Run</a> <a href="#ref-for-scheduler-task-queue-tasks④">(2)</a>
+    <li><a href="#ref-for-scheduler-task-queue-tasks">2.3.3. Scheduler Task Queues</a> <a href="#ref-for-scheduler-task-queue-tasks①">(2)</a>
+    <li><a href="#ref-for-scheduler-task-queue-tasks②">2.4.1. Queueing and Removing Scheduler Tasks</a> <a href="#ref-for-scheduler-task-queue-tasks③">(2)</a>
+    <li><a href="#ref-for-scheduler-task-queue-tasks④">2.4.3. Selecting the Next Task to Run</a> <a href="#ref-for-scheduler-task-queue-tasks⑤">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="create-a-scheduler-task-queue">
    <b><a href="#create-a-scheduler-task-queue">#create-a-scheduler-task-queue</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-create-a-scheduler-task-queue">2.4.3. Scheduling Tasks</a> <a href="#ref-for-create-a-scheduler-task-queue①">(2)</a>
+    <li><a href="#ref-for-create-a-scheduler-task-queue">2.4.2. Scheduling Tasks</a> <a href="#ref-for-create-a-scheduler-task-queue①">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="scheduler-task-queue-first-runnable-task">
+   <b><a href="#scheduler-task-queue-first-runnable-task">#scheduler-task-queue-first-runnable-task</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-scheduler-task-queue-first-runnable-task">2.4.3. Selecting the Next Task to Run</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="queue-a-scheduler-task">
    <b><a href="#queue-a-scheduler-task">#queue-a-scheduler-task</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-queue-a-scheduler-task">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-queue-a-scheduler-task">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler-task-queue-remove">
    <b><a href="#scheduler-task-queue-remove">#scheduler-task-queue-remove</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-scheduler-task-queue-remove">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-scheduler-task-queue-remove">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="schedule-a-posttask-task">
@@ -1961,13 +1923,13 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
   <aside class="dfn-panel" data-for="select-the-scheduler-task-queue">
    <b><a href="#select-the-scheduler-task-queue">#select-the-scheduler-task-queue</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-select-the-scheduler-task-queue">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-select-the-scheduler-task-queue">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="schedule-a-task-to-invoke-a-callback">
    <b><a href="#schedule-a-task-to-invoke-a-callback">#schedule-a-task-to-invoke-a-callback</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-schedule-a-task-to-invoke-a-callback">2.4.3. Scheduling Tasks</a> <a href="#ref-for-schedule-a-task-to-invoke-a-callback①">(2)</a>
+    <li><a href="#ref-for-schedule-a-task-to-invoke-a-callback">2.4.2. Scheduling Tasks</a> <a href="#ref-for-schedule-a-task-to-invoke-a-callback①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="has-a-runnable-task">
@@ -1979,25 +1941,28 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
   <aside class="dfn-panel" data-for="get-the-runnable-task-queues">
    <b><a href="#get-the-runnable-task-queues">#get-the-runnable-task-queues</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-get-the-runnable-task-queues">2.4.4. Selecting the Next Task to Run</a> <a href="#ref-for-get-the-runnable-task-queues①">(2)</a>
+    <li><a href="#ref-for-get-the-runnable-task-queues">2.4.3. Selecting the Next Task to Run</a> <a href="#ref-for-get-the-runnable-task-queues①">(2)</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="select-the-task-queue-of-the-next-scheduler-task">
-   <b><a href="#select-the-task-queue-of-the-next-scheduler-task">#select-the-task-queue-of-the-next-scheduler-task</a></b><b>Referenced in:</b>
+  <aside class="dfn-panel" data-for="selecting-the-task-queue-of-the-next-scheduler-task">
+   <b><a href="#selecting-the-task-queue-of-the-next-scheduler-task">#selecting-the-task-queue-of-the-next-scheduler-task</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-select-the-task-queue-of-the-next-scheduler-task">4.1.3. Event loop: processing model</a>
+    <li><a href="#ref-for-selecting-the-task-queue-of-the-next-scheduler-task">2.2. The Scheduler Interface</a>
+    <li><a href="#ref-for-selecting-the-task-queue-of-the-next-scheduler-task①">4.1.3. Event loop: processing model</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="taskcontroller">
    <b><a href="#taskcontroller">#taskcontroller</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-taskcontroller">4.2.1. Abortcontroller</a>
+    <li><a href="#ref-for-taskcontroller">2.2. The Scheduler Interface</a>
+    <li><a href="#ref-for-taskcontroller①">3.1. The TaskController Interface</a> <a href="#ref-for-taskcontroller②">(2)</a>
+    <li><a href="#ref-for-taskcontroller③">4.2.1. AbortController</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-taskcontroller-signal">
    <b><a href="#dom-taskcontroller-signal">#dom-taskcontroller-signal</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-taskcontroller-signal">3.1. The TaskController Interface</a>
+    <li><a href="#ref-for-dom-taskcontroller-signal">3.1. The TaskController Interface</a> <a href="#ref-for-dom-taskcontroller-signal①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-taskcontroller-taskcontroller">
@@ -2009,24 +1974,26 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
   <aside class="dfn-panel" data-for="dom-taskcontroller-setpriority">
    <b><a href="#dom-taskcontroller-setpriority">#dom-taskcontroller-setpriority</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-taskcontroller-setpriority">3.1. The TaskController Interface</a>
+    <li><a href="#ref-for-dom-taskcontroller-setpriority">2.2. The Scheduler Interface</a>
+    <li><a href="#ref-for-dom-taskcontroller-setpriority①">3.1. The TaskController Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="tasksignal">
    <b><a href="#tasksignal">#tasksignal</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-tasksignal">2.2. The Scheduler Interface</a> <a href="#ref-for-tasksignal①">(2)</a>
-    <li><a href="#ref-for-tasksignal②">2.4.3. Scheduling Tasks</a> <a href="#ref-for-tasksignal③">(2)</a> <a href="#ref-for-tasksignal④">(3)</a>
-    <li><a href="#ref-for-tasksignal⑤">3.1. The TaskController Interface</a> <a href="#ref-for-tasksignal⑥">(2)</a>
-    <li><a href="#ref-for-tasksignal⑦">3.2. The TaskSignal Interface</a> <a href="#ref-for-tasksignal⑧">(2)</a> <a href="#ref-for-tasksignal⑨">(3)</a> <a href="#ref-for-tasksignal①⓪">(4)</a> <a href="#ref-for-tasksignal①①">(5)</a>
+    <li><a href="#ref-for-tasksignal">2.2. The Scheduler Interface</a> <a href="#ref-for-tasksignal①">(2)</a> <a href="#ref-for-tasksignal②">(3)</a> <a href="#ref-for-tasksignal③">(4)</a> <a href="#ref-for-tasksignal④">(5)</a> <a href="#ref-for-tasksignal⑤">(6)</a> <a href="#ref-for-tasksignal⑥">(7)</a> <a href="#ref-for-tasksignal⑦">(8)</a> <a href="#ref-for-tasksignal⑧">(9)</a> <a href="#ref-for-tasksignal⑨">(10)</a>
+    <li><a href="#ref-for-tasksignal①⓪">2.4.2. Scheduling Tasks</a> <a href="#ref-for-tasksignal①①">(2)</a>
+    <li><a href="#ref-for-tasksignal①②">3.1. The TaskController Interface</a> <a href="#ref-for-tasksignal①③">(2)</a> <a href="#ref-for-tasksignal①④">(3)</a>
+    <li><a href="#ref-for-tasksignal①⑤">3.2. The TaskSignal Interface</a> <a href="#ref-for-tasksignal①⑥">(2)</a> <a href="#ref-for-tasksignal①⑦">(3)</a> <a href="#ref-for-tasksignal①⑧">(4)</a> <a href="#ref-for-tasksignal①⑨">(5)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="tasksignal-priority">
    <b><a href="#tasksignal-priority">#tasksignal-priority</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-tasksignal-priority">2.4.3. Scheduling Tasks</a>
-    <li><a href="#ref-for-tasksignal-priority①">3.1. The TaskController Interface</a>
-    <li><a href="#ref-for-tasksignal-priority②">3.2. The TaskSignal Interface</a> <a href="#ref-for-tasksignal-priority③">(2)</a> <a href="#ref-for-tasksignal-priority④">(3)</a>
+    <li><a href="#ref-for-tasksignal-priority">2.2. The Scheduler Interface</a>
+    <li><a href="#ref-for-tasksignal-priority①">2.4.2. Scheduling Tasks</a>
+    <li><a href="#ref-for-tasksignal-priority②">3.1. The TaskController Interface</a>
+    <li><a href="#ref-for-tasksignal-priority③">3.2. The TaskSignal Interface</a> <a href="#ref-for-tasksignal-priority④">(2)</a> <a href="#ref-for-tasksignal-priority⑤">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-tasksignal-priority-changing">
@@ -2044,7 +2011,7 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
   <aside class="dfn-panel" data-for="dom-tasksignal-priority">
    <b><a href="#dom-tasksignal-priority">#dom-tasksignal-priority</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-tasksignal-priority">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-dom-tasksignal-priority">2.4.2. Scheduling Tasks</a>
     <li><a href="#ref-for-dom-tasksignal-priority①">3.2. The TaskSignal Interface</a>
    </ul>
   </aside>
@@ -2063,7 +2030,7 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
   <aside class="dfn-panel" data-for="tasksignal-add-a-priority-change-algorithm">
    <b><a href="#tasksignal-add-a-priority-change-algorithm">#tasksignal-add-a-priority-change-algorithm</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-tasksignal-add-a-priority-change-algorithm">2.4.3. Scheduling Tasks</a>
+    <li><a href="#ref-for-tasksignal-add-a-priority-change-algorithm">2.4.2. Scheduling Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="tasksignal-signal-priority-change">
@@ -2088,7 +2055,7 @@ to do here.<a href="#issue-bdbf6a08"> ↵ </a></div>
    <b><a href="#construct-an-abortcontroller">#construct-an-abortcontroller</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-construct-an-abortcontroller">3.1. The TaskController Interface</a>
-    <li><a href="#ref-for-construct-an-abortcontroller①">4.2.1. Abortcontroller</a>
+    <li><a href="#ref-for-construct-an-abortcontroller①">4.2.1. AbortController</a>
    </ul>
   </aside>
 <script>/* script-dfn-panel */

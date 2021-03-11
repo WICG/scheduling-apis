@@ -1,20 +1,21 @@
 <pre class='metadata'>
 Title: Prioritized Task Scheduling
 Shortname: prioritized-task-scheduling
-Level: 1
+Level: none
 Status: CG-DRAFT
 Group: WICG
 URL: https://wicg.github.io/prioritized-task-scheduling/
-Editor: Scott Haseley, Google https://google.com/, shaseley@google.com
+Editor: Scott Haseley, w3cid 122093, Google https://google.com/, shaseley@google.com
 Repository: wicg/scheduling-apis
-Abstract: A short description of your spec, one or two sentences.
+Abstract:
+  This specification defines APIs for scheduling and interacting with prioritized tasks.
 Indent: 2
 Default Biblio Status: current
-Markup Shorthands: markdown yes
+Markup Shorthands: markdown yes, css no
+Complain About: accidental-2119 yes, missing-example-ids yes
+Assume Explicit For: true
+Include MDN Panels: maybe
 </pre>
-
-<!-- TODO: Fix the metadata -->
-
 
 <!--
   /*
@@ -47,6 +48,7 @@ spec:infra; type:dfn; for:/; text:set
 spec:infra; type:dfn; for:/; text:map
 spec:infra; type:dfn; for:/; text:list
 spec:html; type:dfn; for:/; text:event loop
+spec:html; type:dfn; for:/; text:task queue
 </pre>
 
 <pre class='anchors'>

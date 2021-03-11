@@ -43,18 +43,22 @@ Modify step 1 to read:
   1. Let <code>taskQueue</code> be one of the following:
     1. If |queues| is not [=list/empty=], one of [=task queues=] in |queues|,
        chosen in an [=implementation-defined=] manner.
-    1. If |schedulers| is not [=list/empty=], the result of running the
-       [=select the task queue of the next scheduler task=] from one of the {{Scheduler}}s
+    1. If |schedulers| is not [=list/empty=], the result of
+       [=selecting the task queue of the next scheduler task=] from one of the {{Scheduler}}s
        in |schedulers|, chosen in an [=implementation-defined=] manner.
 
-Issue: Probably add a note here about what this means and some possible approaches.
+Issue: The `taskQueue` in this step will either be a [=set=] of [=tasks=] or a
+[=set=] of [=scheduler tasks=]. The steps that follow only [=set/remove=] an
+[=set/item=], so they are *roughly* compatible. Ideally, there would be a
+common task queue interface that supports a `pop()` method that would return a
+plain [=task=], but that would invlove a fair amount of refactoring.
 
 The DOM Standard {#sec-patches-dom}
 ---------------------
 
-### `Abortcontroller` ### {#sec-patches-dom-abort-controller}
+### `AbortController` ### {#sec-patches-dom-abort-controller}
 
-{{TaskController}} extends {{AbortController}} and needs a way to change set the
+{{TaskController}} extends {{AbortController}} and needs a way to set the
 associated {{AbortController/signal}}, which is created in {{AbortController}}'s
 {{AbortController/constructor()}}. We achieve this by adding an internal
 construction algorithm that takes an {{AbortSignal}} argument.
@@ -67,10 +71,10 @@ Add the following algorithm to the [Interface AbortController section](https://d
   1. Set [=this's=] <a for=AbortController>signal</a> to |signal|.
 </div>
 
-Issue: This next step is optional; should we include it?
-
-Modify {{AbortController}}'s {{AbortController()}} algorithm to be:
+Modify {{AbortController}}'s {{AbortController/AbortController()}} algorithm to be:
 
 <div algorithm="new AbortController">
   1. [=Construct an AbortController=] given a new {{AbortSignal}} object.
 </div>
+
+Issue: We should file a PR to add this to the DOM specification.
