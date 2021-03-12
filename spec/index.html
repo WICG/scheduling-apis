@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version b94c7e755, updated Fri Feb 19 16:28:59 2021 -0800" name="generator">
   <link href="https://wicg.github.io/prioritized-task-scheduling/" rel="canonical">
-  <meta content="4481844d400b2ba7365daa58860c775ef4590108" name="document-revision">
+  <meta content="11fdff8b0ddc53745c2946ce7b46d157e2864f83" name="document-revision">
 <style>
   /* Put nice boxes around each algorithm. */
   [data-algorithm]:not(.heading) {
@@ -653,7 +653,8 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
      <a href="#sec-controlling-tasks"><span class="secno">3</span> <span class="content">Controlling Tasks</span></a>
      <ol class="toc">
       <li><a href="#sec-task-controller"><span class="secno">3.1</span> <span class="content">The <code>TaskController</code> Interface</span></a>
-      <li><a href="#sec-task-signal"><span class="secno">3.2</span> <span class="content">The <code>TaskSignal</code> Interface</span></a>
+      <li><a href="#sec-task-priority-change-event"><span class="secno">3.2</span> <span class="content">The <code>TaskPriorityChangeEvent</code> Interface</span></a>
+      <li><a href="#sec-task-signal"><span class="secno">3.3</span> <span class="content">The <code>TaskSignal</code> Interface</span></a>
      </ol>
     <li>
      <a href="#sec-patches"><span class="secno">4</span> <span class="content">Modifications to Other Standards</span></a>
@@ -970,7 +971,8 @@ and must only be used for <a data-link-type="dfn" href="#scheduler-task" id="ref
    <h2 class="heading settled" data-level="3" id="sec-controlling-tasks"><span class="secno">3. </span><span class="content">Controlling Tasks</span><a class="self-link" href="#sec-controlling-tasks"></a></h2>
    <p><strong>TODO</strong>: Add an intro for this section.</p>
    <h3 class="heading settled" data-level="3.1" id="sec-task-controller"><span class="secno">3.1. </span><span class="content">The <code>TaskController</code> Interface</span><a class="self-link" href="#sec-task-controller"></a></h3>
-<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)] <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="taskcontroller"><code><c- g>TaskController</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller"><c- n>AbortController</c-></a> {
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
+<c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="taskcontroller"><code><c- g>TaskController</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller"><c- n>AbortController</c-></a> {
   <a class="idl-code" data-link-type="constructor" href="#dom-taskcontroller-taskcontroller" id="ref-for-dom-taskcontroller-taskcontroller"><c- g>constructor</c-></a>(<c- b>optional</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority⑨"><c- n>TaskPriority</c-></a> <dfn class="idl-code" data-dfn-for="TaskController/TaskController(priority), TaskController/constructor(priority), TaskController/TaskController(), TaskController/constructor()" data-dfn-type="argument" data-export id="dom-taskcontroller-taskcontroller-priority-priority"><code><c- g>priority</c-></code><a class="self-link" href="#dom-taskcontroller-taskcontroller-priority-priority"></a></dfn> = "user-visible");
 
   <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-undefined" id="ref-for-idl-undefined"><c- b>undefined</c-></a> <a class="idl-code" data-link-type="method" href="#dom-taskcontroller-setpriority" id="ref-for-dom-taskcontroller-setpriority①"><c- g>setPriority</c-></a>(<a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①⓪"><c- n>TaskPriority</c-></a> <dfn class="idl-code" data-dfn-for="TaskController/setPriority(priority)" data-dfn-type="argument" data-export id="dom-taskcontroller-setpriority-priority-priority"><code><c- g>priority</c-></code><a class="self-link" href="#dom-taskcontroller-setpriority-priority-priority"></a></dfn>);
@@ -990,24 +992,39 @@ inherited from <code class="idl"><a data-link-type="idl" href="https://dom.spec.
     </ol>
    </div>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskController" data-dfn-type="method" data-export id="dom-taskcontroller-setpriority"><code>setPriority(<var>priority</var>)</code></dfn> method steps are to <a data-link-type="dfn" href="#tasksignal-signal-priority-change" id="ref-for-tasksignal-signal-priority-change">signal priority change</a> on <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this②">this</a>'s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortcontroller-signal" id="ref-for-abortcontroller-signal①">signal</a> given <var>priority</var>.</p>
-   <h3 class="heading settled" data-level="3.2" id="sec-task-signal"><span class="secno">3.2. </span><span class="content">The <code>TaskSignal</code> Interface</span><a class="self-link" href="#sec-task-signal"></a></h3>
-<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)] <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="tasksignal"><code><c- g>TaskSignal</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal⑨"><c- n>AbortSignal</c-></a> {
-  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①①"><c- n>TaskPriority</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="TaskPriority" href="#dom-tasksignal-priority" id="ref-for-dom-tasksignal-priority①"><c- g>priority</c-></a>;
+   <h3 class="heading settled" data-level="3.2" id="sec-task-priority-change-event"><span class="secno">3.2. </span><span class="content">The <code>TaskPriorityChangeEvent</code> Interface</span><a class="self-link" href="#sec-task-priority-change-event"></a></h3>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)]
+<c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="taskprioritychangeevent"><code><c- g>TaskPriorityChangeEvent</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#event" id="ref-for-event"><c- n>Event</c-></a> {
+  <dfn class="idl-code" data-dfn-for="TaskPriorityChangeEvent" data-dfn-type="constructor" data-export data-lt="TaskPriorityChangeEvent(type, priorityChangeEventInitDict)|constructor(type, priorityChangeEventInitDict)" id="dom-taskprioritychangeevent-taskprioritychangeevent"><code><c- g>constructor</c-></code><a class="self-link" href="#dom-taskprioritychangeevent-taskprioritychangeevent"></a></dfn>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="TaskPriorityChangeEvent/TaskPriorityChangeEvent(type, priorityChangeEventInitDict), TaskPriorityChangeEvent/constructor(type, priorityChangeEventInitDict)" data-dfn-type="argument" data-export id="dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-type"><code><c- g>type</c-></code><a class="self-link" href="#dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-type"></a></dfn>, <a data-link-type="idl-name" href="#dictdef-taskprioritychangeeventinit" id="ref-for-dictdef-taskprioritychangeeventinit"><c- n>TaskPriorityChangeEventInit</c-></a> <dfn class="idl-code" data-dfn-for="TaskPriorityChangeEvent/TaskPriorityChangeEvent(type, priorityChangeEventInitDict), TaskPriorityChangeEvent/constructor(type, priorityChangeEventInitDict)" data-dfn-type="argument" data-export id="dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-prioritychangeeventinitdict"><code><c- g>priorityChangeEventInitDict</c-></code><a class="self-link" href="#dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-prioritychangeeventinitdict"></a></dfn>);
+
+  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①①"><c- n>TaskPriority</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="TaskPriorityChangeEvent" data-dfn-type="attribute" data-export data-readonly data-type="TaskPriority" id="dom-taskprioritychangeevent-previouspriority"><code><c- g>previousPriority</c-></code></dfn>;
+};
+
+<c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-taskprioritychangeeventinit"><code><c- g>TaskPriorityChangeEventInit</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#dictdef-eventinit" id="ref-for-dictdef-eventinit"><c- n>EventInit</c-></a> {
+  <c- b>required</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①②"><c- n>TaskPriority</c-></a> <dfn class="idl-code" data-dfn-for="TaskPriorityChangeEventInit" data-dfn-type="dict-member" data-export data-type="TaskPriority " id="dom-taskprioritychangeeventinit-previouspriority"><code><c- g>previousPriority</c-></code><a class="self-link" href="#dom-taskprioritychangeeventinit-previouspriority"></a></dfn>;
+};
+</pre>
+   <p>A <code class="idl"><a data-link-type="idl" href="#taskprioritychangeevent" id="ref-for-taskprioritychangeevent">TaskPriorityChangeEvent</a></code> object has a <dfn class="dfn-paneled" data-dfn-for="TaskPriorityChangeEvent" data-dfn-type="dfn" data-noexport id="taskprioritychangeevent-previouspriority">previousPriority</dfn> attribute. The <code class="idl"><a data-link-type="idl" href="#dom-taskprioritychangeevent-previouspriority" id="ref-for-dom-taskprioritychangeevent-previouspriority">previousPriority</a></code> getter steps are to
+return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this③">this</a>'s <a data-link-type="dfn" href="#taskprioritychangeevent-previouspriority" id="ref-for-taskprioritychangeevent-previouspriority">previousPriority</a>.</p>
+   <h3 class="heading settled" data-level="3.3" id="sec-task-signal"><span class="secno">3.3. </span><span class="content">The <code>TaskSignal</code> Interface</span><a class="self-link" href="#sec-task-signal"></a></h3>
+<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed③"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)]
+<c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="tasksignal"><code><c- g>TaskSignal</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal⑨"><c- n>AbortSignal</c-></a> {
+  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①③"><c- n>TaskPriority</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="TaskPriority" href="#dom-tasksignal-priority" id="ref-for-dom-tasksignal-priority①"><c- g>priority</c-></a>;
 
   <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-tasksignal-onprioritychange" id="ref-for-dom-tasksignal-onprioritychange"><c- g>onprioritychange</c-></a>;
 };
 </pre>
-   <p>A <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①④">TaskSignal</a></code> object has an associated <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①②">TaskPriority</a></code> <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-priority">priority</dfn>.</p>
+   <p>A <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①④">TaskSignal</a></code> object has an associated <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①④">TaskPriority</a></code> <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-priority">priority</dfn>.</p>
    <p>A <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⑤">TaskSignal</a></code> object has an associated <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-priority-changing"><code>priority changing</code></dfn> flag. It is unset unless otherwise specified.</p>
    <p>A <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⑥">TaskSignal</a></code> object has associated <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-priority-change-algorithms"><code>priority change algorithms</code></dfn>,
 which is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set④">set</a> of algorithms which are to be executed when its <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-changing" id="ref-for-dom-tasksignal-priority-changing">priority changing</a></code> flag is set. Unless specified otherwise, its value is
 the empty set.</p>
-   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-priority"><code>priority</code></dfn> getter steps are to return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this③">this</a>'s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority③">priority</a>.</p>
+   <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-priority"><code>priority</code></dfn> getter steps are to return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this④">this</a>'s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority③">priority</a>.</p>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-onprioritychange"><code>onprioritychange</code></dfn> attribute
 is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes">event handler IDL attribute</a> for the <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-onprioritychange" id="ref-for-dom-tasksignal-onprioritychange①">onprioritychange</a></code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers">event handler</a>, whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type">event handler event type</a> is <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="event" data-export id="eventdef-tasksignal-prioritychange"><code>prioritychange</code></dfn>.</p>
    <p>To <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-add-a-priority-change-algorithm">add a priority change algorithm</dfn> <var>algorithm</var> to a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⑦">TaskSignal</a></code> object <var>signal</var>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#set-append" id="ref-for-set-append①">append</a> <var>algorithm</var> to <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-change-algorithms" id="ref-for-dom-tasksignal-priority-change-algorithms">priority change algorithms</a></code>.</p>
    <div class="algorithm" data-algorithm="signal priority change" data-algorithm-for="TaskSignal">
-     To <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-signal-priority-change">signal priority change</dfn> on a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⑧">TaskSignal</a></code> object <var>signal</var>, given a <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①③">TaskPriority</a></code> <var>priority</var>, run the following steps: 
+     To <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-signal-priority-change">signal priority change</dfn> on a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⑧">TaskSignal</a></code> object <var>signal</var>, given a <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①⑤">TaskPriority</a></code> <var>priority</var>, run the following steps: 
     <ol>
      <li data-md>
       <p>If <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-changing" id="ref-for-dom-tasksignal-priority-changing①">priority changing</a></code> flag is set, then <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw">throw</a> a <code class="idl"><a class="idl-code" data-link-type="exception" href="https://heycam.github.io/webidl/#notallowederror" id="ref-for-notallowederror">NotAllowedError</a></code> <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException②">DOMException</a></code>.</p>
@@ -1016,16 +1033,16 @@ is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
      <li data-md>
       <p>Set <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-changing" id="ref-for-dom-tasksignal-priority-changing②">priority changing</a></code> flag.</p>
      <li data-md>
-      <p>Set <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority⑤">priority</a> to <var>priority</var>.</p>
+      <p>Let <var>previousPriority</var> be <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority⑤">priority</a>.</p>
+     <li data-md>
+      <p>Set <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority⑥">priority</a> to <var>priority</var>.</p>
      <li data-md>
       <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate">For each</a> <var>algorithm</var> of <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-change-algorithms" id="ref-for-dom-tasksignal-priority-change-algorithms①">priority change algorithms</a></code>, run <var>algorithm</var>.</p>
      <li data-md>
-      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire">Fire an event</a> named <code class="idl"><a data-link-type="idl" href="#eventdef-tasksignal-prioritychange" id="ref-for-eventdef-tasksignal-prioritychange">prioritychange</a></code> at <var>signal</var>.</p>
+      <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire">Fire an event</a> named <code class="idl"><a data-link-type="idl" href="#eventdef-tasksignal-prioritychange" id="ref-for-eventdef-tasksignal-prioritychange">prioritychange</a></code> at <var>signal</var> using <code class="idl"><a data-link-type="idl" href="#taskprioritychangeevent" id="ref-for-taskprioritychangeevent①">TaskPriorityChangeEvent</a></code>, with its <a data-link-type="dfn" href="#taskprioritychangeevent-previouspriority" id="ref-for-taskprioritychangeevent-previouspriority①">previousPriority</a> attribute initialized to <var>previousPriority</var>.</p>
      <li data-md>
       <p>Unset <var>signal</var>’s <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority-changing" id="ref-for-dom-tasksignal-priority-changing③">priority changing</a></code> flag.</p>
     </ol>
-    <p class="issue" id="issue-55ed36f5"><a class="self-link" href="#issue-55ed36f5"></a> We should consider subclassing Event so we can include a previousPriority
-  attribute (<a href="https://github.com/WICG/scheduling-apis/issues/21">GH Issue</a>).</p>
    </div>
    <h2 class="heading settled" data-level="4" id="sec-patches"><span class="secno">4. </span><span class="content">Modifications to Other Standards</span><a class="self-link" href="#sec-patches"></a></h2>
    <p><strong>TODO</strong>: Add an intro for this section.</p>
@@ -1039,7 +1056,7 @@ is initialized as a new <code class="idl"><a data-link-type="idl" href="#schedul
 };
 </pre>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="WindowOrWorkerGlobalScope" data-dfn-type="attribute" data-export id="dom-windoworworkerglobalscope-scheduler"><code>scheduler</code></dfn> attribute’s
-getter steps are to return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this④">this</a>'s <a data-link-type="dfn" href="#windoworworkerglobalscope-scheduler" id="ref-for-windoworworkerglobalscope-scheduler">scheduler</a>.</p>
+getter steps are to return <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this⑤">this</a>'s <a data-link-type="dfn" href="#windoworworkerglobalscope-scheduler" id="ref-for-windoworworkerglobalscope-scheduler">scheduler</a>.</p>
    <h4 class="heading settled" data-level="4.1.2" id="sec-patches-html-event-loop-definitions"><span class="secno">4.1.2. </span><span class="content"><a href="https://html.spec.whatwg.org/multipage/webappapis.html#definitions-3">Event loop: definitions</a></span><a class="self-link" href="#sec-patches-html-event-loop-definitions"></a></h4>
    <p>Replace: For each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop①">event loop</a>, every <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source③">task source</a> must be associated with a specific <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue" id="ref-for-task-queue">task queue</a>.</p>
    <p>With: For each <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop②">event loop</a>, every <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source④">task source</a> that is not a <a data-link-type="dfn" href="#scheduler-task-sources" id="ref-for-scheduler-task-sources">scheduler task source</a> must be associated with a specific <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue" id="ref-for-task-queue①">task queue</a>.</p>
@@ -1118,10 +1135,11 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
-   <li><a href="#tasksignal-add-a-priority-change-algorithm">add a priority change algorithm</a><span>, in §3.2</span>
+   <li><a href="#tasksignal-add-a-priority-change-algorithm">add a priority change algorithm</a><span>, in §3.3</span>
    <li><a href="#dom-taskpriority-background">"background"</a><span>, in §2.1</span>
    <li><a href="#dom-taskcontroller-taskcontroller">constructor()</a><span>, in §3.1</span>
    <li><a href="#dom-taskcontroller-taskcontroller">constructor(priority)</a><span>, in §3.1</span>
+   <li><a href="#dom-taskprioritychangeevent-taskprioritychangeevent">constructor(type, priorityChangeEventInitDict)</a><span>, in §3.2</span>
    <li><a href="#create-a-scheduler-task-queue">create a scheduler task queue</a><span>, in §2.3.3</span>
    <li><a href="#create-a-scheduler-task-queue">creating a scheduler task queue</a><span>, in §2.3.3</span>
    <li><a href="#dom-schedulerposttaskoptions-delay">delay</a><span>, in §2.2</span>
@@ -1135,20 +1153,27 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <li><a href="#taskpriority-less-than">less than</a><span>, in §2.1</span>
    <li><a href="#scheduler-next-enqueue-order">next enqueue order</a><span>, in §2.2</span>
    <li><a href="#scheduler-task-older-than">older than</a><span>, in §2.3.1</span>
-   <li><a href="#dom-tasksignal-onprioritychange">onprioritychange</a><span>, in §3.2</span>
+   <li><a href="#dom-tasksignal-onprioritychange">onprioritychange</a><span>, in §3.3</span>
    <li><a href="#dom-scheduler-posttask">postTask(callback)</a><span>, in §2.2</span>
    <li><a href="#dom-scheduler-posttask">postTask(callback, options)</a><span>, in §2.2</span>
    <li>
+    previousPriority
+    <ul>
+     <li><a href="#dom-taskprioritychangeevent-previouspriority">attribute for TaskPriorityChangeEvent</a><span>, in §3.2</span>
+     <li><a href="#taskprioritychangeevent-previouspriority">dfn for TaskPriorityChangeEvent</a><span>, in §3.2</span>
+     <li><a href="#dom-taskprioritychangeeventinit-previouspriority">dict-member for TaskPriorityChangeEventInit</a><span>, in §3.2</span>
+    </ul>
+   <li>
     priority
     <ul>
-     <li><a href="#dom-tasksignal-priority">attribute for TaskSignal</a><span>, in §3.2</span>
-     <li><a href="#tasksignal-priority">dfn for TaskSignal</a><span>, in §3.2</span>
+     <li><a href="#dom-tasksignal-priority">attribute for TaskSignal</a><span>, in §3.3</span>
+     <li><a href="#tasksignal-priority">dfn for TaskSignal</a><span>, in §3.3</span>
      <li><a href="#scheduler-task-queue-priority">dfn for scheduler task queue</a><span>, in §2.3.3</span>
      <li><a href="#dom-schedulerposttaskoptions-priority">dict-member for SchedulerPostTaskOptions</a><span>, in §2.2</span>
     </ul>
-   <li><a href="#eventdef-tasksignal-prioritychange">prioritychange</a><span>, in §3.2</span>
-   <li><a href="#dom-tasksignal-priority-change-algorithms">priority change algorithms</a><span>, in §3.2</span>
-   <li><a href="#dom-tasksignal-priority-changing">priority changing</a><span>, in §3.2</span>
+   <li><a href="#eventdef-tasksignal-prioritychange">prioritychange</a><span>, in §3.3</span>
+   <li><a href="#dom-tasksignal-priority-change-algorithms">priority change algorithms</a><span>, in §3.3</span>
+   <li><a href="#dom-tasksignal-priority-changing">priority changing</a><span>, in §3.3</span>
    <li><a href="#queue-a-scheduler-task">queue a scheduler task</a><span>, in §2.4.1</span>
    <li><a href="#queue-a-scheduler-task">queuing a scheduler task</a><span>, in §2.4.1</span>
    <li><a href="#scheduler-task-queue-remove">remove</a><span>, in §2.4.1</span>
@@ -1172,14 +1197,17 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <li><a href="#select-the-scheduler-task-queue">select the scheduler task queue</a><span>, in §2.4.2</span>
    <li><a href="#dom-taskcontroller-setpriority">setPriority(priority)</a><span>, in §3.1</span>
    <li><a href="#dom-schedulerposttaskoptions-signal">signal</a><span>, in §2.2</span>
-   <li><a href="#tasksignal-signal-priority-change">signal priority change</a><span>, in §3.2</span>
+   <li><a href="#tasksignal-signal-priority-change">signal priority change</a><span>, in §3.3</span>
    <li><a href="#scheduler-static-priority-task-queue-map">static priority task queue map</a><span>, in §2.2</span>
    <li><a href="#taskcontroller">TaskController</a><span>, in §3.1</span>
    <li><a href="#dom-taskcontroller-taskcontroller">TaskController()</a><span>, in §3.1</span>
    <li><a href="#dom-taskcontroller-taskcontroller">TaskController(priority)</a><span>, in §3.1</span>
    <li><a href="#enumdef-taskpriority">TaskPriority</a><span>, in §2.1</span>
+   <li><a href="#taskprioritychangeevent">TaskPriorityChangeEvent</a><span>, in §3.2</span>
+   <li><a href="#dictdef-taskprioritychangeeventinit">TaskPriorityChangeEventInit</a><span>, in §3.2</span>
+   <li><a href="#dom-taskprioritychangeevent-taskprioritychangeevent">TaskPriorityChangeEvent(type, priorityChangeEventInitDict)</a><span>, in §3.2</span>
    <li><a href="#scheduler-task-queue-tasks">tasks</a><span>, in §2.3.3</span>
-   <li><a href="#tasksignal">TaskSignal</a><span>, in §3.2</span>
+   <li><a href="#tasksignal">TaskSignal</a><span>, in §3.3</span>
    <li><a href="#the-posted-task-task-source">The posted task task source</a><span>, in §2.3.2</span>
    <li><a href="#dom-taskpriority-user-blocking">"user-blocking"</a><span>, in §2.1</span>
    <li><a href="#dom-taskpriority-user-visible">"user-visible"</a><span>, in §2.1</span>
@@ -1195,7 +1223,19 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <ul>
     <li><a href="#ref-for-abortsignal">2.2. The Scheduler Interface</a> <a href="#ref-for-abortsignal①">(2)</a> <a href="#ref-for-abortsignal②">(3)</a> <a href="#ref-for-abortsignal③">(4)</a> <a href="#ref-for-abortsignal④">(5)</a> <a href="#ref-for-abortsignal⑤">(6)</a> <a href="#ref-for-abortsignal⑥">(7)</a>
     <li><a href="#ref-for-abortsignal⑦">2.4.2. Scheduling Tasks</a> <a href="#ref-for-abortsignal⑧">(2)</a>
-    <li><a href="#ref-for-abortsignal⑨">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-abortsignal⑨">3.3. The TaskSignal Interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-event">
+   <a href="https://dom.spec.whatwg.org/#event">https://dom.spec.whatwg.org/#event</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-event">3.2. The TaskPriorityChangeEvent Interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-dictdef-eventinit">
+   <a href="https://dom.spec.whatwg.org/#dictdef-eventinit">https://dom.spec.whatwg.org/#dictdef-eventinit</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dictdef-eventinit">3.2. The TaskPriorityChangeEvent Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-abortsignal-aborted-flag">
@@ -1219,7 +1259,7 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
   <aside class="dfn-panel" data-for="term-for-concept-event-fire">
    <a href="https://dom.spec.whatwg.org/#concept-event-fire">https://dom.spec.whatwg.org/#concept-event-fire</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-event-fire">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-concept-event-fire">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-abortcontroller-signal">
@@ -1231,7 +1271,7 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
   <aside class="dfn-panel" data-for="term-for-eventhandler">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-eventhandler">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-eventhandler">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-window">
@@ -1261,19 +1301,19 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
   <aside class="dfn-panel" data-for="term-for-event-handlers">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-event-handlers">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-event-handlers">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-event-handler-event-type">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type">https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-event-handler-event-type">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-event-handler-event-type">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-event-handler-idl-attributes">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes">https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-event-handler-idl-attributes">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-event-handler-idl-attributes">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-event-loop">
@@ -1355,7 +1395,7 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <a href="https://infra.spec.whatwg.org/#set-append">https://infra.spec.whatwg.org/#set-append</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-set-append">2.4.1. Queueing and Removing Scheduler Tasks</a>
-    <li><a href="#ref-for-set-append①">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-set-append①">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-map-exists">
@@ -1399,7 +1439,7 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
   <aside class="dfn-panel" data-for="term-for-list-iterate">
    <a href="https://infra.spec.whatwg.org/#list-iterate">https://infra.spec.whatwg.org/#list-iterate</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-list-iterate">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-list-iterate">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-ordered-map">
@@ -1422,7 +1462,7 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
     <li><a href="#ref-for-ordered-set">2.3.3. Scheduler Task Queues</a> <a href="#ref-for-ordered-set①">(2)</a>
     <li><a href="#ref-for-ordered-set②">2.4.1. Queueing and Removing Scheduler Tasks</a>
     <li><a href="#ref-for-ordered-set③">2.4.3. Selecting the Next Task to Run</a>
-    <li><a href="#ref-for-ordered-set④">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-ordered-set④">3.3. The TaskSignal Interface</a>
     <li><a href="#ref-for-ordered-set⑤">4.1.3. Event loop: processing model</a> <a href="#ref-for-ordered-set⑥">(2)</a> <a href="#ref-for-ordered-set⑦">(3)</a> <a href="#ref-for-ordered-set⑧">(4)</a>
    </ul>
   </aside>
@@ -1442,7 +1482,13 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <a href="https://heycam.github.io/webidl/#idl-DOMException">https://heycam.github.io/webidl/#idl-DOMException</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-idl-DOMException">2.4.2. Scheduling Tasks</a> <a href="#ref-for-idl-DOMException①">(2)</a>
-    <li><a href="#ref-for-idl-DOMException②">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-idl-DOMException②">3.3. The TaskSignal Interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-idl-DOMString">
+   <a href="https://heycam.github.io/webidl/#idl-DOMString">https://heycam.github.io/webidl/#idl-DOMString</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-idl-DOMString">3.2. The TaskPriorityChangeEvent Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-Exposed">
@@ -1450,13 +1496,14 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <ul>
     <li><a href="#ref-for-Exposed">2.2. The Scheduler Interface</a>
     <li><a href="#ref-for-Exposed①">3.1. The TaskController Interface</a>
-    <li><a href="#ref-for-Exposed②">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-Exposed②">3.2. The TaskPriorityChangeEvent Interface</a>
+    <li><a href="#ref-for-Exposed③">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-notallowederror">
    <a href="https://heycam.github.io/webidl/#notallowederror">https://heycam.github.io/webidl/#notallowederror</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-notallowederror">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-notallowederror">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-idl-promise">
@@ -1500,14 +1547,15 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <ul>
     <li><a href="#ref-for-this">2.2. The Scheduler Interface</a>
     <li><a href="#ref-for-this①">3.1. The TaskController Interface</a> <a href="#ref-for-this②">(2)</a>
-    <li><a href="#ref-for-this③">3.2. The TaskSignal Interface</a>
-    <li><a href="#ref-for-this④">4.1.1. WindowOrWorkerGlobalScope</a>
+    <li><a href="#ref-for-this③">3.2. The TaskPriorityChangeEvent Interface</a>
+    <li><a href="#ref-for-this④">3.3. The TaskSignal Interface</a>
+    <li><a href="#ref-for-this⑤">4.1.1. WindowOrWorkerGlobalScope</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-dfn-throw">
    <a href="https://heycam.github.io/webidl/#dfn-throw">https://heycam.github.io/webidl/#dfn-throw</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dfn-throw">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-dfn-throw">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-idl-undefined">
@@ -1523,6 +1571,8 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
     <ul>
      <li><span class="dfn-paneled" id="term-for-abortcontroller">AbortController</span>
      <li><span class="dfn-paneled" id="term-for-abortsignal">AbortSignal</span>
+     <li><span class="dfn-paneled" id="term-for-event">Event</span>
+     <li><span class="dfn-paneled" id="term-for-dictdef-eventinit">EventInit</span>
      <li><span class="dfn-paneled" id="term-for-abortsignal-aborted-flag">aborted flag</span>
      <li><span class="dfn-paneled" id="term-for-abortsignal-add">add</span>
      <li><span class="dfn-paneled" id="term-for-concept-document">document</span>
@@ -1573,6 +1623,7 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
     <ul>
      <li><span class="dfn-paneled" id="term-for-aborterror">AbortError</span>
      <li><span class="dfn-paneled" id="term-for-idl-DOMException">DOMException</span>
+     <li><span class="dfn-paneled" id="term-for-idl-DOMString">DOMString</span>
      <li><span class="dfn-paneled" id="term-for-Exposed">Exposed</span>
      <li><span class="dfn-paneled" id="term-for-notallowederror">NotAllowedError</span>
      <li><span class="dfn-paneled" id="term-for-idl-promise">Promise</span>
@@ -1620,13 +1671,26 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
                         <c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-schedulerposttaskoptions"><c- n>SchedulerPostTaskOptions</c-></a> <a href="#dom-scheduler-posttask-callback-options-options"><code><c- g>options</c-></code></a> = {});
 };
 
-[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)] <c- b>interface</c-> <a href="#taskcontroller"><code><c- g>TaskController</c-></code></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortcontroller"><c- n>AbortController</c-></a> {
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
+<c- b>interface</c-> <a href="#taskcontroller"><code><c- g>TaskController</c-></code></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortcontroller"><c- n>AbortController</c-></a> {
   <a class="idl-code" data-link-type="constructor" href="#dom-taskcontroller-taskcontroller"><c- g>constructor</c-></a>(<c- b>optional</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority"><c- n>TaskPriority</c-></a> <a href="#dom-taskcontroller-taskcontroller-priority-priority"><code><c- g>priority</c-></code></a> = "user-visible");
 
   <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-undefined"><c- b>undefined</c-></a> <a class="idl-code" data-link-type="method" href="#dom-taskcontroller-setpriority"><c- g>setPriority</c-></a>(<a data-link-type="idl-name" href="#enumdef-taskpriority"><c- n>TaskPriority</c-></a> <a href="#dom-taskcontroller-setpriority-priority-priority"><code><c- g>priority</c-></code></a>);
 };
 
-[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)] <c- b>interface</c-> <a href="#tasksignal"><code><c- g>TaskSignal</c-></code></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal"><c- n>AbortSignal</c-></a> {
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)]
+<c- b>interface</c-> <a href="#taskprioritychangeevent"><code><c- g>TaskPriorityChangeEvent</c-></code></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#event"><c- n>Event</c-></a> {
+  <a href="#dom-taskprioritychangeevent-taskprioritychangeevent"><code><c- g>constructor</c-></code></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><c- b>DOMString</c-></a> <a href="#dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-type"><code><c- g>type</c-></code></a>, <a data-link-type="idl-name" href="#dictdef-taskprioritychangeeventinit"><c- n>TaskPriorityChangeEventInit</c-></a> <a href="#dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-prioritychangeeventinitdict"><code><c- g>priorityChangeEventInitDict</c-></code></a>);
+
+  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority"><c- n>TaskPriority</c-></a> <a data-readonly data-type="TaskPriority" href="#dom-taskprioritychangeevent-previouspriority"><code><c- g>previousPriority</c-></code></a>;
+};
+
+<c- b>dictionary</c-> <a href="#dictdef-taskprioritychangeeventinit"><code><c- g>TaskPriorityChangeEventInit</c-></code></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#dictdef-eventinit"><c- n>EventInit</c-></a> {
+  <c- b>required</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority"><c- n>TaskPriority</c-></a> <a data-type="TaskPriority " href="#dom-taskprioritychangeeventinit-previouspriority"><code><c- g>previousPriority</c-></code></a>;
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)]
+<c- b>interface</c-> <a href="#tasksignal"><code><c- g>TaskSignal</c-></code></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal"><c- n>AbortSignal</c-></a> {
   <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority"><c- n>TaskPriority</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="TaskPriority" href="#dom-tasksignal-priority"><c- g>priority</c-></a>;
 
   <c- b>attribute</c-> <a data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-tasksignal-onprioritychange"><c- g>onprioritychange</c-></a>;
@@ -1644,8 +1708,6 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
   of this and other algorithms are racy. Specifically, the <a data-link-type="dfn" href="#scheduler-next-enqueue-order">next enqueue order</a> should be updated atomically, and accessing
   the <a data-link-type="dfn" href="#scheduler-task-queue">scheduler task queues</a> should occur atomically. The latter also affects
   the event loop task queues (see https://github.com/whatwg/html/issues/6475).<a href="#issue-44b44706"> ↵ </a></div>
-   <div class="issue"> We should consider subclassing Event so we can include a previousPriority
-  attribute (<a href="https://github.com/WICG/scheduling-apis/issues/21">GH Issue</a>).<a href="#issue-55ed36f5"> ↵ </a></div>
    <div class="issue"> The <code>taskQueue</code> in this step will either be a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set">set</a> of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">tasks</a> or a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set">set</a> of <a data-link-type="dfn" href="#scheduler-task">scheduler tasks</a>. The steps that follow only <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-remove">remove</a> an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-item">item</a>, so they are <em>roughly</em> compatible. Ideally, there would be a
 common task queue interface that supports a <code>pop()</code> method that would return a
 plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a>, but that would invlove a fair amount of refactoring.<a href="#issue-67b23491"> ↵ </a></div>
@@ -1658,7 +1720,8 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
     <li><a href="#ref-for-enumdef-taskpriority⑥">2.3.3. Scheduler Task Queues</a> <a href="#ref-for-enumdef-taskpriority⑦">(2)</a>
     <li><a href="#ref-for-enumdef-taskpriority⑧">2.4.2. Scheduling Tasks</a>
     <li><a href="#ref-for-enumdef-taskpriority⑨">3.1. The TaskController Interface</a> <a href="#ref-for-enumdef-taskpriority①⓪">(2)</a>
-    <li><a href="#ref-for-enumdef-taskpriority①①">3.2. The TaskSignal Interface</a> <a href="#ref-for-enumdef-taskpriority①②">(2)</a> <a href="#ref-for-enumdef-taskpriority①③">(3)</a>
+    <li><a href="#ref-for-enumdef-taskpriority①①">3.2. The TaskPriorityChangeEvent Interface</a> <a href="#ref-for-enumdef-taskpriority①②">(2)</a>
+    <li><a href="#ref-for-enumdef-taskpriority①③">3.3. The TaskSignal Interface</a> <a href="#ref-for-enumdef-taskpriority①④">(2)</a> <a href="#ref-for-enumdef-taskpriority①⑤">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-taskpriority-user-blocking">
@@ -1907,13 +1970,39 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
     <li><a href="#ref-for-dom-taskcontroller-setpriority①">3.1. The TaskController Interface</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="taskprioritychangeevent">
+   <b><a href="#taskprioritychangeevent">#taskprioritychangeevent</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-taskprioritychangeevent">3.2. The TaskPriorityChangeEvent Interface</a>
+    <li><a href="#ref-for-taskprioritychangeevent①">3.3. The TaskSignal Interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-taskprioritychangeevent-previouspriority">
+   <b><a href="#dom-taskprioritychangeevent-previouspriority">#dom-taskprioritychangeevent-previouspriority</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-taskprioritychangeevent-previouspriority">3.2. The TaskPriorityChangeEvent Interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dictdef-taskprioritychangeeventinit">
+   <b><a href="#dictdef-taskprioritychangeeventinit">#dictdef-taskprioritychangeeventinit</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dictdef-taskprioritychangeeventinit">3.2. The TaskPriorityChangeEvent Interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="taskprioritychangeevent-previouspriority">
+   <b><a href="#taskprioritychangeevent-previouspriority">#taskprioritychangeevent-previouspriority</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-taskprioritychangeevent-previouspriority">3.2. The TaskPriorityChangeEvent Interface</a>
+    <li><a href="#ref-for-taskprioritychangeevent-previouspriority①">3.3. The TaskSignal Interface</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="tasksignal">
    <b><a href="#tasksignal">#tasksignal</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-tasksignal">2.2. The Scheduler Interface</a> <a href="#ref-for-tasksignal①">(2)</a> <a href="#ref-for-tasksignal②">(3)</a> <a href="#ref-for-tasksignal③">(4)</a> <a href="#ref-for-tasksignal④">(5)</a> <a href="#ref-for-tasksignal⑤">(6)</a> <a href="#ref-for-tasksignal⑥">(7)</a> <a href="#ref-for-tasksignal⑦">(8)</a> <a href="#ref-for-tasksignal⑧">(9)</a> <a href="#ref-for-tasksignal⑨">(10)</a>
     <li><a href="#ref-for-tasksignal①⓪">2.4.2. Scheduling Tasks</a> <a href="#ref-for-tasksignal①①">(2)</a>
     <li><a href="#ref-for-tasksignal①②">3.1. The TaskController Interface</a> <a href="#ref-for-tasksignal①③">(2)</a>
-    <li><a href="#ref-for-tasksignal①④">3.2. The TaskSignal Interface</a> <a href="#ref-for-tasksignal①⑤">(2)</a> <a href="#ref-for-tasksignal①⑥">(3)</a> <a href="#ref-for-tasksignal①⑦">(4)</a> <a href="#ref-for-tasksignal①⑧">(5)</a>
+    <li><a href="#ref-for-tasksignal①④">3.3. The TaskSignal Interface</a> <a href="#ref-for-tasksignal①⑤">(2)</a> <a href="#ref-for-tasksignal①⑥">(3)</a> <a href="#ref-for-tasksignal①⑦">(4)</a> <a href="#ref-for-tasksignal①⑧">(5)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="tasksignal-priority">
@@ -1922,38 +2011,38 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
     <li><a href="#ref-for-tasksignal-priority">2.2. The Scheduler Interface</a>
     <li><a href="#ref-for-tasksignal-priority①">2.4.2. Scheduling Tasks</a>
     <li><a href="#ref-for-tasksignal-priority②">3.1. The TaskController Interface</a>
-    <li><a href="#ref-for-tasksignal-priority③">3.2. The TaskSignal Interface</a> <a href="#ref-for-tasksignal-priority④">(2)</a> <a href="#ref-for-tasksignal-priority⑤">(3)</a>
+    <li><a href="#ref-for-tasksignal-priority③">3.3. The TaskSignal Interface</a> <a href="#ref-for-tasksignal-priority④">(2)</a> <a href="#ref-for-tasksignal-priority⑤">(3)</a> <a href="#ref-for-tasksignal-priority⑥">(4)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-tasksignal-priority-changing">
    <b><a href="#dom-tasksignal-priority-changing">#dom-tasksignal-priority-changing</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-tasksignal-priority-changing">3.2. The TaskSignal Interface</a> <a href="#ref-for-dom-tasksignal-priority-changing①">(2)</a> <a href="#ref-for-dom-tasksignal-priority-changing②">(3)</a> <a href="#ref-for-dom-tasksignal-priority-changing③">(4)</a>
+    <li><a href="#ref-for-dom-tasksignal-priority-changing">3.3. The TaskSignal Interface</a> <a href="#ref-for-dom-tasksignal-priority-changing①">(2)</a> <a href="#ref-for-dom-tasksignal-priority-changing②">(3)</a> <a href="#ref-for-dom-tasksignal-priority-changing③">(4)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-tasksignal-priority-change-algorithms">
    <b><a href="#dom-tasksignal-priority-change-algorithms">#dom-tasksignal-priority-change-algorithms</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-tasksignal-priority-change-algorithms">3.2. The TaskSignal Interface</a> <a href="#ref-for-dom-tasksignal-priority-change-algorithms①">(2)</a>
+    <li><a href="#ref-for-dom-tasksignal-priority-change-algorithms">3.3. The TaskSignal Interface</a> <a href="#ref-for-dom-tasksignal-priority-change-algorithms①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-tasksignal-priority">
    <b><a href="#dom-tasksignal-priority">#dom-tasksignal-priority</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-tasksignal-priority">2.4.2. Scheduling Tasks</a>
-    <li><a href="#ref-for-dom-tasksignal-priority①">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-dom-tasksignal-priority①">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-tasksignal-onprioritychange">
    <b><a href="#dom-tasksignal-onprioritychange">#dom-tasksignal-onprioritychange</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-tasksignal-onprioritychange">3.2. The TaskSignal Interface</a> <a href="#ref-for-dom-tasksignal-onprioritychange①">(2)</a>
+    <li><a href="#ref-for-dom-tasksignal-onprioritychange">3.3. The TaskSignal Interface</a> <a href="#ref-for-dom-tasksignal-onprioritychange①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="eventdef-tasksignal-prioritychange">
    <b><a href="#eventdef-tasksignal-prioritychange">#eventdef-tasksignal-prioritychange</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-eventdef-tasksignal-prioritychange">3.2. The TaskSignal Interface</a>
+    <li><a href="#ref-for-eventdef-tasksignal-prioritychange">3.3. The TaskSignal Interface</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="tasksignal-add-a-priority-change-algorithm">
