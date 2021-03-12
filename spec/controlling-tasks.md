@@ -10,25 +10,19 @@ The `TaskController` Interface {#sec-task-controller}
   [Exposed=(Window,Worker)] interface TaskController : AbortController {
     constructor(optional TaskPriority priority = "user-visible");
 
-    [SameObject] readonly attribute TaskSignal signal;
-
     undefined setPriority(TaskPriority priority);
   };
 </pre>
 
-The <dfn attribute for="TaskController">signal</dfn> getter steps are to return [=this=]'s <a for=AbortController>signal</a>.
-
-Note: {{TaskController}}'s {{TaskController/signal}} attribute shadows
-{{AbortController}}'s {{AbortController/signal}}, and is defined this way
-since a {{TaskController}}'s signal is always a {{TaskSignal}} object. Both
-attributes return the same object, however.
+Note: {{TaskController}}'s {{AbortController/signal}} getter, which is
+inherited from {{AbortController}}, returns a {{TaskSignal}} object.
 
 <div algorithm>
   The <dfn constructor for="TaskController" lt="TaskController()"><code>new TaskController(|priority|)</code></dfn> constructor steps are:
 
   1. Let |signal| be a new {{TaskSignal}} object.
   1. Set |signal|'s <a for=TaskSignal>priority</a> to |priority|.
-  1. [=Construct an AbortController=] given |signal|.
+  1. Set [=this's=] <a for=AbortController>signal</a> to |signal|.
 </div>
 
 The <dfn method for=TaskController><code>setPriority(|priority|)</code></dfn>

@@ -52,29 +52,3 @@ Issue: The `taskQueue` in this step will either be a [=set=] of [=tasks=] or a
 [=set/item=], so they are *roughly* compatible. Ideally, there would be a
 common task queue interface that supports a `pop()` method that would return a
 plain [=task=], but that would invlove a fair amount of refactoring.
-
-The DOM Standard {#sec-patches-dom}
----------------------
-
-### `AbortController` ### {#sec-patches-dom-abort-controller}
-
-{{TaskController}} extends {{AbortController}} and needs a way to set the
-associated {{AbortController/signal}}, which is created in {{AbortController}}'s
-{{AbortController/constructor()}}. We achieve this by adding an internal
-construction algorithm that takes an {{AbortSignal}} argument.
-
-Add the following algorithm to the [Interface AbortController section](https://dom.spec.whatwg.org/#interface-abortcontroller):
-
-<div algorithm>
-  To <dfn>construct an AbortController</dfn>, given an {{AbortSignal}} |signal|:
-
-  1. Set [=this's=] <a for=AbortController>signal</a> to |signal|.
-</div>
-
-Modify {{AbortController}}'s {{AbortController/AbortController()}} algorithm to be:
-
-<div algorithm="new AbortController">
-  1. [=Construct an AbortController=] given a new {{AbortSignal}} object.
-</div>
-
-Issue: We should file a PR to add this to the DOM specification.
