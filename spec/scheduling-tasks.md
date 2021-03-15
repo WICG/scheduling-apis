@@ -255,6 +255,18 @@ Processing Model {#sec-scheduling-tasks-processing-model}
   [=Scheduler/next enqueue order=] should be updated atomically, and accessing
   the [=scheduler task queues=] should occur atomically. The latter also affects
   the event loop task queues (see https://github.com/whatwg/html/issues/6475).
+
+  Issue: We need to figure out what to do with cross-window scheduling. As-is,
+  this differs from `setTimeout` in terms if the `thisArg` when invoking the
+  callback. We leave it null and `this` will map to the global of where the
+  callback is defined. `setTimeout` maps `this` to the global of the window
+  associated with the `setTimeout` that got called, but if you pass an arrow
+  function, then this will be bound based on the function's definition scope.
+  IMO what we're doing for postTask makes sense, especially because otherwise
+  switching between an arrow and non-arrow function will likely change `this`.
+  Also, there is the question of which document should be associated with the
+  task, and I suppose the question of if cross-window scheduling even makes
+  sense.
 </div>
 
 ### Selecting the Next Task to Run ### {#sec-scheduler-alg-select-next-task}
