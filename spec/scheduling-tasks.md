@@ -204,7 +204,9 @@ Processing Model {#sec-scheduling-tasks-processing-model}
   1. [=set/Append=] |task| to |queue|'s [=scheduler task queue/tasks=].
   1. Return |task|.
 
-  Issue: We should submit a PR to the HTML spec that adds a constructor for <a for="/">task</a>.
+  Issue: We should consider refactoring the HTML spec to add a constructor for
+  <a for="/">task</a>. One problem is we need the new task to be a
+  [=scheduler task=] rather than a <a for="/">task</a>.
 </div>
 
 <div algorithm>
@@ -227,13 +229,28 @@ Processing Model {#sec-scheduling-tasks-processing-model}
   1. Let |queue| be the result of [=selecting the scheduler task queue=] for |scheduler| given |signal| and |priority|.
   1. Let |delay| be |options|["{{SchedulerPostTaskOptions/delay}}"].
   1. If |delay| is less than 0 then set |delay| to 0.
-  1. If |delay| is equal to 0 then
+  1. If |delay| is greater than 0, then the task is a delayed task; return
+     |result| and run the following steps [=in parallel=]:
+    1. Let |global| be the [=relevant global object=] for |scheduler|.
+    1. If |global| is a {{Window}} object, wait until |global|'s <a attribute for="Window">associated <code>Document</code></a>
+       has been fully active for a further |delay| milliseconds (not necessarily consecutively).
+
+       Otherwise, |global| is a {{WorkerGlobalScope}} object; wait until |delay|
+       milliseconds have passed with the worker not suspended (not necessarily consecutively).
+
+    1. Wait until any invocations of this algorithm that had the same |scheduler|,
+       that started before this one, and whose |delay| is equal to or less
+       than this one's, have completed.
+    1. Optionally, wait a further [=implementation-defined=] length of time.
     1. [=Schedule a task to invoke a callback=] for |scheduler| given |queue|, |signal|, |callback|, and |result|.
-    1. Return |result|.
-  1. Otherwise, return |result| and continue running this algorithm [=in parallel=].
-  1. **TODO**: Define waiting, potentially refactoring the timer spec.
-  1. [=Schedule a task to invoke a callback=] for |scheduler| given |queue|, |signal|, |callback|, and |result|.
+  1. Otherwise the task is not delayed. [=Schedule a task to invoke a callback=] for |scheduler| given |queue|, |signal|, |callback|, and |result|.
 </div>
+
+Issue: Figure out exactly how we want to spec delayed tasks, and if we can
+refactor the timer spec to use a common method. As written, this uses steps
+15&ndash;17 of the timer initialization steps algorithm, but there are a couple
+things we might want to change: (1) how to account for suspend? (2) how to
+account for current throttling techniques (see also [this issue](https://github.com/whatwg/html/issues/5925))?
 
 <div algorithm="select the scheduler task queue">
   To <dfn lt="select the scheduler task queue|selecting the scheduler task queue">select the scheduler task queue</dfn>
@@ -273,16 +290,14 @@ Processing Model {#sec-scheduling-tasks-processing-model}
   of this and other algorithms are racy. Specifically, the
   [=Scheduler/next enqueue order=] should be updated atomically, and accessing
   the [=scheduler task queues=] should occur atomically. The latter also affects
-  the event loop task queues (see https://github.com/whatwg/html/issues/6475).
+  the event loop task queues (see [this issue](https://github.com/whatwg/html/issues/6475)).
 
   Issue: We need to figure out what to do with cross-window scheduling. As-is,
-  this differs from `setTimeout` in terms if the `thisArg` when invoking the
+  this differs from `setTimeout` in terms of the `thisArg` when invoking the
   callback. We leave it null and `this` will map to the global of where the
   callback is defined. `setTimeout` maps `this` to the global of the window
   associated with the `setTimeout` that got called, but if you pass an arrow
   function, then this will be bound based on the function's definition scope.
-  IMO what we're doing for postTask makes sense, especially because otherwise
-  switching between an arrow and non-arrow function will likely change `this`.
   Also, there is the question of which document should be associated with the
   task, and I suppose the question of if cross-window scheduling even makes
   sense.
