@@ -8,7 +8,7 @@ URL: https://wicg.github.io/prioritized-task-scheduling/
 Editor: Scott Haseley, w3cid 122093, Google https://google.com/, shaseley@google.com
 Repository: wicg/scheduling-apis
 Abstract:
-  This specification defines APIs for scheduling and interacting with prioritized tasks.
+  This specification defines APIs for scheduling and controlling prioritized tasks.
 Indent: 2
 Default Biblio Status: current
 Markup Shorthands: markdown yes, css no
