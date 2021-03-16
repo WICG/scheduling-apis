@@ -1,8 +1,6 @@
 Scheduling Tasks {#sec-scheduling-tasks}
 =====================
 
-**TODO**: Add an intro for this section.
-
 Task Priorities {#sec-task-priorities}
 ---------------------
 
@@ -44,6 +42,27 @@ before {{TaskPriority/background}} tasks.
 
 The `Scheduler` Interface {#sec-scheduler}
 ---------------------
+
+Developers interact with the {{Scheduler}} interface to schedule tasks, using
+the {{Scheduler/postTask()}} method. A task consists of a callback, which is the
+entrypoint to the task, and 0 or more {{SchedulerPostTaskOptions}}:
+
+ - {{SchedulerPostTaskOptions/priority}}: An optional {{TaskPriority}}. If set, this priority will be used to schedule the task, and
+    the task's priority is immutable. If left unspecified, the {{SchedulerPostTaskOptions/signal}} option will
+    determine the task's priority if set, otherwise the priority defaults to {{TaskPriority/user-visible}}.
+
+ - {{SchedulerPostTaskOptions/signal}}: An optional {{AbortSignal}} or {{TaskSignal}}. If a {{TaskSignal}} is specified and the
+    {{SchedulerPostTaskOptions/priority}} is ommitted, the signal is used to determine the priority, which
+    can be modified by the associated {{TaskController}}. The {{SchedulerPostTaskOptions/signal}} is also used to cancel pending tasks.
+    See [Controlling Tasks](#sec-controlling-tasks) for details on using a {{TaskController}} or {{AbortController}} with
+    {{Scheduler/postTask()}}.
+
+ - {{SchedulerPostTaskOptions/delay}}: An optional delay (milliseconds) may be specified in order to delay the execution of
+    the task.
+
+{{Scheduler/postTask()}} returns a Promise that is fulfilled with the result of
+the callback, or rejected with an "{{AbortError!!exception}}" {{DOMException}}
+if the task is aborted.
 
 <xmp class='idl'>
   dictionary SchedulerPostTaskOptions {
@@ -302,3 +321,8 @@ Processing Model {#sec-scheduling-tasks-processing-model}
 
   Note: The next task to run is the oldest, highest priority <a for="task">runnable</a> [=scheduler task=].
 </div>
+
+Examples {#sec-scheduling-tasks-examples}
+---------------------
+
+**TODO**(shaseley): Add examples.

@@ -1,7 +1,15 @@
 Controlling Tasks {#sec-controlling-tasks}
 =====================
 
-**TODO**: Add an intro for this section.
+Tasks scheduled through the {{Scheduler}} interface can be controlled with a
+{{TaskController}} by passing the associated {{TaskSignal}}
+{{AbortController/signal}} as an {{SchedulerPostTaskOptions/signal|option}} to
+{{Scheduler/postTask()}}. The {{TaskController}} interface supports aborting
+and changing the priority of a task or group of tasks.
+
+Note: {{TaskSignal}} inherits from {{AbortSignal}} and can be used in APIs that
+accept an {{AbortSignal}}. Additionally, {{Scheduler/postTask()}} accepts an
+{{AbortSignal}}, which can be useful if dynamic prioritization is not needed.
 
 The `TaskPriorityChangeEvent` Interface {#sec-task-priority-change-event}
 ---------------------
@@ -100,3 +108,8 @@ To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
      attribute initialized to |previousPriority|.
   1. Unset |signal|'s {{TaskSignal/priority changing}} flag.
 </div>
+
+Examples {#sec-controlling-tasks-examples}
+---------------------
+
+**TODO**(shaseley): Add examples.

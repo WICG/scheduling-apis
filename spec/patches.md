@@ -1,8 +1,6 @@
 Modifications to Other Standards {#sec-patches}
 =====================
 
-**TODO**: Add an intro for this section.
-
 The HTML Standard {#sec-patches-html}
 ---------------------
 
