@@ -83,5 +83,5 @@ path:patches.md
 </pre>
 
 <pre class=include>
-path:security-privacy.md
+path:security.md
 </pre>
