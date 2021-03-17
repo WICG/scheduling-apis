@@ -47,7 +47,8 @@ Note: {{TaskController}}'s {{AbortController/signal}} getter, which is
 inherited from {{AbortController}}, returns a {{TaskSignal}} object.
 
 <div algorithm>
-  The <dfn constructor for="TaskController" lt="TaskController()"><code>new TaskController(|priority|)</code></dfn> constructor steps are:
+  The <dfn constructor for="TaskController" lt="TaskController()"><code>new TaskController(|priority|)</code></dfn>
+  constructor steps are:
 
   1. Let |signal| be a new {{TaskSignal}} object.
   1. Set |signal|'s <a for=TaskSignal>priority</a> to |priority|.
@@ -96,13 +97,14 @@ To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
   To <dfn for="TaskSignal">signal priority change</dfn> on a {{TaskSignal}}
   object |signal|, given a {{TaskPriority}} |priority|, run the following steps:
 
-  1. If |signal|'s {{TaskSignal/priority changing}} flag is set, then [=exception/throw=] a {{NotAllowedError!!exception}}
-     {{DOMException}}.
+  1. If |signal|'s {{TaskSignal/priority changing}} flag is set, then [=exception/throw=]
+     a {{NotAllowedError!!exception}} {{DOMException}}.
   1. If |signal|'s <a for=TaskSignal>priority</a> equals |priority| then return.
   1. Set |signal|'s {{TaskSignal/priority changing}} flag.
   1. Let |previousPriority| be |signal|'s <a for=TaskSignal>priority</a>.
   1. Set |signal|'s <a for=TaskSignal>priority</a> to |priority|.
-  1. <a for="list" lt="iterate">For each</a> |algorithm| of |signal|'s {{TaskSignal/priority change algorithms}}, run |algorithm|.
+  1. <a for="list" lt="iterate">For each</a> |algorithm| of |signal|'s
+     {{TaskSignal/priority change algorithms}}, run |algorithm|.
   1. [=Fire an event=] named {{TaskSignal/prioritychange}} at |signal| using
      {{TaskPriorityChangeEvent}}, with its [=TaskPriorityChangeEvent/previousPriority=]
      attribute initialized to |previousPriority|.

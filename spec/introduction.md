@@ -1,7 +1,6 @@
 Introduction {#intro}
 =====================
 
-<!-- Motivation for scheduling -->
 Scheduling can be an important developer tool for improving website
 performance. Broadly speaking, there are two areas where scheduling can be
 impactful: user-percieved latency and responsiveness. Scheduling can improve
@@ -16,28 +15,26 @@ Breaking up these tasks into smaller pieces and scheduling the *chunks* or task
 *continuations* is a proven approach that applications and framework developers
 use to improve responsiveness.
 
-<!-- Anatomy of a scheduler -->
 Userspace schedulers typically work by providing methods to schedule tasks and
 controlling when those tasks execute. Tasks usually have an associated
 priority, which in large part determines when the task will run, in relation to
 other tasks the scheduler controls. The scheduler typically operates by
 executing tasks for some amount of time (a scheduler quantum) before yielding
 control back to the browser. The scheduler resumes by scheduling a continuation
-task, which is usually a call to `setTimeout` or `postMessage`.
+task, e.g. a call to `setTimeout` or `postMessage`.
 
-<!-- Why existing methods are insufficient -->
 While userspace schedulers have been successful, the situation could be
 improved with a centralized browser scheduler and better scheduling primitives.
-The priority system of a scheduler extends only as far as the scheduler's reach.
-A consequence of this for userspace schedulers is that the UA generally has no
-knowledge of userspace task priorities. The one exception is if the scheduler uses
-`requestIdleCallback` for some of its work, but this is limited to the lowest
-priority work. The same holds if there are *multiple* schedulers on the page,
-which is increasingly common. For example, an app might be built with a framework
-that has a schedueler (e.g. React), do some scheduling on its own, and even
-embed a feature that has a scheduler (e.g. an embedded map). The browser is the
-ideal coordination point since the browser has global information, and the
-event loop is responsible for running tasks.
+The priority system of a scheduler extends only as far as the scheduler's
+reach.  A consequence of this for userspace schedulers is that the UA generally
+has no knowledge of userspace task priorities. The one exception is if the
+scheduler uses `requestIdleCallback` for some of its work, but this is limited
+to the lowest priority work. The same holds if there are *multiple* schedulers
+on the page, which is increasingly common. For example, an app might be built
+with a framework that has a schedueler (e.g. React), do some scheduling on its
+own, and even embed a feature that has a scheduler (e.g. an embedded map). The
+browser is the ideal coordination point since the browser has global
+information, and the event loop is responsible for running tasks.
 
 Prioritization aside, the current primitives that userspace schedulers rely on
 are not ideal for modern use cases. `setTimeout(0)` is the canonical way to
@@ -50,10 +47,9 @@ effective for some use cases, but this only applies to idle tasks and does not
 account for tasks whose priority can change, e.g. re-prioritizing off-screen
 content in response to user input, like scrolling.
 
-<!-- What we do here -->
 This document introduces a new interface for developers to schedule and control
 prioritized tasks.  The {{Scheduler}} interface exposes a
-{{Scheduler/postTask()}} method to schedule tasks, and the specification defines a
-number of {{TaskPriority|TaskPriorities}} that control execution order.
-Additionally, a {{TaskController}} and its associated {{TaskSignal}} can be
-used abort scheduled tasks and control their priorities.
+{{Scheduler/postTask()}} method to schedule tasks, and the specification
+defines a number of {{TaskPriority|TaskPriorities}} that control execution
+order.  Additionally, a {{TaskController}} and its associated {{TaskSignal}}
+can be used abort scheduled tasks and control their priorities.
