@@ -1,10 +1,10 @@
 <pre class='metadata'>
 Title: Prioritized Task Scheduling
-Shortname: prioritized-task-scheduling
+Shortname: scheduling-apis
 Level: none
 Status: CG-DRAFT
 Group: WICG
-URL: https://wicg.github.io/prioritized-task-scheduling/
+URL: https://wicg.github.io/scheduling-apis/
 Editor: Scott Haseley, w3cid 122093, Google https://google.com/, shaseley@google.com
 Repository: wicg/scheduling-apis
 Abstract:
@@ -17,30 +17,58 @@ Assume Explicit For: true
 Include MDN Panels: maybe
 </pre>
 
-<!--
-  /*
-   * This is in bikeshed's stylesheet.include, but not in W3C's base.css. And
-   * since stylesheet.include is not longer inlined when we link to it, this
-   * is omitted.
-   * 
-   * The culprit might be:
-   * https://github.com/tabatkins/bikeshed/commit/90652a820d408493d429e471a35a9c4a628d9f60
-   */
--->
-
 <style>
-  /* Put nice boxes around each algorithm. */
-  [data-algorithm]:not(.heading) {
-    padding: .5em;
-    border: thin solid #ddd; border-radius: .5em;
-    margin: .5em calc(-0.5em - 1px);
-  }
-  [data-algorithm]:not(.heading) > :first-child {
-    margin-top: 0;
-  }
-  [data-algorithm]:not(.heading) > :last-child {
-    margin-bottom: 0;
-  }
+/*
+ * Put nice boxes around each algorithm.
+ *
+ * This is in bikeshed's stylesheet.include, but not in W3C's base.css. And
+ * since stylesheet.include is not longer inlined when we link to it, this
+ * is omitted.
+ *
+ * The culprit might be:
+ * https://github.com/tabatkins/bikeshed/commit/90652a820d408493d429e471a35a9c4a628d9f60
+ */
+[data-algorithm]:not(.heading) {
+  padding: .5em;
+  border: thin solid #ddd; border-radius: .5em;
+  margin: .5em calc(-0.5em - 1px);
+}
+[data-algorithm]:not(.heading) > :first-child {
+  margin-top: 0;
+}
+[data-algorithm]:not(.heading) > :last-child {
+  margin-bottom: 0;
+}
+
+/* domintro from https://resources.whatwg.org/standard.css */
+.domintro {
+  position: relative;
+  color: green;
+  background: #DDFFDD;
+  margin: 2.5em 0 2em 0;
+  padding: 1.5em 1em 0.5em 2em;
+}
+
+.domintro dt, .domintro dt * {
+  color: black;
+  font-size: inherit;
+}
+.domintro dd {
+  margin: 0.5em 0 1em 2em; padding: 0;
+}
+.domintro dd p {
+  margin: 0.5em 0;
+}
+.domintro::before {
+  content: 'For web developers (non-normative)';
+  background: green;
+  color: white;
+  padding: 0.15em 0.25em;
+  font-style: normal;
+  position: absolute;
+  top: -0.8em;
+  left: -0.8em;
+}
 </style>
 
 <pre class=link-defaults>
@@ -64,6 +92,9 @@ spec: HTML; urlPrefix: https://html.spec.whatwg.org/multipage/;
 spec: dom; urlPrefix: https://dom.spec.whatwg.org/#;
   type: dfn; 
     text: signal; for: AbortController; url: abortcontroller-signal
+spec: requestidlecallback; urlPrefix: https://www.w3.org/TR/requestidlecallback/#;
+  type: method;
+    text: requestIdleCallback(); for: Window; url: dom-window-requestidlecallback
 </pre>
 
 <pre class=include>

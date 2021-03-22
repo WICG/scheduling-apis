@@ -8,72 +8,47 @@ This spec formalizes three priorities to support scheduling tasks:
 
 <pre class='idl'>
   enum TaskPriority {
-      "user-blocking",
-      "user-visible",
-      "background"
+    "user-blocking",
+    "user-visible",
+    "background"
   };
 </pre>
 
-{{TaskPriority/user-blocking}} is the highest priority, and is meant to be used
-for tasks that are blocking the user's ability to interact with the page, such
-as rendering the core experience or responding to user input.
+<dfn enum-value for=TaskPriority>user-blocking</dfn> is the highest priority,
+and is meant to be used for tasks that are blocking the user's ability to
+interact with the page, such as rendering the core experience or responding to
+user input.
 
-{{TaskPriority/user-visible}} is the second highest priority, and is meant to
-be used for tasks that visible to the user but not necessarily blocking user
-actions, such as rendering secondary parts of the page. This is the default
-priority.
+<dfn enum-value for=TaskPriority>user-visible</dfn> is the second highest
+priority, and is meant to be used for tasks that visible to the user but not
+necessarily blocking user actions, such as rendering secondary parts of the
+page. This is the default priority.
 
-{{TaskPriority/background}} is the lowest priority, and is meant to be used for
-tasks that are not time-critical, such as background log processing or
-initializing certain third party libraries.
+<dfn enum-value for=TaskPriority>background</dfn> is the lowest priority, and
+is meant to be used for tasks that are not time-critical, such as background
+log processing or initializing certain third party libraries.
 
 Note: Tasks scheduled through a given {{Scheduler}} run in *strict priority
-order*, meaning the scheduler will always run {{TaskPriority/user-blocking}}
-tasks before {{TaskPriority/user-visible}} tasks, which in turn always run
-before {{TaskPriority/background}} tasks.
+order*, meaning the scheduler will always run "{{TaskPriority/user-blocking}}"
+tasks before "{{TaskPriority/user-visible}}" tasks, which in turn always run
+before "{{TaskPriority/background}}" tasks.
 
 <div algorithm>
   {{TaskPriority}} |p1| is <dfn for="TaskPriority">less than</dfn>
   {{TaskPriority}} |p2| if |p1| is less than |p2| in the
   following total ordering:
-    * {{TaskPriority/background}} < {{TaskPriority/user-visible}} < {{TaskPriority/user-blocking}}
+  "{{TaskPriority/background}}" < "{{TaskPriority/user-visible}}" < "{{TaskPriority/user-blocking}}"
 </div>
 
 
 The `Scheduler` Interface {#sec-scheduler}
 ---------------------
 
-Developers interact with the {{Scheduler}} interface to schedule tasks, using
-the {{Scheduler/postTask()}} method. A task consists of a callback, which is the
-entrypoint to the task, and 0 or more {{SchedulerPostTaskOptions}}:
-
- - {{SchedulerPostTaskOptions/priority}}: An optional {{TaskPriority}}. If set,
-   this priority will be used to schedule the task, and the task's priority is
-   immutable. If left unspecified, the {{SchedulerPostTaskOptions/signal}}
-   option will determine the task's priority if set, otherwise the priority
-   defaults to {{TaskPriority/user-visible}}.
-
- - {{SchedulerPostTaskOptions/signal}}: An optional {{AbortSignal}} or
-   {{TaskSignal}}. If a {{TaskSignal}} is specified and the
-   {{SchedulerPostTaskOptions/priority}} is ommitted, the signal is used to
-   determine the priority, which can be modified by the associated
-   {{TaskController}}. The {{SchedulerPostTaskOptions/signal}} is also used to
-   cancel pending tasks. See [Controlling Tasks](#sec-controlling-tasks) for
-   details on using a {{TaskController}} or {{AbortController}} with
-   {{Scheduler/postTask()}}.
-
- - {{SchedulerPostTaskOptions/delay}}: An optional delay (milliseconds) may be
-   specified in order to delay the execution of the task.
-
-{{Scheduler/postTask()}} returns a Promise that is fulfilled with the result of
-the callback, or rejected with an "{{AbortError!!exception}}" {{DOMException}}
-if the task is aborted.
-
 <xmp class='idl'>
   dictionary SchedulerPostTaskOptions {
-      AbortSignal? signal = null;
-      TaskPriority? priority = null;
-      long delay = 0;
+    AbortSignal signal;
+    TaskPriority priority;
+    [EnforceRange] unsigned long long delay = 0;
   };
 
   callback SchedulerPostTaskCallback = any ();
@@ -92,28 +67,60 @@ change, a {{TaskSignal}} is needed. But for cases where only cancellation is
 needed, an {{AbortSignal}} would suffice, potentially making it easier to
 integrate the API into existing code that uses {{AbortSignal|AbortSignals}}.
 
-Note: If the {{SchedulerPostTaskOptions/signal}} is set to a {{TaskSignal}} and
-a {{SchedulerPostTaskOptions/priority}} is also provided, the {{TaskSignal}} is
-treated as an {{AbortSignal}}, meaning priority change events will not impact
-the task, but abort events will.
+<dl class="domintro non-normative">
+  <dt><code>result = scheduler . {{Scheduler/postTask()|postTask}}( |callback|, |options| )</code></dt>
+  <dd>
+    <p>Returns a promise that is fulfilled with the return value of |callback|,
+    or rejected with an "{{AbortError!!exception}}" {{DOMException}} if the task
+    is aborted. If |callback| throws an error during execution, the promise
+    returned by {{Scheduler/postTask()}} will be rejected with that error.
+
+    <p>The task's {{TaskPriority|priority}} is determined by the combination of
+    |option|'s {{SchedulerPostTaskOptions/priority}} and
+    {{SchedulerPostTaskOptions/signal}}:
+
+    <ul>
+      <li>If |option|'s {{SchedulerPostTaskOptions/priority}} is specified, then
+      that {{TaskPriority}} will be used to schedule the task, and the task's
+      priority is immutable.</li>
+
+      <li>Otherwise, if |option|'s {{SchedulerPostTaskOptions/signal}} is
+      specified and is a {{TaskSignal}} object, then the task's priority is
+      determined by |option|'s {{SchedulerPostTaskOptions/signal}}'s
+      [=TaskSignal/priority=]. In this case the task's priority is *dynamic*,
+      and can be changed by calling {{TaskController/setPriority()|controller.setPriority()}}
+      for the associated {{TaskController}}.</li>
+
+      <li>Otherwise, the task's priority defaults to "{{TaskPriority/user-visible}}".</li>
+    </ul></p>
+
+    <p>If |option|'s {{SchedulerPostTaskOptions/signal}} is specified, then the
+    {{SchedulerPostTaskOptions/signal}} is used by the {{Scheduler}} to
+    determine if the task is aborted.
+
+    <p>If |option|'s {{SchedulerPostTaskOptions/delay}} is specified and greater
+    than 0, then the execution of the task will be delayed for at least
+    {{SchedulerPostTaskOptions/delay}} milliseconds.
+  </dd>
+</dl>
 
 
 A {{Scheduler}} object has an associated <dfn for="Scheduler">static priority
 task queue map</dfn>, which is a [=map=] from {{TaskPriority}} to [=scheduler
-task queue=].  This map is empty unless otherwise stated.
+task queue=].  This map is initialized to a new empty [=map=].
 
 A {{Scheduler}} object has an associated <dfn for="Scheduler">dynamic priority
 task queue map</dfn>, which is a [=map=] from {{TaskSignal}} to [=scheduler
-task queue=]. This map is empty unless otherwise stated.
+task queue=]. This map is initialized to a new empty [=map=].
 
 Note: We implement *dynamic prioritization* by enqueuing tasks associated with
 a specific {{TaskSignal}} into the same [=scheduler task queue=], and changing
 that queue's priority in response to `prioritychange` events. The 
-<a for=Scheduler>dynamic priority task queue map</a> holds the
+[=Scheduler/dynamic priority task queue map=] holds the
 [=scheduler task queues=] whose priorities can change, and the map key is the
 {{TaskSignal}} which all tasks in the queue are associated with.
 <br/></br>
-The values of the <a for=Scheduler>static priority task queue map</a> are
+The values of the [=Scheduler/static priority task queue map=] are
 [=scheduler task queues=] whose priorities do not change. Tasks with *static
 priorities* &mdash; those that were scheduled with an explicit
 {{SchedulerPostTaskOptions/priority}} option or a
@@ -124,7 +131,7 @@ key for the map.
 An alternative, and logicially equivalent implementation, would be to maintain a
 single per-{{TaskPriority}} [=scheduler task queue=], and move tasks between
 [=scheduler task queues=] in response to a {{TaskSignal}}'s
-<a for=TaskSignal>priority</a> changing, inserting based on
+[=TaskSignal/priority=] changing, inserting based on
 [=scheduler task/enqueue order=]. This approach would simplify
 [=selecting the task queue of the next scheduler task=], but make priority
 changes more complex.
@@ -152,7 +159,7 @@ Definitions {#sec-scheduling-tasks-definitions}
 
 ### Scheduler Tasks ### {#sec-def-scheduler-tasks}
 
-A <dfn>scheduler task</dfn> is a <a for="/">task</a> with an additional numeric
+A <dfn>scheduler task</dfn> is a [=/task=] with an additional numeric
 <dfn for="scheduler task">enqueue order</dfn> [=struct/item=], initially set to 0.
 
 A [=scheduler task=] |t1| is <dfn for="scheduler task">older than</dfn>
@@ -189,7 +196,7 @@ A <dfn>scheduler task queue</dfn> is a [=struct=] with the following [=struct/it
 
 A [=scheduler task queue=] |queue|'s <dfn for="scheduler task queue">first runnable task</dfn>
 is the first [=scheduler task=] in |queue|'s [=scheduler task queue/tasks=] that is
-<a for="task">runnable</a>.
+[=task/runnable=].
 
 Processing Model {#sec-scheduling-tasks-processing-model}
 ---------------------
@@ -213,8 +220,8 @@ Processing Model {#sec-scheduling-tasks-processing-model}
   1. Return |task|.
 
   Issue: We should consider refactoring the HTML spec to add a constructor for
-  <a for="/">task</a>. One problem is we need the new task to be a
-  [=scheduler task=] rather than a <a for="/">task</a>.
+  [=/task=]. One problem is we need the new task to be a [=scheduler task=]
+  rather than a [=/task=].
 </div>
 
 <div algorithm>
@@ -228,24 +235,27 @@ Processing Model {#sec-scheduling-tasks-processing-model}
 <div algorithm="schedule a postTask task">
   To <dfn lt="schedule a postTask task|scheduling a postTask task">schedule a postTask task</dfn>
   for {{Scheduler}} |scheduler| given a {{SchedulerPostTaskCallback}} |callback| and
-  {{SchedulerPostTaskOptions}} options, run the following steps:
+  {{SchedulerPostTaskOptions}} |options|, run the following steps:
 
   1. Let |result| be [=a new promise=].
-  1. Let |signal| be |options|["{{SchedulerPostTaskOptions/signal}}"].
+  1. Let |signal| be |options|["{{SchedulerPostTaskOptions/signal}}"] if
+     |options|["{{SchedulerPostTaskOptions/signal}}"] [=map/exists=], or
+     otherwise null.
   1. If |signal| is not null and its [=AbortSignal/aborted flag=] is set, then
      [=reject=] |result| with an "{{AbortError!!exception}}" {{DOMException}}
      and return |result|.
-  1. Let |priority| be |options|["{{SchedulerPostTaskOptions/priority}}"].
+  1. Let |priority| be |options|["{{SchedulerPostTaskOptions/priority}}"] if
+     |options|["{{SchedulerPostTaskOptions/priority}}"] [=map/exists=], or
+     otherwise null.
   1. Let |queue| be the result of [=selecting the scheduler task queue=] for
      |scheduler| given |signal| and |priority|.
   1. Let |delay| be |options|["{{SchedulerPostTaskOptions/delay}}"].
-  1. If |delay| is less than 0 then set |delay| to 0.
   1. If |delay| is greater than 0, then the task is a delayed task; return
      |result| and run the following steps [=in parallel=]:
     1. Let |global| be the [=relevant global object=] for |scheduler|.
     1. If |global| is a {{Window}} object, wait until |global|'s
        <a attribute for="Window">associated <code>Document</code></a>
-       has been fully active for a further |delay| milliseconds (not necessarily
+       has been [=Document/fully active=] for a further |delay| milliseconds (not necessarily
        consecutively).
 
        Otherwise, |global| is a {{WorkerGlobalScope}} object; wait until |delay|
@@ -271,23 +281,23 @@ to account for current throttling techniques (see also
 
 <div algorithm="select the scheduler task queue">
   To <dfn lt="select the scheduler task queue|selecting the scheduler task queue">select the scheduler task queue</dfn>
-  for a {{Scheduler}} |scheduler| given ({{TaskSignal}} or {{AbortSignal}})
-  |signal|, and a {{TaskPriority}} |priority|:
+  for a {{Scheduler}} |scheduler| given an {{AbortSignal}} or null |signal|, and
+  a {{TaskPriority}} or null |priority|:
 
-  1. If |priority| is null and |signal| is not null and |signal| is a
-     {{TaskSignal}} object, then
+  1. If |priority| is null and |signal| is not null and |signal| [=implements=]
+     the {{TaskSignal}} interface, then
     1. If |scheduler|'s [=Scheduler/dynamic priority task queue map=] does not
        [=map/contain=] |signal|, then
       1. Let |queue| be the result of [=creating a scheduler task queue=] given
-         |signal|'s <a for=TaskSignal>priority</a>.
+         |signal|'s [=TaskSignal/priority=].
       1. Set [=Scheduler/dynamic priority task queue map=][|signal|] to |queue|.
-      1. <a for=TaskSignal>Add a priority change algorithm</a> to |signal| that
+      1. [=TaskSignal/Add a priority change algorithm=] to |signal| that
          runs the following steps:
         1. Set |queue|'s [=scheduler task queue/priority=] to |signal|'s
            {{TaskSignal/priority}}.
     1. Return [=Scheduler/dynamic priority task queue map=][|signal|].
   1. Otherwise |priority| is used to determine the task queue:
-    1. If |priority| is null, set |priority| to {{TaskPriority/user-visible}}.
+    1. If |priority| is null, set |priority| to "{{TaskPriority/user-visible}}".
     1. If |scheduler|'s [=Scheduler/static priority task queue map=] does not
        [=map/contain=] |priority|, then
       1. Let |queue| be the result of [=creating a scheduler task queue=] given
@@ -298,8 +308,8 @@ to account for current throttling techniques (see also
 
 <div algorithm>
   To <dfn>schedule a task to invoke a callback</dfn> for {{Scheduler}}
-  |scheduler| given a [=scheduler task queue=] |queue|, an {{AbortSignal}} |signal|,
-  SchedulerPostTaskCallback |callback|, and promise |result|:
+  |scheduler| given a [=scheduler task queue=] |queue|, an {{AbortSignal}} or
+  null |signal|, a SchedulerPostTaskCallback |callback|, and a promise |result|:
 
   1. Let |global| be the [=relevant global object=] for |scheduler|.
   1. Let |document| be |global|'s <a attribute for="Window">associated `Document`</a>
@@ -312,8 +322,8 @@ to account for current throttling techniques (see also
     1. Let |callback result| be the result of [=invoking=] |callback|. If that
        threw an exception, then [=reject=] |result| with that, otherwise resolve
        |result| with |callback result|.
-  1. If |signal| is not null, then <a for=AbortSignal lt=add>add the following</a>
-     abort steps to it:
+  1. If |signal| is not null, then [=AbortSignal/add|add the following=] abort
+     steps to it:
     1. [=scheduler task queue/Remove=] |task| from |queue|.
     1. [=Reject=] |result| with an "{{AbortError!!exception}}" {{DOMException}}.
 
@@ -322,16 +332,6 @@ to account for current throttling techniques (see also
   [=Scheduler/next enqueue order=] should be updated atomically, and accessing
   the [=scheduler task queues=] should occur atomically. The latter also affects
   the event loop task queues (see [this issue](https://github.com/whatwg/html/issues/6475)).
-
-  Issue: We need to figure out what to do with cross-window scheduling. As-is,
-  this differs from `setTimeout` in terms of the `thisArg` when invoking the
-  callback. We leave it null and `this` will map to the global of where the
-  callback is defined. `setTimeout` maps `this` to the global of the window
-  associated with the `setTimeout` that got called, but if you pass an arrow
-  function, then this will be bound based on the function's definition scope.
-  Also, there is the question of which document should be associated with the
-  task, and I suppose the question of if cross-window scheduling even makes
-  sense.
 </div>
 
 ### Selecting the Next Task to Run ### {#sec-scheduler-alg-select-next-task}
@@ -345,12 +345,12 @@ to account for current throttling techniques (see also
   To <dfn lt="get the runnable task queues|getting the runnable task queues">get the runnable task queues</dfn>
   for a {{Scheduler}} |scheduler|, run the following steps:
 
-  1. Let |queues| be the result of <a for="map" lt="get the values">getting the values</a>
-     of |scheduler|'s [=Scheduler/static priority task queue map=].
-  1. [=list/Extend=] |queues| with the result of <a for="map" lt="get the values">getting the values</a>
+  1. Let |queues| be the result of [=map/get the values|getting the values=] of
+     |scheduler|'s [=Scheduler/static priority task queue map=].
+  1. [=list/Extend=] |queues| with the result of [=map/get the values|getting the values=]
      of |scheduler|'s [=Scheduler/dynamic priority task queue map=].
   1. [=list/Remove=] from |queues| any |queue| such that |queue|'s [=scheduler task queue/tasks=]
-     do not contain a <a for="task">runnable</a> [=scheduler task=].
+     do not contain a [=task/runnable=] [=scheduler task=].
   1. Return |queues|.
 </div>
 
@@ -362,15 +362,15 @@ to account for current throttling techniques (see also
   1. Let |queues| be the result of [=getting the runnable task queues=] for |scheduler|.
   1. If |queues| is [=list/empty=] return null.
   1. [=set/Remove=] from |queues| any |queue| such that |queue|'s [=scheduler task queue/priority=]
-     is <a for="TaskPriority">less than</a> any other [=set/item=] of |queues|.
+     is [=TaskPriority/less than=] any other [=set/item=] of |queues|.
   1. Let |queue| be the [=scheduler task queue=] in |queues| whose
-     <a for="scheduler task queue">first runnable task</a> is the
-     <a for="scheduler task" lt="older than">oldest</a>.
+     [=scheduler task queue/first runnable task=] is the
+     [=scheduler task/older than|oldest=].
      <br/><span class=note>Two tasks cannot have the same age since [=scheduler task/enqueue order=]
      is unique.</span>
   1. Return |queue|'s [=scheduler task queue/tasks=].
 
-  Note: The next task to run is the oldest, highest priority <a for="task">runnable</a>
+  Note: The next task to run is the oldest, highest priority [=task/runnable=]
   [=scheduler task=].
 </div>
 
