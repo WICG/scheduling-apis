@@ -1,0 +1,12 @@
+.DS_Store
+
+# VIM swap files
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Bikeshed spec output
+index.html
+out/
