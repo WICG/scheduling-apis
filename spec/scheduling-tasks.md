@@ -150,14 +150,12 @@ increasing and not be repeated within a {{Scheduler}}.
 Issue: Would it be simpler to just use a timestamp here?
 
 The <dfn method for=Scheduler title="postTask(callback, options)">postTask(|callback|, |options|)</dfn>
-method must return the result of [=scheduling a postTask task=] for [=this=]
+method steps are to return the result of [=scheduling a postTask task=] for [=this=]
 given |callback| and |options|.
 
 
 Definitions {#sec-scheduling-tasks-definitions}
 ---------------------
-
-### Scheduler Tasks ### {#sec-def-scheduler-tasks}
 
 A <dfn>scheduler task</dfn> is a [=/task=] with an additional numeric
 <dfn for="scheduler task">enqueue order</dfn> [=struct/item=], initially set to 0.
@@ -166,7 +164,7 @@ A [=scheduler task=] |t1| is <dfn for="scheduler task">older than</dfn>
 [=scheduler task=] |t2| if |t1|'s [=scheduler task/enqueue order=] less than |t2|'s
 [=scheduler task/enqueue order=].
 
-### Scheduler Task Sources ### {#sec-def-scheduler-task-sources}
+<br/>
 
 The following [=task sources=] are defined as <dfn>scheduler task sources</dfn>,
 and must only be used for [=scheduler tasks=].
@@ -174,8 +172,7 @@ and must only be used for [=scheduler tasks=].
 : <dfn>The posted task task source</dfn>
 :: This [=task source=] is used for tasks scheduled through {{Scheduler/postTask()}}.
 
-
-### Scheduler Task Queues ### {#sec-def-scheduler-task-queues}
+<br/>
 
 A <dfn>scheduler task queue</dfn> is a [=struct=] with the following [=struct/items=]:
 
@@ -200,7 +197,6 @@ is the first [=scheduler task=] in |queue|'s [=scheduler task queue/tasks=] that
 
 Processing Model {#sec-scheduling-tasks-processing-model}
 ---------------------
-
 
 ### Queueing and Removing Scheduler Tasks ### {#sec-queuing-scheduler-tasks}
 

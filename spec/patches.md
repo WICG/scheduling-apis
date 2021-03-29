@@ -44,9 +44,9 @@ Modify step 1 to read:
 
   1. Let |taskQueue| be one of the following, chosen in an
      [=implementation-defined=] manner:
-    1. If |queues| is not [=list/empty=], one of the [=task queues=] in |queues|,
+    * If |queues| is not [=list/empty=], one of the [=task queues=] in |queues|,
        chosen in an [=implementation-defined=] manner.
-    1. If |schedulers| is not [=list/empty=], the result of
+    * If |schedulers| is not [=list/empty=], the result of
        [=selecting the task queue of the next scheduler task=] from one of the
        {{Scheduler}}s in |schedulers|, chosen in an [=implementation-defined=]
        manner.
