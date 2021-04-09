@@ -17,7 +17,7 @@
       // The API takes an optional argument for 'delay', which is essentially makes
       // postTask act like a prioritized version of setTimeout. The semantics are
       // described in the explainer:
-      // https://github.com/WICG/main-thread-scheduling/blob/master/PrioritizedPostTask.md#posting-delayed-tasks
+      // https://github.com/WICG/scheduling-apis/blob/master/explainer/prioritized-post-task.md#posting-delayed-tasks
       results.push(scheduler.postTask(() => 'hello!', {delay: 1000}));
       results.push(scheduler.postTask(() => 'scheduled'));
       results.push(scheduler.postTask(() => 'world,'));

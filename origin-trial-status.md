@@ -6,7 +6,7 @@ testing this API in the wild (you can register [here](https://developers.chrome.
 
 This page tracks the current status of what parts of the APIs are implemented
 as part of the trial. Please read the
-[explainer](https://github.com/WICG/main-thread-scheduling/blob/master/PrioritizedPostTask.md)
+[explainer](./explainers/prioritized-post-task.md)
 to understand how to take advantage of these APIs.
 
 In addition to participating via the origin trial, these APIs are available on
@@ -35,8 +35,7 @@ The minimum supported Chrome version for `onprioritychange` and `currentTaskSign
 
 2. `TaskController` and `TaskSignal` have been implemented.
 
-3. [Priority
-   inheritance](https://github.com/WICG/main-thread-scheduling/blob/master/PostTaskPropagation.md)
+3. [Priority inheritance](./explainers/post-task-propagation.md)
    has been implemented and exposed through `scheduler.currentTaskSignal`.
 
 4. An `onprioritychange` event has been added to `TaskSignal`.
@@ -45,7 +44,7 @@ The minimum supported Chrome version for `onprioritychange` and `currentTaskSign
 
 Sample code can be found [here](sample-code/), which covers the currently
 implemented features. Please see the
-[explainer](https://github.com/WICG/main-thread-scheduling/blob/master/PrioritizedPostTask.md)
+[explainer](./explainers/prioritized-post-task.md)
 for more context.
 
 TODO(shaseley): add examples for `scheduler.currentTaskSignal` and `onprioritychange`.
