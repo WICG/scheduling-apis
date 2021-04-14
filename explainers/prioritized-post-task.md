@@ -1,6 +1,6 @@
 # Main Thread Scheduling: Prioritized postTask API
 
-For an overview of the larger problem space, see [Main Thread Scheduling API](README.md).
+For an overview of the larger problem space, see [Main Thread Scheduling API](../README.md).
 
 ## TL;DR
 
@@ -11,7 +11,7 @@ experience), but the Platform lacks a unified API to schedule prioritized work.
 ## The Problem
 
 To keep apps responsive, developers can (and should) break up long tasks into
-smaller chunks.  [Userspace schedulers](UserspaceSchedulers.md) often manage
+smaller chunks.  [Userspace schedulers](../misc/userspace-schedulers.md) often manage
 these chunks of work (tasks)&mdash;prioritizing and executing work
 asynchronously at an appropriate time relative to the current situation of the
 user and browser.
@@ -41,7 +41,7 @@ tasks of a given task source.
 
 The current state of prioritization in the browser looks something like this:
 
-![Current Web Priorities](images/web_priorities_current.png)
+![Current Web Priorities](../images/web-priorities-current.png)
 
 The first two&mdash;*microtask* and *don't yield*&mdash;are generally
 antithetical to scheduling and the goal of improving responsiveness. They are
@@ -101,7 +101,7 @@ covered by this minimal set of priorities. We also understand that apps may have
 finer-grained app-specific priorities, and are considering additional APIs to
 support these (see FAQ below).
 
-![New Web Scheduling Priorities](images/web_priorities_proposed.png)
+![New Web Scheduling Priorities](../images/web-priorities-proposed.png)
 
 1. **user-blocking**: User-blocking tasks are tasks that block a user from
    interacting with and using the app. This could be (chunked) work that is
@@ -384,7 +384,7 @@ scheduler.postTask(() => { console.log('B'); });
 The API shape described above is the current MVP. The following are
 extensions of the base API that are in various degrees of exploration:
 
- 1. [**Propagating and Inheriting Priority**](PostTaskPropagation.md): A
+ 1. [**Propagating and Inheriting Priority**](post-task-propagation.md): A
     frequent request we see from developers is the desire to inherit or
     propagate the currently running task's priority.
 
@@ -452,7 +452,7 @@ lightweight solution and will publish an explainer soon.
 Priority inversions occur whenever higher priority work depends on lower
 priority work, so simply by introducing priorities introduces this risk. There
 is only so much the API can do to prevent these situations, although [inheriting
-priority](PostTaskPropagation.md) can help to some degree.
+priority](post-task-propagation.md) can help to some degree.
 
 
 This is something that developers should be aware of whenever using
@@ -460,7 +460,7 @@ priorities, and should guard against in situations where a resource is shared
 and can be accessed by multiple, different priority tasks.
 
 Some of the situations where this can occur are explored
-[here](PriorityInversion.md), as well as potential solutions. It is not clear
+[here](../misc/priority-inversion.md), as well as potential solutions. It is not clear
 at this point that a native solution beyond `TaskController` is needed, and we
 await further developer feedback from Origin Trial.
 
@@ -503,11 +503,11 @@ concurrent mode).
 The proposal orignally included the ability to pass arguments to the callback,
 like in `setTimeout`, but was removed because modern JS supports arrow functions,
 which obviates the need to pass them through `postTask`
-(see [this issue](https://github.com/WICG/main-thread-scheduling/issues/18)).
+(see [this issue](https://github.com/WICG/scheduling-apis/issues/18)).
 
 ## Security Considerations
 
-**Note**: This section summarizes [this much longer exploration](PostTaskSecurity.md).
+**Note**: This section summarizes [this much longer exploration](../misc/post-task-security.md).
 
 The main security concern is whether or not the API adds new surfaces to
 perform side-channel attacks, specifically for same-process cross-origin

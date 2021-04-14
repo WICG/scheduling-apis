@@ -30,7 +30,7 @@ main thread work. Since long tasks and responsiveness are at odds, breaking up
 long tasks can help keep an app responisive when also *yielding to the browser's
 event loop*.
 
-[Userspace schedulers](UserspaceSchedulers.md) have evolved to manage these
+[Userspace schedulers](./misc/userspace-schedulers.md) have evolved to manage these
 chunks of work&mdash;prioritizing and executing work async at an appropriate
 time relative to current situation of user and browser.
 
@@ -54,7 +54,7 @@ there are several problems they still face:
     script. This disincentivizes yielding for script that requires low task
     latency.
 
-    We propose adding [scheduler.yield()](YieldAndContinuation.md) as a
+    We propose adding [scheduler.yield()](./explainers/yield-and-continuation.md) as a
     solution.
 
  3. **Coordination between (cooperating) actors**: Most userspace schedulers
@@ -71,7 +71,7 @@ there are several problems they still face:
     scheduling decisions to help improve user experience.
 
     We propose adding a [prioritized postTask scheduling
-    API](PrioritizedPostTask.md) to address this problem.
+    API](./explainers/prioritized-post-task.md) to address this problem.
 
  4. **A disparate set of scheduling APIs**: Despite the need to schedule chunks
     of script, the Platform lacks a unified API to do so. Developers can choose
@@ -82,7 +82,7 @@ there are several problems they still face:
     write scheduling code, and requires expert knowledge of the Browser's event
     loop to do so. Creating a unified native scheduling API can alleviate this.
 
-    This is also addressed by the [postTask API](PrioritizedPostTask.md).
+    This is also addressed by the [postTask API](./explainers/prioritized-post-task.md).
 
 ## Additional Scheduling Problems
 
@@ -91,12 +91,12 @@ space.  Additionally, there are developer needs for things like detecting when
 a frame is pending, throttling the frame rate, and avoiding layout thrashing.
 
 Some of the other APIs we're considering in this space are noted
-[here](LowLevelAPIs.md).
+[here](./misc/low-level-apis.md).
 
 ## Explainer Links
 
- * [scheduler.yield()](YieldAndContinuation.md)
- * [scheduler.postTask()](PrioritizedPostTask.md)
+ * [scheduler.yield()](./explainers/yield-and-continuation.md)
+ * [scheduler.postTask()](./explainers/prioritized-post-task.md)
  * [isInputPending()](https://github.com/WICG/is-input-pending)
 
 ## Further Reading / Viewing
