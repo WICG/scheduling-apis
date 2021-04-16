@@ -6,27 +6,10 @@ The following are the answers to the W3C TAG's
 > 01. What information might this feature expose to Web sites or other parties,
 >     and for what purposes is that exposure necessary?
 
-Tasks scheduled with this API have an associated priority, which is provided by
-consumers of the API. This priority could be obtained in JavaScript either by
-having access to the associated `TaskSignal`, or by monkey-patching the
-`scheduler` and intercepting calls to `postTask()`. The priority is used by the
-UA for scheduling decisions, and is fundamental to a prioritized scheduling
-API.
-
-Tasks also have an optional delay value &mdash; analogous to `setTimeout()`'s
-timeout value. This could similarly be obtained in JavaScript by
-monkey-patching the API. The delay value is required to schedule delayed tasks.
-
-In the context of [Third-Party Tracking](https://w3ctag.github.io/security-questionnaire/#third-party-tracking),
-an attacker could monitor the number of scheduled tasks along with their
-priorities, delays, and timing, for a particular site. It is unclear if this
-information could be correlated in any useful way with other information about
-the user, but we cannot think of anything. On its own, the task information
-does not provide any information about what the user is doing.  And monitoring
-the cause of the scheduled work (e.g. a `click` event) and DOM contents would
-provide far more context. Our opinion is that this information is low-risk
-since it is indicative of how a website schedules tasks, as opposed to being
-associated with the user.
+The features do not directly expose any information. Indirectly, consumers of
+the `postTask()` API can measure information about tasks they schedule, such as
+queueing time. In Q9, we discuss the potential for side channel attacks using
+this information in the cross-origin case.
 
 > 02. Do features in your specification expose the minimum amount of information
 >     necessary to enable their intended uses?
