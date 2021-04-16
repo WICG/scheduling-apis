@@ -111,7 +111,7 @@ implementation-dependent information could be obtained.
 <sup>1</sup>Another possibility is the UA chose to not run any tasks, e.g. it
 may have throttled the site.
 
-> 10. Do feautres in this specification enable new script execution/loading
+> 10. Do features in this specification enable new script execution/loading
 >     mechanisms?
 
 No. Note that this API requires a function, and does **not** support the
