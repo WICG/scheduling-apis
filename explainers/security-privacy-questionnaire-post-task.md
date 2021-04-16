@@ -135,7 +135,7 @@ None.
 >     third-party contexts?
 
 It does not make such a distinction. In the future, we may explore allowing
-first-party to assert some control over a third-party scheduling (e.g. maximum
+first-party to assert some control over a third-party scheduling (e.g. imposing a maximum
 priority), but such a distinction is not currently made.
 
 > 15. How do the features in this specification work in the context of a browser’s
