@@ -94,7 +94,7 @@ to learn information about tasks running in another event loop by queuing
 For such an attack to provide any information about tasks in another event
 loop, the event loops would need to be running in the same thread, since
 otherwise tasks would be running concurrently. But even then, there is no
-guarantee that the attacker could definitivley determine that the delays are
+guarantee that the attacker could definitively determine that the delays are
 attributable to another event loop, e.g. *if* a task ran, it could be an
 internal browser task. And even if that could be determined, how tasks are
 chosen between event loops sharing a thread is not specified, so any
