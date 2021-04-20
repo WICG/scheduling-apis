@@ -109,7 +109,7 @@ No.
 
 No.
 
-> 13. What temporary identifiers do the feautures in this specification create or
+> 13. What temporary identifiers do the features in this specification create or
 >     expose to the web?
 
 None.
@@ -117,9 +117,11 @@ None.
 > 14. How does this specification distinguish between behavior in first-party and
 >     third-party contexts?
 
-It does not make such a distinction. In the future, we may explore allowing
-first-party to assert some control over a third-party scheduling (e.g. imposing a maximum
-priority), but such a distinction is not currently made.
+It does not make such a distinction. In the future, we may explore allowing a
+first-party context to assert some control over the scheduling of scripts
+running in nested iframes, and allowing a third-party script running in a
+first-party context to cooperatively avoid interfering with that first-party's
+scripts.
 
 > 15. How do the features in this specification work in the context of a browser’s
 >     Private Browsing or Incognito mode?
@@ -129,7 +131,7 @@ They work the same as in the non-private mode.
 > 16. Does this specification have both "Security Considerations" and "Privacy
 >     Considerations" sections?
 
-Not yet.
+[Not yet](https://github.com/WICG/scheduling-apis/issues/29).
 
 > 17. Do features in your specification enable origins to downgrade default
 >     security protections?
