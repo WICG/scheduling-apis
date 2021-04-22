@@ -38,7 +38,7 @@ The minimum supported Chrome version for `onprioritychange` and `currentTaskSign
 3. [Priority inheritance](./explainers/post-task-propagation.md)
    has been implemented and exposed through `scheduler.currentTaskSignal`.
 
-4. An `onprioritychange` event has been added to `TaskSignal`.
+4. A `prioritychange` event has been added to `TaskSignal`.
 
 ### Examples
 
@@ -46,8 +46,6 @@ Sample code can be found [here](sample-code/), which covers the currently
 implemented features. Please see the
 [explainer](./explainers/prioritized-post-task.md)
 for more context.
-
-TODO(shaseley): add examples for `scheduler.currentTaskSignal` and `onprioritychange`.
 
 ### Filing Issues
 

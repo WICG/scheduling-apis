@@ -323,20 +323,25 @@ Similar to how `AbortSignal` has an
 event to listen for a change in abort state, `TaskSignal` supports a
 `prioritychange` event to listen for changes in priority. The event handler can
 be registered using either the `addEventListener` method or `onprioritychange`
-property of a `TaskSignal`.
+property of a `TaskSignal`. The previous priority can be read through the
+`previousPriority` property of the associated event.
 
 ```javascript
 const controller = new TaskController('user-blocking');
 const signal = controller.signal;
 
 // Method 1: using onprioritychange.
-signal.onprioritychange = () => {
-  console.log('The priority is now ' + signal.priority);
+signal.onprioritychange = (event) => {
+  const previousPriority = event.previousPriority;
+  const newPriority = event.target.priority;
+  console.log(`The priority changed from ${previousPriority} to ${newPriority}.`);
 }
 
 // Method 2: using addEventListener.
-signal.addEventListener('prioritychange', () => {
-  console.log('The priority is now ' + signal.priority);
+signal.addEventListener('prioritychange', (event) => {
+  const previousPriority = event.previousPriority;
+  const newPriority = event.target.priority;
+  console.log(`The priority changed from ${previousPriority} to ${newPriority}.`);
 });
 
 controller.setPriority('background');
