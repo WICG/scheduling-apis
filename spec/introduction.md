@@ -3,6 +3,8 @@ Introduction {#intro}
 
 <div class="non-normative">
 
+*This section is non-normative.*
+
 Scheduling can be an important developer tool for improving website
 performance. Broadly speaking, there are two areas where scheduling can be
 impactful: user-percieved latency and responsiveness. Scheduling can improve
