@@ -84,7 +84,7 @@ chosen between event loops sharing a thread is not specified, so any
 information gained would be implementation-dependent.
 
 Our opinion is that any information gained in such an attack is likely to be
-benign. But if it is a concern, implementors can schedule between event loops
+benign. But if it is a concern, implementers can schedule between event loops
 in such a way that minimizes the risk, e.g. round-robin between event loops
 rather than use prioritization. Finally, we note that similar attacks could be
 carried out without this API, e.g. by scheduling tasks with `postMessage()`,
@@ -130,6 +130,9 @@ They work the same as in the non-private mode.
 
 > 16. Does this specification have both "Security Considerations" and "Privacy
 >     Considerations" sections?
+
+Yes ([security](https://wicg.github.io/scheduling-apis/#sec-security),
+[privacy](https://wicg.github.io/scheduling-apis/#sec-privacy)).
 
 [Not yet](https://github.com/WICG/scheduling-apis/issues/29).
 
