@@ -59,6 +59,6 @@ prioritized tasks.  The {{Scheduler}} interface exposes a
 {{Scheduler/postTask()}} method to schedule tasks, and the specification
 defines a number of {{TaskPriority|TaskPriorities}} that control execution
 order.  Additionally, a {{TaskController}} and its associated {{TaskSignal}}
-can be used abort scheduled tasks and control their priorities.
+can be used to abort scheduled tasks and control their priorities.
 
 </div>
