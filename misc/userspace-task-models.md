@@ -154,7 +154,7 @@ We would ideally like to create a unified userspace task model, which would
 provide a framework to reason about how various scheduling APIs fit in a
 holistic way. For example, what does it mean for APIs like `yield()` and
 `wait()` to be used both with `postTask()` and non-`postTask()` tasks? What
-about with rendering tasks?
+about with rendering browser tasks?
 
 The first step in expanding our simplified task models is to relax the
 assumptions we made [above](#simplified-task-models), and in doing so we can
@@ -170,17 +170,38 @@ There are in fact a lot of different task entry points other than `postTask()`:
  * Tasks that begin as a microtask[<sup>2</sup>](#notes)
  * `<script>` tags can be entry points if script starts executing
  * For [userspace schedulers](./userspace-schedulers.md), the task entry points are
-   internal to the application code[<sup>6</sup>](#notes.md)
+   internal to the application code[<sup>6</sup>](#notes)
 
 ### Entry Point or Continuation?
 
 Our assumption was that all continuations are (or will be) scheduled with the
 (not-yet-implemented) `yield()` API, but applications currently use the *same*
-APIs for scheduling tasks as they do for continuations.
+APIs for scheduling tasks as they do for continuations. For example, consider
+breaking up a long task into two halves with `postTask()`:
+
+```javascript
+function task() {
+  startWork();
+  // Is this a continuation or a separate task?
+  scheduler.postTask(finishWork);
+}
+scheduler.postTask(task);
+```
 
 There is a similar problems with [mixing async
 APIs](#the-challenge-of-mixing-async-apis): does the callback start a new task
-or continue the previous one? 
+or continue the previous one? For example, consider fetching a network resource
+within a `postTask()` task:
+
+```javascript
+function task() {
+ startWork();
+ // Is this fetch related to this task, or starting a new task?
+ fetch(url).then((response) => finishWork(response));
+}
+
+scheduler.postTask(task);
+```
 
 ### Multiple Tasks Per Browser Task
 
@@ -231,9 +252,9 @@ could be a hint that they are, but different userspace tasks can share a
 an opportunity here for scheduling APIs to better express the relationship
 between work scheduled with `postTask()`.
 
-<sup>5</sup>The HTML task model is centered on task sources (or task types).
-There is strict ordering between tasks of the same type, and no guaranteed
-ordering between different types (except idle callbacks).
+<sup>5</sup>The HTML task model is centered on task sources. There is strict
+ordering between tasks with the same source, and no guaranteed ordering between
+different task sources (except idle callbacks).
 
 <sup>6</sup>In the case of [userspace schedulers](./userspace-schedulers.md), the
 task the browser sees is the "userspace scheduler task", which in turn executes
