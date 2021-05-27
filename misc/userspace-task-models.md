@@ -3,9 +3,9 @@
 ## Introduction
 
 A *task* is a fundamental concept in scheduling, representing some amount of
-work to be performed. But how we think about and model tasks can vary.  This
-document explores various userspace[<sup>1</sup>](#notes) task models, how they map to
-the browser's event loop, and how various scheduling APIs fit in.
+work to be performed. But how we think about and model tasks can vary. This
+document explores various userspace[<sup>1</sup>](#notes) task models, how they
+map to the browser's event loop, and how various scheduling APIs fit in.
 
 ## Userspace Tasks
 
@@ -20,6 +20,16 @@ Userspace tasks:
    `scheduler.postTask()` or `setTimeout()`, but can also be an event listener,
    a microtask[<sup>2</sup>](#notes), or [something else](#multiple-entry-points).
 
+ * **Can be scheduled or not.** There are two broad categories of tasks: those
+   that are scheduled to run and those that start in response to something else.
+   Tasks whose entry point is scheduled with `scheduler.postTask()`,
+   `requestIdleCallback()`, `setTimeout()`, and `requestAnimationFrame()` fall
+   into the former category; event listeners fall into the latter.
+   Interestingly, depending on how it is used, `postMessage()` events can fall
+   into either category, e.g. same-window messaging to [avoid `setTimeout()`
+   delays](https://dbaron.org/log/20100309-faster-timeouts) vs. cross-window
+   messaging.
+
  * **Can be [synchronous or asynchronous](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Introducing)**.
    We define an *asynchronous task* as a task with asynchronous control flow, i.e.
    it has an  *asynchronous hop* or *continuation*, such as a promise
@@ -30,7 +40,8 @@ Userspace tasks:
    during their execution, either by interacting with a yieldy async API, e.g.
    `fetch()`, or by purposefully yielding, e.g. scheduling continuations with
    `setTimeout()` or `postTask()`. Note that async tasks are not necessarily
-   yieldy.
+   yieldy, e.g. `await`ing an already fulfilled promise makes the task async,
+   but it does not cause the task to yield to the event loop.
 
  * **Have a developer-defined end point**. Async work spawned by a task may or
    may not be part of the same userspace task, but the browser does not
@@ -54,56 +65,94 @@ event loop task, e.g. `postTask()` callbacks, but not exclusively:
    which can occur inside *and* outside of event loop tasks
 
 To simplify our processing model, we split the event loop processing into two
-phases, and define a **browser task** as a task that either (a) runs the next
-event loop task and subsequent microtask checkpoint, or (b) runs the rendering
+phases and define a **browser task** as a task that either (a) runs the next
+event loop task and subsequent microtask checkpoint or (b) runs the rendering
 steps. We note that this matches Chromium's processing model.
 
-## Simplified Task Models
+## Types of Userspace Tasks
 
-Fully fleshing out various task models from both the userspace and browser
-perspectives quickly gets complicated, so we start with the following
-simplifying assumptions:
-
- 1. Entry points are `scheduler.postTask()` callbacks, and each one starts a
-    new task
- 1. Related to (1), yieldy tasks use
-    [`yield()`](../explainers/yield-and-continuation.md) or
-    [`wait(timeInMs)`](https://github.com/WICG/scheduling-apis/issues/19#issuecomment-781655821)
-    for continuations
- 1. Only one userspace task runs per browser task
-
-While simplified, this helps us differentiate between two common ways of
-modeling tasks.
+There are three types of userspace tasks that we are interested in modeling:
+synchronous tasks, yieldy asynchronous tasks, and non-yieldy asynchronous
+tasks.  In the sections that follow, we illustrate what these types of tasks
+look like when scheduled with `scheduler.postTask()`.
 
 ### Synchronous Tasks
 
-The most basic task model under these assumptions is a synchronous task model
-where all tasks are scheduled via `scheduler.postTask()` and end when the
-associated callback terminates:
+Consider the following simple example that schedules a task at each priority:
 
-![Simplified Synchronous Task Model](../images/synchronous-tasks-simplified.png)
+```js
+scheduler.postTask(() => {
+  startBackgroundTask();
+  finishBackgroundTask();
+}, {priority: 'background'});
 
-This task model works well if the tasks are reasonably short, but it can lead
-to unresponsive pages if the tasks are long. The two common approaches to
-mitigate this are:
+scheduler.postTask(() => {
+  startUserVisibleTask();
+  finishUserVisibleTask();
+}, {priority: 'user-visble'});
 
- 1. Break up the tasks into smaller pieces, scheduling all the pieces up
-    front[<sup>4</sup>](#notes)
- 1. Yield to the event loop after some time, scheduling a continuation to
-    resume
+scheduler.postTask(() => {
+  startUserBlockingTask();
+  finishUserBlockingTask();
+}, {priority: 'user-blocking'});
+```
+
+There are three userspace tasks in this example, each synchronous. Synchronous
+tasks are by definition contained within a single browser task; when scheduled
+with `scheduler.postTask()`, there is a 1:1 mapping between browser task and
+userspace task, which would look something like:
+
+![Synchronous Task Example](../images/synchronous-task-example.png)
+
+`scheduler.postTask()` is suitable for working with prioritized tasks,
+providing the ability to prioritize and dynamically control tasks with a single
+API.
 
 ### Yieldy Asynchronous Tasks
 
-Yieldy async tasks are spread over multiple browser tasks, either by scheduling
-a *continuation task* with `yield()` or `wait()` or by using an async API like
-`fetch()`.
+Synchronous tasks work well if the tasks are reasonably short, but they can
+lead to unresponsive pages if the tasks are long. The two common approaches to
+mitigate this are:
 
-![Simplified Yieldy Asynchronous Task Model](../images/yieldy-asynchronous-tasks.png)
+ *  Subdivide long tasks into multiple smaller tasks, scheduling all the pieces
+    up front[<sup>4</sup>](#notes). This leads to more synchronous tasks.
+ *  Yield to the event loop after some time, scheduling a continuation to
+    resume. This transforms a synchronous task into a yieldy asynchronous one.
+
+Two APIs currently being designed to work with yieldy asynchronous tasks are:
+
+ * [`scheduler.yield()`](../explainers/yield-and-continuation.md): An API for
+   yielding to the browser's event loop from the current userspace task
+ * `scheduler.wait()`: A proposed counterpart to `scheduler.yield()` that
+   enables script to yield and resume after an amount of time or the occurrence
+   of an event
+
+Consider the following example of a yieldy asynchronous task, scheduled with
+`postTask()` and using these yieldy APIs:
+
+```js
+scheduler.postTask(async () => {
+  startTask();
+  // Yield to the browser's event loop.
+  await scheduler.yield();
+
+  continueTask();
+
+  // Pause execution for 100 ms.
+  await scheduler.wait(100);
+
+  finishTask();
+}, {priority: 'user-visible'});
+```
+
+Yieldy async tasks like this are spread over multiple browser tasks:
+
+![Yieldy Asynchronous Task Example](../images/yieldy-asynchronous-task-example.png)
 
 #### Yieldy Asynchronous Tasks and Threads
 
 Yieldy async tasks enable some concurrency, and these tasks are analogous to
-threads&mdash;well, non-preemptable threads running on a single-core machine:
+threads&mdash;non-preemptable threads running on a single-core machine, that is:
 
   * The `postTask()` callback is the thread entry point
   * Calling `scheduler.yield()` or `scheduler.wait()` pauses the execution of
@@ -114,13 +163,49 @@ threads&mdash;well, non-preemptable threads running on a single-core machine:
     similar to the [`scheduler.currentTaskSignal`](../explainers/post-task-propagation.md)
     proposal
 
-### The Challenge of Mixing Async APIs
+### Non-yieldy Asynchronous Tasks
 
-A major challenge with the [yieldy async task
-model](#yieldy-asynchronous-tasks) is that the browser doesn't currently know
-whether or not different browser tasks should be grouped together as the same
-userspace task. Aside from being conceptually undesirable, there is a practical
-implication around prioritization. Consider the following example:
+The last category of tasks are non-yieldy asynchronous tasks, which can look
+like synchronous tasks masquerading as yieldy asynchronous tasks. Consider the
+following example:
+
+```js
+scheduler.postTask(async () => {
+  startTask();
+  // This promise may or may not resolve in this task, depending on if the data
+  // is local.
+  let data = await getDataFromCache();
+  processData(data);
+}, priority: 'user-visible');
+```
+
+If in this example `getDataFromCache()` returns a resolved promise, then the
+task itself is async but doesn't yield:
+
+![Non-yieldy Asynchronous Task Example](../images/non-yieldy-asynchronous-task-example.png)
+
+We note that similar to new tasks starting in microtasks<sup>2</sup>,
+non-yieldy async tasks can lead to performance problems if a lot of work is
+done in the same browser task.
+
+## Challenges in Creating a Unified Task Model
+
+We would ideally like to create a unified userspace task model, which would
+provide a framework to reason about how various scheduling APIs fit in a
+holistic way. For example, what does it mean for APIs like `scheduler.yield()`
+and `scheduler.wait()` to be used both with `scheduler.postTask()` and
+non-`postTask()` tasks? What about with rendering browser tasks?
+
+The following sections outline some of the challenges involved in creating a
+unified task model.
+
+### Mixing Async APIs
+
+A major challenge with modeling yieldy asynchronous tasks is that the browser
+doesn't currently know whether or not different browser tasks should be grouped
+together as the same userspace task. Aside from being conceptually undesirable,
+there is a practical implication around prioritization. Consider the following
+example:
 
 ```javascript
 async function task() {
@@ -148,21 +233,11 @@ From the browser's perspective, this results in the userspace task being spread
 across multiple [task
 sources](https://html.spec.whatwg.org/multipage/webappapis.html#task-source)[<sup>5</sup>](#notes).
 
-## Expanding the Task Model
-
-We would ideally like to create a unified userspace task model, which would
-provide a framework to reason about how various scheduling APIs fit in a
-holistic way. For example, what does it mean for APIs like `yield()` and
-`wait()` to be used both with `postTask()` and non-`postTask()` tasks? What
-about with rendering browser tasks?
-
-The first step in expanding our simplified task models is to relax the
-assumptions we made [above](#simplified-task-models), and in doing so we can
-see a much more complicated picture emerge. 
-
 ### Multiple Entry Points
 
-There are in fact a lot of different task entry points other than `postTask()`:
+The userspace task [examples](#types-of-userspace-tasks) all used
+`scheduler.postTask()` to schedule tasks, but there are in fact many different
+task entry points aside from `postTask()`:
 
  * All platform API callbacks and event listeners might be considered task
    entry points, e.g. `requestionAnimationFrame()` and `requestIdleCallback()`
@@ -175,9 +250,9 @@ There are in fact a lot of different task entry points other than `postTask()`:
 ### Entry Point or Continuation?
 
 Our assumption was that all continuations are (or will be) scheduled with the
-(not-yet-implemented) `yield()` API, but applications currently use the *same*
-APIs for scheduling tasks as they do for continuations. For example, consider
-breaking up a long task into two halves with `postTask()`:
+(not-yet-implemented) `scheduler.yield()` API, but applications currently use
+the *same* APIs for scheduling tasks as they do for continuations. For example,
+consider breaking up a long task into two halves with `postTask()`:
 
 ```javascript
 function task() {
@@ -188,10 +263,9 @@ function task() {
 scheduler.postTask(task);
 ```
 
-There is a similar problems with [mixing async
-APIs](#the-challenge-of-mixing-async-apis): does the callback start a new task
-or continue the previous one? For example, consider fetching a network resource
-within a `postTask()` task:
+There is a similar problems with [mixing async APIs](#mixing-async-apis): does
+the callback start a new task or continue the previous one? For example,
+consider fetching a network resource within a `postTask()` task:
 
 ```javascript
 function task() {
@@ -222,7 +296,7 @@ As an example, this can look something like this:
 
 ![Multiple Tasks Per Browser Task](../images/multiple-tasks-per-browser-task.png)
 
-### Creating a Unified Task Model
+## Creating a Unified Task Model
 
 **TODO**(shaseley): Work towards a unified model here while designing `yield()`
 and `wait()`.
@@ -233,7 +307,7 @@ and `wait()`.
 application-layer JavaScript code, which includes 1P, library, framework, and
 3P code.
 
-<sup>2</sup>Microtasks can be tasks entry points if promises are used for
+<sup>2</sup>Microtasks can be task entry points if promises are used for
 dependent work without scheduling the subsequent task, e.g.
 `doSomething().then(startDependentTask);` This is a [pain
 point](https://github.com/WICG/scheduling-apis/issues/14) for developers
@@ -253,8 +327,8 @@ an opportunity here for scheduling APIs to better express the relationship
 between work scheduled with `postTask()`.
 
 <sup>5</sup>The HTML task model is centered on task sources. There is strict
-ordering between tasks with the same source, and no guaranteed ordering between
-different task sources (except idle callbacks).
+ordering between tasks with the same source, and there is no guaranteed
+ordering between different task sources (except idle callbacks).
 
 <sup>6</sup>In the case of [userspace schedulers](./userspace-schedulers.md), the
 task the browser sees is the "userspace scheduler task", which in turn executes
