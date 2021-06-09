@@ -135,8 +135,6 @@ They work the same as in the non-private mode.
 Yes ([security](https://wicg.github.io/scheduling-apis/#sec-security),
 [privacy](https://wicg.github.io/scheduling-apis/#sec-privacy)).
 
-[Not yet](https://github.com/WICG/scheduling-apis/issues/29).
-
 > 17. Do features in your specification enable origins to downgrade default
 >     security protections?
 
