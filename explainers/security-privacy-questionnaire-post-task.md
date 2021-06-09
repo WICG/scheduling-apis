@@ -67,12 +67,13 @@ queued when the delay expires.
 
 **Consideration 2**:  Does `postTask()` leak information about other origins' tasks?
 
-The threat model we consider is code from two different origins running in
-separate event loops. Attackers could attempt to learn information about tasks
-running in another event loop by queuing `postTask()` tasks that are expected
-to run consecutively, e.g. two `'user-blocking'` tasks, and determining if they
-did. If not, then the UA may <sup>1</sup> have chosen to run another task in
-between.
+We consider an attacker running on one origin trying to obtain information
+about code executing in another origin (and hence in a separate event loop)
+that is scheduled in the same thread in a browser. Attackers could attempt to
+learn information about tasks running in another event loop by queuing
+`postTask()` tasks that are expected to run consecutively, e.g. two
+`'user-blocking'` tasks, and determining if they did. If not, then the UA may
+<sup>1</sup> have chosen to run another task in between.
 
 For such an attack to provide any information about tasks in another event
 loop, the event loops would need to be running in the same thread, since
@@ -84,7 +85,7 @@ chosen between event loops sharing a thread is not specified, so any
 information gained would be implementation-dependent.
 
 Our opinion is that any information gained in such an attack is likely to be
-benign. But if it is a concern, implementors can schedule between event loops
+benign. But if it is a concern, implementers can schedule between event loops
 in such a way that minimizes the risk, e.g. round-robin between event loops
 rather than use prioritization. Finally, we note that similar attacks could be
 carried out without this API, e.g. by scheduling tasks with `postMessage()`,
@@ -131,7 +132,8 @@ They work the same as in the non-private mode.
 > 16. Does this specification have both "Security Considerations" and "Privacy
 >     Considerations" sections?
 
-[Not yet](https://github.com/WICG/scheduling-apis/issues/29).
+Yes ([security](https://wicg.github.io/scheduling-apis/#sec-security),
+[privacy](https://wicg.github.io/scheduling-apis/#sec-privacy)).
 
 > 17. Do features in your specification enable origins to downgrade default
 >     security protections?
