@@ -1,37 +1,47 @@
-# Main Thread Scheduling: Prioritized postTask API
+# Scheduling APIs: Prioritized postTask API
 
-For an overview of the larger problem space, see [Main Thread Scheduling API](../README.md).
+**Author**: Scott Haseley
+<br/>
+**Participate**: [Issue Tracker](https://github.com/WICG/scheduling-apis/issues)
+<br/>
+**Specification**:[Scheduling APIs specification](https://wicg.github.io/scheduling-apis/)
 
-## TL;DR
+For an overview of the larger problem space, see [Scheduling APIs](../README.md).
 
-Userspace tasks often have varying degrees of importance (related to user
-experience), but the Platform lacks a unified API to schedule prioritized work.
+## Summary
 
+[Userspace tasks](../misc/userspace-task-models.md) often have varying degrees
+of importance (related to user experience), but the Platform lacks a unified
+API to schedule and control prioritized work; `scheduler.postTask()` provides
+this functionality.
 
 ## The Problem
 
-To keep apps responsive, developers can (and should) break up long tasks into
-smaller chunks.  [Userspace schedulers](../misc/userspace-schedulers.md) often manage
-these chunks of work (tasks)&mdash;prioritizing and executing work
-asynchronously at an appropriate time relative to the current situation of the
-user and browser.
+Scheduling can be an important tool for improving website performance and user
+experience, playing a role in both responsiveness and user-perceived latency.
+By breaking up long tasks into smaller tasks, or *chunks*, the page can remain
+responsive if the app yields to the event loop between tasks. Running high
+priority work sooner can improve user experience by minimizing user-perceived
+latency of the associated interaction. [Userspace
+tasks](../misc/userspace-task-models.md)&mdash;or groups of related
+tasks&mdash;often have an associated priority, i.e. not all work has the same
+importance. For example, rendering in-viewport content is more important than
+rendering content that is just out of the viewport but might be seen soon. A
+task's priority is also subject to change, e.g. in response to user input.
 
-These tasks&mdash;or groups of related tasks&mdash;usually have a priority
-attached, i.e. not all work has the same importance. Work related to rendering
-in-viewport content, for example, is more important than rendering content that
-is just out of the viewport but might be seen soon. And that priority is
-subject to change, e.g. in response to user input.
-
-Userspace schedulers use priority to order execution of tasks they control, but
-this has limited meaning since they do not control all tasks on the page. Apps
-can consist of 1P, 1P library, 3P, and (one or more) framework script, all of
-which competes for the main thread. At the same time, the browser has tasks to
-run on the main thread, such as async work (e.g. `fetch()` and IDB tasks) and
-garbage collection.
+[Userspace schedulers](../misc/userspace-schedulers.md) often manage these
+tasks&mdash;prioritizing and executing work asynchronously at an appropriate
+time relative to the current situation of the user and browser. These
+schedulers use an internal notion of priority to order execution of tasks they
+control, but this has limited meaning since they do not control all tasks on
+the page. Apps can consist of 1P, 1P library, 3P, and (one or more) framework
+script, all of which compete for the thread. At the same time, the browser has
+tasks to run on the main thread, such as async work (e.g. `fetch()` and
+IndexedDB tasks) and garbage collection.
 
 ### Existing Priorities
 
-The problem is that developers have little control over the priority that their
+One problem is that developers have little control over the priority that their
 tasks run within the browser, as the Platform only exposes a few priorities,
 either explicitly or implicitly through a disparate set of APIs. UAs have the
 ability to prioritize tasks on a
@@ -47,21 +57,21 @@ The first two&mdash;*microtask* and *don't yield*&mdash;are generally
 antithetical to scheduling and the goal of improving responsiveness. They are
 implicit priorities that developers can and do use.
 
-`requestAnimationFrame`, which was designed for animations, is used (abused) by
-userspace code to gain higher priority, since rendering is often prioritized by
-UAs. Scheduling work at this "priority" has the disadvantage of incurring extra
-overhead caused by running the rendering lifecycle updates (they may early-out,
-but this is still more heavy-weight than may be needed if not updating DOM).
-
-rAF runs during the [update the
+`requestAnimationFrame`, which was designed for animations, is used (perhaps
+abused) by userspace code to gain higher priority, since rendering is often
+prioritized by UAs. Scheduling work at this "priority" has the disadvantage of
+incurring extra overhead caused by running the rendering lifecycle updates
+(they may early-out, but this is still more heavy-weight than may be needed if
+not updating DOM). rAF runs during the [update the
 rendering](https://html.spec.whatwg.org/multipage/webappapis.html#update-the-rendering)
-step of the event loop processing model. It is up to the UA to determine whether
-or not there is a rendering opportunity which will result in rAF to run.
+step of the event loop processing model, and it is up to the UA to determine
+whether or not there is a rendering opportunity which will result in rAF to
+run.
 
 Idle callbacks essentially run when there is no other work that can be done,
 subject to rules about when an idle period can begin. This can be a good, albeit
 complicated scheduling tool, but is not a sufficient expression of priority for
-what app developers need.
+what app developers need, and it does not support changing priority.
 
 Everything else, such as `setTimeout`, `postMessage` and `fetch` completions
 run in between rendering opportunities (labeled as *inter-frame* here). The
@@ -70,13 +80,47 @@ visibility into task importance.
 
 ### Lack of a unified API
 
-A sub-problem here is that there is no unified scheduling API. Instead,
-developers have had to resort to various hacks, such as using [postMessage to get
-around setTimeout(0)'s delay](https://dbaron.org/log/20100309-faster-timeouts),
-or using rAF to gain higher priority.
+Another problem here is that there is no unified scheduling API. Instead,
+developers have had to resort to various hacks, such as using [postMessage to
+get around setTimeout(0)'s delay](https://dbaron.org/log/20100309-faster-timeouts),
+or using rAF to gain higher priority. This complicates code, is onerous for
+developers to learn and write, and can have negative performance effects (e.g.
+gratuitous rendering lifecycle updates).
 
-This complicates code, is onerous for developers to learn and write, and can
-have negative performance effects (e.g. gratuitous rendering lifecycle updates).
+## Goals and Non-goals
+
+### Goals
+
+ * To enable developers to schedule, control, and interact with prioritized
+   tasks using modern primitives like promises and `AbortSignal`s
+
+ * To enable the browser to make better internal scheduling decisions by being
+   aware of userspace task priorities
+
+ * To create a set of priorities that is shared across all parts of an
+   application (e.g. 1P, 3P, framework code)
+
+### Non-goals
+
+ * To enable an arbitrary number of priorities (see the
+   [FAQ](#frequently-asked-questions) below)
+
+ * To replace every userspace scheduler. While userspace schedulers have a lot
+   in common with each other, the details tend to differ, e.g. number of
+   priorities, how microtasks are used, chunk size, starvation prevention, etc.
+   While we hope userspace schedulers can leverage `postTask()`, it won't
+   replace all of them&mdash;at least not immediately. The first version of
+   `postTask()` represents our MVP, and we fully expect it to evolve over time.
+
+ * To create a total ordering on tasks within the browser. It may be
+   advantageous to specify the priorities of some task sources (e.g. timers) to
+   help meet developer expectations, but this API does not specify how UAs
+   should schedule other task sources with respect to `postTask()` tasks.
+
+ * To specify the relationship between `postTask()` tasks and rendering.
+   `postTask()` tasks run in between frames, and the relationship between how
+   many `postTask()` tasks can run between frames is out-of-scope for this
+   proposal. See also [this issue](https://github.com/WICG/scheduling-apis/issues/9).
 
 ## Proposal
 
@@ -98,8 +142,8 @@ queues](https://cs.chromium.org/chromium/src/content/browser/scheduler/browser_t
 
 **Note**: The number of priorities can be extended if there are use cases not
 covered by this minimal set of priorities. We also understand that apps may have
-finer-grained app-specific priorities, and are considering additional APIs to
-support these (see FAQ below).
+finer-grained app-specific priorities, and are considering [additional
+APIs](#post-mvp-api-areas-of-exploration) to support these.
 
 ![New Web Scheduling Priorities](../images/web-priorities-proposed.png)
 
@@ -108,13 +152,12 @@ support these (see FAQ below).
    directly in response to user input, or updating in-viewport UI state.
 
 2. **user-visible**: User-visible tasks are those that will be visible to the
-   user, but not either not immediately or do not block the user from
-   interacting with the page. These tasks represent either a different
-   importance or timescale as user-blocking tasks.
+   user, but either not immediately or do not block the user from interacting
+   with the page. These tasks represent either a different importance or
+   timescale as user-blocking tasks.
 
    **Note**: this is the default `postTask` priority if a priority is not
    specified.
-
 
 3. **background**: Background tasks are low priority tasks that are not
    time-sensitive and not visible to the user.
@@ -142,10 +185,11 @@ priority work over higher priority work would degrade user experience. But
 running tasks in strict priority order can lead to starvation of lower priority
 tasks, which may or may not be desirable.
 
-**Note**: One assumption here is that the priorities are being used for their intended
-purposes, which the API cannot guarantee is the case. Preventing intentional or
-unintentional misuse of priorities is a non-goal for the first version of the
-API, though we are exploring solutions in the space (see FAQ).
+**Note**: One assumption here is that the priorities are being used for their
+intended purposes, which the API cannot guarantee is the case. Preventing
+intentional or unintentional misuse of priorities is a non-goal for the first
+version of the API, though we are exploring solutions in the space (see the
+[FAQ](#frequently-asked-questions) below).
 
 We have a few options here:
 
@@ -164,11 +208,10 @@ We have a few options here:
 
 
 Our current opinion is that using fixed priorities (option 1) is better for web
-developers because of the guarantees it provides, however we also recognize that
-the need for some kind of anti-starvation is highly likely (meaning option 2 is
-a likelier end state). We think that we'll have more insight in this regard
-*after* an origin trial.
-
+developers because of the guarantees it provides, however we also recognize
+that the need for some kind of anti-starvation is highly likely (meaning option
+2 is a likelier end state). We think that we'll have more insight in this
+regard as usage of the API increases.
 
 ### API Shape
 
@@ -181,7 +224,7 @@ const promise = scheduler.postTask(myTask);
 `postTask` also takes a number of optional arguments, including specifying the
 priority:
 ```javascript
-const promise = scheduler.postTask(myTask, { priority: 'user-blocking' });
+const promise = scheduler.postTask(myTask, {priority: 'user-blocking'});
 ```
 
 The Promise that `postTask` returns is resolved with the callback's return value:
@@ -191,7 +234,7 @@ function myTask() {
 }
 
 (async function() {
-  const res = await scheduler.postTask(myTask, { priority: 'background' });
+  const res = await scheduler.postTask(myTask, {priority: 'background'});
   console.log(res) // prints 'hello'.
 })();
 ```
@@ -201,9 +244,8 @@ function myTask() {
 The API supports two operations that modify a task once it has been queued:
 cancellation and changing priority. The API leverages a `TaskController` that
 supports `AbortController` operations (`abort()`) and an additional
-`setPriority` operation.
-
-E.g. Changing priority and aborting tasks with a `TaskController`:
+`setPriority` operation. The following example demonstrates controlling tasks
+with a `TaskController`:
 
 ```javascript
 const controller = new TaskController('user-blocking');
@@ -215,7 +257,7 @@ const signal = controller.signal;
 console.log(signal.priority);  // logs 'user-blocking'.
 console.log(signal.aborted);   // logs 'false'.
 
-scheduler.postTask(doWork, { signal });
+scheduler.postTask(doWork, {signal});
 
 ...
 
@@ -239,19 +281,19 @@ function doWork() {
   let task;
   let tasks = [];
 
-  task = scheduler.postTask(subtask1, { signal });
+  task = scheduler.postTask(subtask1, {signal});
   tasks.push(task);
 
-  task = scheduler.postTask(subtask2, { signal });
+  task = scheduler.postTask(subtask2, {signal});
   tasks.push(task);
 
-  task = fetch(url, { signal });
+  task = fetch(url, {signal});
   tasks.push(task);
 
   return Promise.all(tasks);
 }
 
-scheduler.postTask(doWork, { signal });
+scheduler.postTask(doWork, {signal});
 
 ...
 
@@ -259,12 +301,12 @@ scheduler.postTask(doWork, { signal });
 controller.abort();
 ```
 
-**Note**: The above example also works if using an `AbortController` rather than
-a `TaskController`, which means `postTask` can easily be integrated into
+**Note**: The example above also works if using an `AbortController` rather than
+a `TaskController`, which means `postTask` can be easily integrated into
 existing code that uses `AbortSignals`. A full `TaskController` is only needed
 if priority might need to be changed, otherwise an `AbortController` suffices.
-In the future, we plan to explore using `TaskController` in other existing APIs
-to communicate priority change.
+In the future, we plan to explore using `TaskSignal` in other existing APIs
+to express priority and communicate priority change.
 
 ##### What happens when both a signal and priority are provided?
 
@@ -275,7 +317,7 @@ const controller = new TaskController('user-blocking');
 const signal = controller.signal;
 
 scheduler.postTask(() => {
-  scheduler.postTask(foo, { signal, priority: 'background' });
+  scheduler.postTask(foo, {signal, priority: 'background'});
 });
 ```
 
@@ -291,14 +333,13 @@ We are proposing option (1): if both a signal and a priority are provided to
 `postTask`, the **priority overrides the signal**.
 
 This enables something we call _partial signal inheritance_. In this case, the
-`TaskSignal` is treated as if it were an `AbortSignal`, and the _abort_ part of
-the signal is still inherited by `foo`. But, the priority acts as an _override_.
+`TaskSignal` is treated as if it were an `AbortSignal`&mdash; the _abort_ part of
+the signal is inherited by `foo`, and the priority acts as an _override_.
 
 This approach enables use cases that involve posting lower priority dependent
 work, for example logging or cleanup work. We do note that there is a more
 verbose way to handle this use case, which involves listening for the parent
-signal's [`onabort`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/onabort)
-events:
+signal's [`abort` event](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/abort_event):
 
 ```javascript
 const controller = new TaskController('user-blocking');
@@ -312,19 +353,19 @@ scheduler.postTask(() => {
   // Listen for the parent task being aborted.
   signal.onabort = () => { subtaskController.abort(); };
 
-  scheduler.postTask(foo, { subtaskSignal, priority: 'background' });
+  scheduler.postTask(foo, {subtaskSignal, priority: 'background'});
 });
 ```
 
 ##### Listening for priority changes
 
 Similar to how `AbortSignal` has an
-[`abort`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/abort_event)
-event to listen for a change in abort state, `TaskSignal` supports a
-`prioritychange` event to listen for changes in priority. The event handler can
-be registered using either the `addEventListener` method or `onprioritychange`
-property of a `TaskSignal`. The previous priority can be read through the
-`previousPriority` property of the associated event.
+[`abort` event](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/abort_event)
+to listen for a change in abort state, `TaskSignal` supports a `prioritychange`
+event to listen for changes in priority. The event handler can be registered
+using either the `addEventListener` method or `onprioritychange` property of a
+`TaskSignal`. The previous priority can be read through the `previousPriority`
+property of the associated event.
 
 ```javascript
 const controller = new TaskController('user-blocking');
@@ -355,10 +396,10 @@ implement custom anti-starvation logic in userspace schedulers.
 
 Simple example:
 ```javascript
-scheduler.postTask(delayedTask, { delay: 1000 });
+scheduler.postTask(delayedTask, {delay: 1000});
 ```
 
-We use similar semantics as [DOM
+We use semantics similar to [DOM
 timers](https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#timer-initialisation-steps):
 
 1. Delayed tasks with same expiration time and same priority run in the order
@@ -389,22 +430,7 @@ scheduler.postTask(() => { console.log('B'); });
 The API shape described above is the current MVP. The following are
 extensions of the base API that are in various degrees of exploration:
 
- 1. [**Propagating and Inheriting Priority**](post-task-propagation.md): A
-    frequent request we see from developers is the desire to inherit or
-    propagate the currently running task's priority.
-
- 2. **Controlling 3P Script**: This is also very much a WIP; see FAQ below.
-
- 3. **Job Queue API**: We're working on a follow-up proposal (still very much
-    WIP) for a Job Queue (or Task Queue) API. This aims to solve two classes of
-    problems that the initial `postTask` API does not address directly:
-
-   + *App-specific priorities*: My app has N priorities (N > 3).
-   + *Async ordering*: task `foo` shouldn't run until task `bar` and all of its
-      dependent subtasks run.
-
-
- 4. **Prioritizing Non-postTask Async Work**: While `postTask` allows
+ 1. **Prioritizing Non-postTask Async Work**: While `postTask` allows
     developers to express priority of tasks they control, it does not allow
     them to express priority for other async work, like `fetch`, `<script>`,
     and IndexedDB. These tasks fall into the category of inter-frame tasks that
@@ -414,14 +440,36 @@ extensions of the base API that are in various degrees of exploration:
     We are interested in pursuing priorities for other tasks, but this is out of
     scope for this API.
 
- 5. **Coordinating DOM Reads/Writes**: In some cases, layout thrashing is a
-    coordination problem that and is addressed by libraries like
-    [fastdom](https://github.com/wilsonpage/fastdom). Being that scheduling and
-    `postTask` is aimed at solving coordination problems, it might be appropriate
-    for `postTask` or a similar scheduling API to help solve this problem as well.
-    This is also something we're exploring, but is in the very early stages.
+ 1. [**Propagating and Inheriting Priority**](post-task-propagation.md): A
+    frequent request we see from developers is the desire to inherit or
+    propagate the currently running task's priority.
 
-## Other Frequently Asked Questions
+ 1. **Controlling 3P Script**: We are exploring some ideas to allow script to
+    influence the priority of other script it imports, but this is in the very
+    early stages of design. See also the [FAQ](#frequently-asked-questions)
+    below.
+
+ 1. **App-specific priorities**: Some apps will have more priorities than
+    `postTask` supports, e.g. they may wish to subdivide the 'user-visible'
+    priority based on order of impact on user experience. We are currently
+    [exploring](https://docs.google.com/document/d/1YpRsiOMmPrBOODpEvfrE-duvUcV8gIsDDaZPG7f27_Q/view)
+    APIs to support this feature.
+
+ 1. **Async Job/Task Queue API**: Developers sometimes want the behavior that
+    one task doesn't start until certain [yieldy async
+    tasks](../misc/userspace-task-models.md#yieldy-asynchronous-tasks) complete.
+    This currently involves tracking and blocking on promise resolution, but we
+    are exploring ways to improve the ergonomics through additional APIs.
+
+ 1. **Coordinating DOM Reads/Writes**: Layout thrashing is a coordination
+    problem that is addressed by libraries like
+    [fastdom](https://github.com/wilsonpage/fastdom). Since scheduling in
+    general and `postTask` specifically are aimed at solving coordination
+    problems, it might be appropriate for `postTask` or a similar scheduling
+    API to help solve this problem as well. This is also something we're
+    exploring, but is in the very early stages.
+
+## Frequently Asked Questions
 
 ### How many priorities should there be?
 
@@ -505,10 +553,14 @@ concurrent mode).
 
 ### API Shape
 
-The proposal orignally included the ability to pass arguments to the callback,
-like in `setTimeout`, but was removed because modern JS supports arrow functions,
-which obviates the need to pass them through `postTask`
-(see [this issue](https://github.com/WICG/scheduling-apis/issues/18)).
+The first version of this proposal was a task-queue-based API, but we changed
+the API to its current form to fit better with the Platform and with existing
+primitives, which is now an explicit [goal](#goals).
+
+The proposal originally included the ability to pass arguments to the callback,
+like in `setTimeout`, but was removed because modern JS supports arrow
+functions, which obviates the need to pass them through `postTask` (see [this
+issue](https://github.com/WICG/scheduling-apis/issues/18)).
 
 ## Security Considerations
 
