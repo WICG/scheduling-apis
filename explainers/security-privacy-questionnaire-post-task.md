@@ -67,12 +67,13 @@ queued when the delay expires.
 
 **Consideration 2**:  Does `postTask()` leak information about other origins' tasks?
 
-The threat model we consider is code from two different origins running in
-separate event loops. Attackers could attempt to learn information about tasks
-running in another event loop by queuing `postTask()` tasks that are expected
-to run consecutively, e.g. two `'user-blocking'` tasks, and determining if they
-did. If not, then the UA may <sup>1</sup> have chosen to run another task in
-between.
+We consider an attacker running on one origin trying to obtain information
+about code executing in another origin (and hence in a separate event loop)
+that is scheduled in the same thread in a browser. Attackers could attempt to
+learn information about tasks running in another event loop by queuing
+`postTask()` tasks that are expected to run consecutively, e.g. two
+`'user-blocking'` tasks, and determining if they did. If not, then the UA may
+<sup>1</sup> have chosen to run another task in between.
 
 For such an attack to provide any information about tasks in another event
 loop, the event loops would need to be running in the same thread, since

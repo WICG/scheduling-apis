@@ -13,15 +13,13 @@ timing-based side-channel attacks.
 ---------------------
 
 <div class="non-normative">
-The first consideration is whether the {{Scheduler/postTask()}} API can be used
-as a high-resolution timing source. {{Scheduler/postTask()}}'s
-{{SchedulerPostTaskOptions/delay}}, like
-{{WindowOrWorkerGlobalScope/setTimeout()}}'s timeout value, is expressed in
-whole milliseconds (the minimum non-zero delay being 1 ms), and there is no
-guarantee that tasks will run exactly when the delay expires since tasks are
-queued when the delay expires. Given this, we do not believe the API can be
-used as a high-resolution timing source, but we mention it here because of the
-general interest in the topic.
+This  API cannot be used as a high-resolution timing source. Like
+{{WindowOrWorkerGlobalScope/setTimeout()}}'s timeout value,
+{{Scheduler/postTask()}}'s {{SchedulerPostTaskOptions/delay}} is expressed in
+whole milliseconds (the minimum non-zero delay being 1 ms), so callers cannot
+express any timing more precise than 1 ms. Further, since tasks are queued when
+their delay expires and not run instantly, the precision available to callers
+is further reduced.
 </div>
 
 Monitoring Another Origin's Tasks {#sec-security-monitoring-tasks}
@@ -29,36 +27,66 @@ Monitoring Another Origin's Tasks {#sec-security-monitoring-tasks}
 
 <div class="non-normative">
 The second consideration is whether {{Scheduler/postTask()}} leaks any
-information about other origins' tasks. The threat model we consider is code
-from two different origins running in separate event loops in the same thread.
+information about other origins' tasks. We consider an attacker running on one
+origin trying to obtain information about code executing in another origin (and
+hence in a separate event loop) that is scheduled in the same thread in a
+browser.
 
-Because the UA can only run tasks from one event loop at a time, an attacker
-might be able to gain information about tasks running in another event loop by
-monitoring when their tasks run. For example, an attacker could flood the
-system with {{TaskPriority/user-blocking}} tasks and expect them to run
-consecutively; if there are large gaps in between, then the attacker might
-infer something about tasks running in another event loop, e.g. they have
-higher priority.
+Because a thread within a UA can only run tasks from one event loop at a time,
+an attacker might be able to gain information about tasks running in another
+event loop by monitoring when their tasks run. For example, an attacker could
+flood the system with tasks and expect them to run consecutively; if there are
+large gaps in between, then the attacker could infer that another task ran,
+potentially in a different event loop. The information exposed in such a case
+would depend on implementation details, and implementations can reduce the
+amount of information as described below.
 
-The first thing we note is that the attacker would not be able to definitively
-tell that a task ran in another event loop, e.g. an internal browser task might
-have run, or perhaps the UA throttled the attacker's script.  Second, any
-information gained would be implementation-dependent since inter-event-loop
-task selection is not specified. Our opinion is that information gained in such
-an attack is likely to be benign, but there are mitigations that implementers
-can consider to minimize the risk:
+**What Information Might Be Gained?** <br/>
+Concretely, an attacker would be able to detect when other tasks are executed
+by the browser by either flooding the system with tasks or by recursively
+scheduling tasks. This is a [known attack](https://www.usenix.org/conference/usenixsecurity17/technical-sessions/presentation/vila)
+that can be executed with existing APIs like {{Window/postMessage(message,
+options)|postMessage()}}. The tasks that run instead of the attacker's can be
+tasks in other event loops as well as other tasks in the attacker's event loop,
+including internal UA tasks (e.g. garbage collection).
+
+Assuming the attacker can determine with a high degree of probability that the
+task executing is in another event loop, then the question becomes what
+additional information can the attacker learn? Since inter-event-loop task
+selection is not specified, this information will be implementation-dependent
+and depends on how UAs order tasks between event loops. But UAs that use a
+prioritization scheme that treats event loops sharing a thread as a single
+event loop are vulnerable to exposing more information.
+
+It is helpful to think about the *set of potential tasks* that a UA might
+choose instead of the attacker's, which corresponds to the information gained.
+When an attacker floods the system with tasks, the set of possible tasks would
+be anything the UA deems to be higher priority at that moment. This could be
+the result of a static prioritization scheme, e.g. input is always highest
+priority, network is second highest, etc., or this could be more dynamic, e.g.
+the UA occasionally chooses to run tasks from other task sources depending on
+how long they've been starved. Using a dynamic scheme increases the set of potential
+task which in turn decreases the fidelity of the information.
+
+{{Scheduler/postTask()}} supports prioritization for tasks scheduled with it.
+How these tasks are interleaved with other task sources is also
+implementation-dependent, however it might be possible for an attacker to
+further reduce the set of potential tasks that can run instead of its own by
+leveraging this priority. For example, if a UA uses a simple static
+prioritization scheme spanning all event loops in a thread, then using
+{{TaskPriority/user-blocking}} {{Scheduler/postTask()}} tasks instead of
+{{Window/postMessage(message, options)|postMessage()}} tasks might decrease
+this set, depending on their relative prioritization and what is between.
+
+**What Mitigations are Possible?** <br/>
+There are mitigations that implementers can consider to minimize the risk:
 
  * Where possible, isolate cross-origin event loops by running them in different
-   threads. This type of potential attack depends on the event loops sharing a
-   thread.
+   threads. This type of attack depends on the event loops sharing a thread.
  * Use an inter-event-loop scheduling policy that is not strictly based on
    priority. For example, an implementation might use round-robin or
    fair-scheduling between event loops to prevent leaking information about
    task priority. Another possibility is to ensure lower priority tasks are
    periodically cycled in to prevent inferring priority information.
 
-Finally, we note that similar attacks could be carried out without this API,
-e.g. by scheduling tasks with {{Window/postMessage(message, options)|postMessage()}},
-although the addition of {{Scheduler/postTask()}} priorities could change what
-implementation-dependent information is obtainable.
 </div>
