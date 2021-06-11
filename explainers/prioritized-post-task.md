@@ -153,8 +153,8 @@ APIs](#post-mvp-api-areas-of-exploration) to support these.
 
 2. **user-visible**: User-visible tasks are those that will be visible to the
    user, but either not immediately or do not block the user from interacting
-   with the page. These tasks represent either a different importance or
-   timescale as user-blocking tasks.
+   with the page. These tasks have either a different importance or
+   timescale than user-blocking tasks.
 
    **Note**: this is the default `postTask` priority if a priority is not
    specified.
