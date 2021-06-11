@@ -36,8 +36,8 @@ schedulers use an internal notion of priority to order execution of tasks they
 control, but this has limited meaning since they do not control all tasks on
 the page. Apps can consist of 1P, 1P library, 3P, and (one or more) framework
 script, all of which compete for the thread. At the same time, the browser has
-tasks to run on the main thread, such as async work (e.g. `fetch()` and
-IndexedDB tasks) and garbage collection.
+tasks to run on the thread, such as async work (e.g. `fetch()` and IndexedDB
+tasks) and garbage collection.
 
 ### Existing Priorities
 
