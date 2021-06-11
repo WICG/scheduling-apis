@@ -630,7 +630,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="profile-and-date"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2021-06-09">9 June 2021</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="profile-and-date"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2021-06-11">11 June 2021</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -701,7 +701,13 @@ A human-readable <a href="http://www.w3.org/community/about/agreements/cla-deed/
         <li><a href="#sec-patches-html-event-loop-processing"><span class="secno">4.1.3</span> <span class="content"><span>Event loop: processing model</span></span></a>
        </ol>
      </ol>
-    <li><a href="#sec-security"><span class="secno">5</span> <span class="content">Security Considerations</span></a>
+    <li>
+     <a href="#sec-security"><span class="secno">5</span> <span class="content">Security Considerations</span></a>
+     <ol class="toc">
+      <li><a href="#sec-security-high-res-timer"><span class="secno">5.1</span> <span class="content"><code>postTask</code> as a High-Resolution Timing Source</span></a>
+      <li><a href="#sec-security-monitoring-tasks"><span class="secno">5.2</span> <span class="content">Monitoring Another Origin’s Tasks</span></a>
+     </ol>
+    <li><a href="#sec-privacy"><span class="secno">6</span> <span class="content">Privacy Considerations</span></a>
     <li>
      <a href="#w3c-conformance"><span class="secno"></span> <span class="content">Conformance</span></a>
      <ol class="toc">
@@ -1234,7 +1240,80 @@ a specific <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/
 common task queue interface that supports a <code>pop()</code> method that would return a
 plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑤">task</a>, but that would invlove a fair amount of refactoring.</p>
    <h2 class="heading settled" data-level="5" id="sec-security"><span class="secno">5. </span><span class="content">Security Considerations</span><a class="self-link" href="#sec-security"></a></h2>
-   <p><strong>TODO</strong>(shaseley): Fill this in.</p>
+   <div class="non-normative">
+     <em>This section is non-normative.</em> 
+    <p>The main security consideration for the APIs defined in this specification is
+whether or not any information is potentially leaked between origins by
+timing-based side-channel attacks.</p>
+   </div>
+   <h3 class="heading settled" data-level="5.1" id="sec-security-high-res-timer"><span class="secno">5.1. </span><span class="content"><code>postTask</code> as a High-Resolution Timing Source</span><a class="self-link" href="#sec-security-high-res-timer"></a></h3>
+   <div class="non-normative"> This  API cannot be used as a high-resolution timing source. Like <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#dom-settimeout" id="ref-for-dom-settimeout②">setTimeout()</a></code>'s timeout value, <code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask⑦">postTask()</a></code>'s <code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-delay" id="ref-for-dom-schedulerposttaskoptions-delay③">delay</a></code> is expressed in
+whole milliseconds (the minimum non-zero delay being 1 ms), so callers cannot
+express any timing more precise than 1 ms. Further, since tasks are queued when
+their delay expires and not run instantly, the precision available to callers
+is further reduced. </div>
+   <h3 class="heading settled" data-level="5.2" id="sec-security-monitoring-tasks"><span class="secno">5.2. </span><span class="content">Monitoring Another Origin’s Tasks</span><a class="self-link" href="#sec-security-monitoring-tasks"></a></h3>
+   <div class="non-normative">
+     The second consideration is whether <code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask⑧">postTask()</a></code> leaks any
+information about other origins' tasks. We consider an attacker running on one
+origin trying to obtain information about code executing in another origin (and
+hence in a separate event loop) that is scheduled in the same thread in a
+browser. 
+    <p>Because a thread within a UA can only run tasks from one event loop at a time,
+an attacker might be able to gain information about tasks running in another
+event loop by monitoring when their tasks run. For example, an attacker could
+flood the system with tasks and expect them to run consecutively; if there are
+large gaps in between, then the attacker could infer that another task ran,
+potentially in a different event loop. The information exposed in such a case
+would depend on implementation details, and implementations can reduce the
+amount of information as described below.</p>
+    <p><strong>What Information Might Be Gained?</strong> <br> Concretely, an attacker would be able to detect when other tasks are executed
+by the browser by either flooding the system with tasks or by recursively
+scheduling tasks. This is a <a href="https://www.usenix.org/conference/usenixsecurity17/technical-sessions/presentation/vila">known attack</a> that can be executed with existing APIs like <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/web-messaging.html#dom-window-postmessage-options" id="ref-for-dom-window-postmessage-options②">postMessage()</a></code>. The tasks that run instead of the attacker’s can be
+tasks in other event loops as well as other tasks in the attacker’s event loop,
+including internal UA tasks (e.g. garbage collection).</p>
+    <p>Assuming the attacker can determine with a high degree of probability that the
+task executing is in another event loop, then the question becomes what
+additional information can the attacker learn? Since inter-event-loop task
+selection is not specified, this information will be implementation-dependent
+and depends on how UAs order tasks between event loops. But UAs that use a
+prioritization scheme that treats event loops sharing a thread as a single
+event loop are vulnerable to exposing more information.</p>
+    <p>It is helpful to think about the <em>set of potential tasks</em> that a UA might
+choose instead of the attacker’s, which corresponds to the information gained.
+When an attacker floods the system with tasks, the set of possible tasks would
+be anything the UA deems to be higher priority at that moment. This could be
+the result of a static prioritization scheme, e.g. input is always highest
+priority, network is second highest, etc., or this could be more dynamic, e.g.
+the UA occasionally chooses to run tasks from other task sources depending on
+how long they’ve been starved. Using a dynamic scheme increases the set of potential
+task which in turn decreases the fidelity of the information.</p>
+    <p><code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask⑨">postTask()</a></code> supports prioritization for tasks scheduled with it.
+How these tasks are interleaved with other task sources is also
+implementation-dependent, however it might be possible for an attacker to
+further reduce the set of potential tasks that can run instead of its own by
+leveraging this priority. For example, if a UA uses a simple static
+prioritization scheme spanning all event loops in a thread, then using <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-blocking" id="ref-for-dom-taskpriority-user-blocking③">user-blocking</a></code> <code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask①⓪">postTask()</a></code> tasks instead of <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/web-messaging.html#dom-window-postmessage-options" id="ref-for-dom-window-postmessage-options③">postMessage()</a></code> tasks might decrease
+this set, depending on their relative prioritization and what is between.</p>
+    <p><strong>What Mitigations are Possible?</strong> <br> There are mitigations that implementers can consider to minimize the risk:</p>
+    <ul>
+     <li data-md>
+      <p>Where possible, isolate cross-origin event loops by running them in different
+ threads. This type of attack depends on the event loops sharing a thread.</p>
+     <li data-md>
+      <p>Use an inter-event-loop scheduling policy that is not strictly based on
+ priority. For example, an implementation might use round-robin or
+ fair-scheduling between event loops to prevent leaking information about
+ task priority. Another possibility is to ensure lower priority tasks are
+ periodically cycled in to prevent inferring priority information.</p>
+    </ul>
+   </div>
+   <h2 class="heading settled" data-level="6" id="sec-privacy"><span class="secno">6. </span><span class="content">Privacy Considerations</span><a class="self-link" href="#sec-privacy"></a></h2>
+   <div class="non-normative">
+    <p><em>This section is non-normative.</em></p>
+    <p>We have evaluated the APIs defined in this specification from a privacy
+perspective and do not believe there to be any privacy considerations.</p>
+   </div>
   </main>
   <div data-fill-with="conformance">
    <h2 class="no-ref no-num heading settled" id="w3c-conformance"><span class="content">Conformance</span><a class="self-link" href="#w3c-conformance"></a></h2>
@@ -1498,6 +1577,7 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <a href="https://html.spec.whatwg.org/multipage/web-messaging.html#dom-window-postmessage-options">https://html.spec.whatwg.org/multipage/web-messaging.html#dom-window-postmessage-options</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-window-postmessage-options">1. Introduction</a> <a href="#ref-for-dom-window-postmessage-options①">(2)</a>
+    <li><a href="#ref-for-dom-window-postmessage-options②">5.2. Monitoring Another Origin’s Tasks</a> <a href="#ref-for-dom-window-postmessage-options③">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-relevant-agent">
@@ -1530,6 +1610,7 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <a href="https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#dom-settimeout">https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#dom-settimeout</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-settimeout">1. Introduction</a> <a href="#ref-for-dom-settimeout①">(2)</a>
+    <li><a href="#ref-for-dom-settimeout②">5.1. postTask as a High-Resolution Timing Source</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-source">
@@ -1962,6 +2043,7 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <b><a href="#dom-taskpriority-user-blocking">#dom-taskpriority-user-blocking</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-taskpriority-user-blocking">2.1. Task Priorities</a> <a href="#ref-for-dom-taskpriority-user-blocking①">(2)</a> <a href="#ref-for-dom-taskpriority-user-blocking②">(3)</a>
+    <li><a href="#ref-for-dom-taskpriority-user-blocking③">5.2. Monitoring Another Origin’s Tasks</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-taskpriority-user-visible">
@@ -2011,6 +2093,7 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <ul>
     <li><a href="#ref-for-dom-schedulerposttaskoptions-delay">2.2. The Scheduler Interface</a> <a href="#ref-for-dom-schedulerposttaskoptions-delay①">(2)</a>
     <li><a href="#ref-for-dom-schedulerposttaskoptions-delay②">2.4.2. Scheduling Tasks</a>
+    <li><a href="#ref-for-dom-schedulerposttaskoptions-delay③">5.1. postTask as a High-Resolution Timing Source</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="callbackdef-schedulerposttaskcallback">
@@ -2064,6 +2147,8 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
     <li><a href="#ref-for-dom-scheduler-posttask④">2.3. Definitions</a>
     <li><a href="#ref-for-dom-scheduler-posttask⑤">3. Controlling Tasks</a>
     <li><a href="#ref-for-dom-scheduler-posttask⑥">3.3. The TaskSignal Interface</a>
+    <li><a href="#ref-for-dom-scheduler-posttask⑦">5.1. postTask as a High-Resolution Timing Source</a>
+    <li><a href="#ref-for-dom-scheduler-posttask⑧">5.2. Monitoring Another Origin’s Tasks</a> <a href="#ref-for-dom-scheduler-posttask⑨">(2)</a> <a href="#ref-for-dom-scheduler-posttask①⓪">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="scheduler-task">
