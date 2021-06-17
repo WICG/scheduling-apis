@@ -151,16 +151,15 @@ getCachedResource(url, 'background').then(...);
 getCachedResource(url, 'user-blocking').then(...);
 ```
 
-Developers should be aware that such situations could arise. Systems like this
-that use internal priorities or a combination of `setTimeout()` and
+Developers should be aware that such situations could arise. Systems that use
+internal priorities or a combination of `setTimeout()` and
 `requestIdleCallback()` might have already faced such issues. For
 `scheduler.postTask()`, there are a couple ways to mitigate this type of
 problem at the application-level:
 
  * Detect that the situation and use the `TaskController`/`TaskSignal` API to
    change the priority of underlying task(s). `scheduler.postTask()` was
-   designed around task priorities needing to be dynamic, such as in this
-   scenario.
+   designed with dynamic task priorities for scenarios such as this.
 
  * Always schedule a new task while the result is pending. This will potentially
    lead to extra processing, but it is a simple way to avoid the dependency.

@@ -504,11 +504,11 @@ lightweight solution and will publish an explainer soon.
 
 Priority inversions occur whenever higher priority work depends on lower
 priority work, so simply by introducing priorities introduces this risk. But
-the lack of preemption on the web creates a different a fundamentally different
-situation compared to other platforms. The combination of priorities, mutually
-exclusive access to resources (e.g. locks), and preemption necessitate a
-system-level solution to priority inversions. But this is not the case on the
-web since tasks are not preemptible.
+the lack of preemption on the web creates a fundamentally different situation
+compared to other platforms. The combination of priorities, mutually exclusive
+access to resources (e.g. locks), and preemption necessitate a system-level
+solution to priority inversions. But this is not the case on the web since
+tasks are not preemptible.
 
 There is, however, a risk of priority inversions in application code. Two
 scenarios we have identified are:
