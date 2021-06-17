@@ -503,19 +503,25 @@ lightweight solution and will publish an explainer soon.
 ### Is there a risk of priority inversions?
 
 Priority inversions occur whenever higher priority work depends on lower
-priority work, so simply by introducing priorities introduces this risk. There
-is only so much the API can do to prevent these situations, although [inheriting
-priority](post-task-propagation.md) can help to some degree.
+priority work, so simply by introducing priorities introduces this risk. But
+the lack of preemption on the web creates a fundamentally different situation
+compared to other platforms. The combination of priorities, mutually exclusive
+access to resources (e.g. locks), and preemption necessitate a system-level
+solution to priority inversions. But this is not the case on the web since
+tasks are not preemptible.
 
+There is, however, a risk of priority inversions in application code. Two
+scenarios we have identified are:
 
-This is something that developers should be aware of whenever using
-priorities, and should guard against in situations where a resource is shared
-and can be accessed by multiple, different priority tasks.
+ 1. Explicitly yielding while holding onto a lock/resource
+ 1. Priority mismatches, e.g. yielding at the wrong priority or explicitly
+    relying on the result of a lower priority task
 
-Some of the situations where this can occur are explored
-[here](../misc/priority-inversion.md), as well as potential solutions. It is not clear
-at this point that a native solution beyond `TaskController` is needed, and we
-await further developer feedback from Origin Trial.
+Developers should be cautious when creating dependencies between prioritized
+tasks and be sure not to hold onto (locked) resources when writing yieldy code.
+
+A more in-depth exploration of this topic can be found
+[here](../misc/priority-inversion.md).
 
 ### Will this API be available on workers too?
 
