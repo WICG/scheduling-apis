@@ -265,7 +265,8 @@ Processing Model {#sec-scheduling-tasks-processing-model}
     1. [=Schedule a task to invoke a callback=] for |scheduler| given |queue|,
        |signal|, |callback|, and |result|.
   1. Otherwise the task is not delayed. [=Schedule a task to invoke a callback=]
-     for |scheduler| given |queue|, |signal|, |callback|, and |result|.
+     for |scheduler| given |queue|, |signal|, |callback|, and |result|, then
+     return |result|.
 </div>
 
 Issue: We need to figure out exactly how we want to spec delayed tasks, and if
