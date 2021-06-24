@@ -630,7 +630,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="profile-and-date"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2021-06-17">17 June 2021</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="profile-and-date"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2021-06-24">24 June 2021</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -952,7 +952,7 @@ and must only be used for <a data-link-type="dfn" href="#scheduler-task" id="ref
      <li data-md>
       <p>Let <var>delay</var> be <var>options</var>["<code class="idl"><a data-link-type="idl" href="#dom-schedulerposttaskoptions-delay" id="ref-for-dom-schedulerposttaskoptions-delay②">delay</a></code>"].</p>
      <li data-md>
-      <p>If <var>delay</var> is greater than 0, then the task is a delayed task; return <var>result</var> and run the following steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel">in parallel</a>:</p>
+      <p>If <var>delay</var> is greater than 0, then run these steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel">in parallel</a>:</p>
       <ol>
        <li data-md>
         <p>Let <var>global</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global" id="ref-for-concept-relevant-global">relevant global object</a> for <var>scheduler</var>.</p>
@@ -971,7 +971,9 @@ and must only be used for <a data-link-type="dfn" href="#scheduler-task" id="ref
         <p><a data-link-type="dfn" href="#schedule-a-task-to-invoke-a-callback" id="ref-for-schedule-a-task-to-invoke-a-callback">Schedule a task to invoke a callback</a> for <var>scheduler</var> given <var>queue</var>, <var>signal</var>, <var>callback</var>, and <var>result</var>.</p>
       </ol>
      <li data-md>
-      <p>Otherwise the task is not delayed. <a data-link-type="dfn" href="#schedule-a-task-to-invoke-a-callback" id="ref-for-schedule-a-task-to-invoke-a-callback①">Schedule a task to invoke a callback</a> for <var>scheduler</var> given <var>queue</var>, <var>signal</var>, <var>callback</var>, and <var>result</var>.</p>
+      <p>Otherwise, <a data-link-type="dfn" href="#schedule-a-task-to-invoke-a-callback" id="ref-for-schedule-a-task-to-invoke-a-callback①">schedule a task to invoke a callback</a> for <var>scheduler</var> given <var>queue</var>, <var>signal</var>, <var>callback</var>, and <var>result</var>.</p>
+     <li data-md>
+      <p>Return <var>result</var>.</p>
     </ol>
    </div>
    <p class="issue" id="issue-a4041305"><a class="self-link" href="#issue-a4041305"></a> We need to figure out exactly how we want to spec delayed tasks, and if
