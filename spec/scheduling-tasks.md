@@ -246,8 +246,7 @@ Processing Model {#sec-scheduling-tasks-processing-model}
   1. Let |queue| be the result of [=selecting the scheduler task queue=] for
      |scheduler| given |signal| and |priority|.
   1. Let |delay| be |options|["{{SchedulerPostTaskOptions/delay}}"].
-  1. If |delay| is greater than 0, then the task is a delayed task; return
-     |result| and run the following steps [=in parallel=]:
+  1. If |delay| is greater than 0, then run these steps [=in parallel=]:
     1. Let |global| be the [=relevant global object=] for |scheduler|.
     1. If |global| is a {{Window}} object, wait until |global|'s
        <a attribute for="Window">associated <code>Document</code></a>
