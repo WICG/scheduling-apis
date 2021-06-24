@@ -246,8 +246,7 @@ Processing Model {#sec-scheduling-tasks-processing-model}
   1. Let |queue| be the result of [=selecting the scheduler task queue=] for
      |scheduler| given |signal| and |priority|.
   1. Let |delay| be |options|["{{SchedulerPostTaskOptions/delay}}"].
-  1. If |delay| is greater than 0, then the task is a delayed task; return
-     |result| and run the following steps [=in parallel=]:
+  1. If |delay| is greater than 0, then run these steps [=in parallel=]:
     1. Let |global| be the [=relevant global object=] for |scheduler|.
     1. If |global| is a {{Window}} object, wait until |global|'s
        <a attribute for="Window">associated <code>Document</code></a>
@@ -264,8 +263,9 @@ Processing Model {#sec-scheduling-tasks-processing-model}
     1. Optionally, wait a further [=implementation-defined=] length of time.
     1. [=Schedule a task to invoke a callback=] for |scheduler| given |queue|,
        |signal|, |callback|, and |result|.
-  1. Otherwise the task is not delayed. [=Schedule a task to invoke a callback=]
-     for |scheduler| given |queue|, |signal|, |callback|, and |result|.
+  1. Otherwise, [=schedule a task to invoke a callback=] for |scheduler| given
+     |queue|, |signal|, |callback|, and |result|.
+  1. Return |result|.
 </div>
 
 Issue: We need to figure out exactly how we want to spec delayed tasks, and if
