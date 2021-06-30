@@ -14,7 +14,7 @@ Known workarounds for "normal" priority scheduling:
 
 * postmessage after each rAF (used by ReactScheduler):
 * messagechannel workaround (google3 nexttick used by Maps etc): use a private message channel to postMessage empty messages; also tacked on after rAF. A bug currently prevents yielding.
-* settimeout 0: doesn’t work well, clamped to 1ms and to 4ms after N recursions.
+* settimeout 0: doesn’t work well, clamped to 1ms (in Chromium) and to 4ms after N recursions.
 * “await yield” pattern in JS: causes a microtask to be queued
 
 Why not just use rIC? rIC is suited to idle time work, not normal priority work AFTER yielding to browser (for important work). By design, rIC has the risk of starvation and getting postponed indefinitely.
