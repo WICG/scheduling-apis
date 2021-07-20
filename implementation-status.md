@@ -15,15 +15,29 @@ various APIs and their statuses, please see the repo's
  | TaskPriorityChangeEvent with `previousPriority` property | 91.0.4469.4 |
  | `postTask` and `currentTaskSignal` on Workers | 93.0.4549.3 |
 
+### Feature Flags
+
+ | Feature | Flag(s) |
+ | --- | --- |
+ | `scheduler.postTask()`, `TaskController`, `TaskSignal` | `WebScheduler` |
+ | `scheduler.currentTaskSignal` | `WebScheduler`,`SchedulerCurrentTaskSignal` |
+
 ## Local Testing
 
 There are two ways to enable the experimental scheduling features in Chrome:
 
 **Method 1**: Enable **all** experimental web platform features by navigating to
-`chrome://flags/#enable-experimental-web-platform-features`.
 
-**Method 2**: Enable just the scheduling features by passing the
-`--enable-blink-features=WebScheduler` flag at the command line.
+```
+chrome://flags/#enable-experimental-web-platform-features
+```
+
+**Method 2**: Enable just the desired scheduling features by passing the
+appropriate [flags](#feature-flags) at the command line, for example:
+
+```
+--enable-blink-features=WebScheduler
+```
 
 ## Origin Trials
 
