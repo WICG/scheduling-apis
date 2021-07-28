@@ -42,9 +42,13 @@ The `TaskController` Interface {#sec-task-controller}
 ---------------------
 
 <pre class='idl'>
+  dictionary TaskControllerInit {
+    TaskPriority priority = "user-visible";
+  };
+
   [Exposed=(Window,Worker)]
   interface TaskController : AbortController {
-    constructor(optional TaskPriority priority = "user-visible");
+    constructor(optional TaskControllerInit init = {});
 
     undefined setPriority(TaskPriority priority);
   };
@@ -54,11 +58,11 @@ Note: {{TaskController}}'s {{AbortController/signal}} getter, which is
 inherited from {{AbortController}}, returns a {{TaskSignal}} object.
 
 <dl class="domintro non-normative">
-  <dt><code>controller = new {{TaskController/TaskController()|TaskController}}( |priority| )</code>
+  <dt><code>controller = new {{TaskController/TaskController()|TaskController}}( |init| )</code>
   <dd>
     <p> Returns a new {{TaskController}} whose {{AbortController/signal}} is
     set to a newly created {{TaskSignal}} with its {{TaskSignal/priority}}
-    initialized to |priority|.
+    initialized to |init|'s {{TaskControllerInit/priority}}.
   </dd>
 
   <dt><code>controller . {{TaskController/setPriority()|setPriority}}( |priority| )</code>
@@ -70,11 +74,11 @@ inherited from {{AbortController}}, returns a {{TaskSignal}} object.
 </dl>
 
 <div algorithm>
-  The <dfn constructor for="TaskController" lt="TaskController()"><code>new TaskController(|priority|)</code></dfn>
+  The <dfn constructor for="TaskController" lt="TaskController()"><code>new TaskController(|init|)</code></dfn>
   constructor steps are:
 
   1. Let |signal| be a new {{TaskSignal}} object.
-  1. Set |signal|'s [=TaskSignal/priority=] to |priority|.
+  1. Set |signal|'s [=TaskSignal/priority=] to |init|["{{TaskControllerInit/priority}}"].
   1. Set [=this's=] [=AbortController/signal=] to |signal|.
 </div>
 

@@ -36,7 +36,7 @@ function task1(signal) {
   // ... do more work ...
 }
 
-const controller = new TaskController('background');
+const controller = new TaskController({priority: 'background'});
 scheduler.postTask(task1, { signal }, signal);
 ```
 
@@ -66,7 +66,7 @@ function task1() {
   // ... do more work ...
 }
 
-const controller = new TaskController('background');
+const controller = new TaskController({priority: 'background'});
 scheduler.postTask(task1, { signal });
 ```
 
@@ -108,7 +108,7 @@ function task1() {
   // ... do more work ...
 }
 
-const controller = new TaskController('user-blocking');
+const controller = new TaskController({priority: 'user-blocking'});
 scheduler.postTask(task1, { controller.signal });
 ```
 

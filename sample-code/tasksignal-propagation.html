@@ -68,7 +68,7 @@
       controller.abort();
     }
 
-    let controller = new TaskController('user-visible');
+    let controller = new TaskController({priority: 'user-visible'});
     await scheduler.postTask(propagationEqualityAndPriorities, { signal: controller.signal });
 
     scheduler.postTask(() => propagationAbort(controller), { signal: controller.signal });
