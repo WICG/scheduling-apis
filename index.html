@@ -4,7 +4,7 @@
   <title>Prioritized Task Scheduling</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version bb6b91100, updated Mon Jul 12 16:52:37 2021 -0700" name="generator">
+  <meta content="Bikeshed version 59d067506, updated Fri Jul 23 15:43:29 2021 -0700" name="generator">
   <link href="https://wicg.github.io/scheduling-apis/" rel="canonical">
 <style>
 /*
@@ -630,7 +630,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="profile-and-date"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2021-07-20">20 July 2021</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="profile-and-date"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2021-07-28">28 July 2021</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1120,9 +1120,13 @@ a task or group of tasks.</p>
 steps are to return the value that the corresponding attribute was initialized
 to.</p>
    <h3 class="heading settled" data-level="3.2" id="sec-task-controller"><span class="secno">3.2. </span><span class="content">The <code>TaskController</code> Interface</span><a class="self-link" href="#sec-task-controller"></a></h3>
-<pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
+<pre class="idl highlight def"><c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-taskcontrollerinit"><code><c- g>TaskControllerInit</c-></code></dfn> {
+  <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①⑦"><c- n>TaskPriority</c-></a> <dfn class="dfn-paneled idl-code" data-default="&quot;user-visible&quot;" data-dfn-for="TaskControllerInit" data-dfn-type="dict-member" data-export data-type="TaskPriority " id="dom-taskcontrollerinit-priority"><code><c- g>priority</c-></code></dfn> = "user-visible";
+};
+
+[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed②"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="taskcontroller"><code><c- g>TaskController</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller"><c- n>AbortController</c-></a> {
-  <a class="idl-code" data-link-type="constructor" href="#dom-taskcontroller-taskcontroller" id="ref-for-dom-taskcontroller-taskcontroller"><c- g>constructor</c-></a>(<c- b>optional</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①⑦"><c- n>TaskPriority</c-></a> <dfn class="idl-code" data-dfn-for="TaskController/TaskController(priority), TaskController/constructor(priority), TaskController/TaskController(), TaskController/constructor()" data-dfn-type="argument" data-export id="dom-taskcontroller-taskcontroller-priority-priority"><code><c- g>priority</c-></code><a class="self-link" href="#dom-taskcontroller-taskcontroller-priority-priority"></a></dfn> = "user-visible");
+  <a class="idl-code" data-link-type="constructor" href="#dom-taskcontroller-taskcontroller" id="ref-for-dom-taskcontroller-taskcontroller"><c- g>constructor</c-></a>(<c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-taskcontrollerinit" id="ref-for-dictdef-taskcontrollerinit"><c- n>TaskControllerInit</c-></a> <dfn class="idl-code" data-dfn-for="TaskController/TaskController(init), TaskController/constructor(init), TaskController/TaskController(), TaskController/constructor()" data-dfn-type="argument" data-export id="dom-taskcontroller-taskcontroller-init-init"><code><c- g>init</c-></code><a class="self-link" href="#dom-taskcontroller-taskcontroller-init-init"></a></dfn> = {});
 
   <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-undefined" id="ref-for-idl-undefined"><c- b>undefined</c-></a> <a class="idl-code" data-link-type="method" href="#dom-taskcontroller-setpriority" id="ref-for-dom-taskcontroller-setpriority①"><c- g>setPriority</c-></a>(<a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①⑧"><c- n>TaskPriority</c-></a> <dfn class="idl-code" data-dfn-for="TaskController/setPriority(priority)" data-dfn-type="argument" data-export id="dom-taskcontroller-setpriority-priority-priority"><code><c- g>priority</c-></code><a class="self-link" href="#dom-taskcontroller-setpriority-priority-priority"></a></dfn>);
 };
@@ -1130,22 +1134,22 @@ to.</p>
    <p class="note" role="note"><span>Note:</span> <code class="idl"><a data-link-type="idl" href="#taskcontroller" id="ref-for-taskcontroller④">TaskController</a></code>'s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-abortcontroller-signal" id="ref-for-dom-abortcontroller-signal①">signal</a></code> getter, which is
 inherited from <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortcontroller" id="ref-for-abortcontroller①">AbortController</a></code>, returns a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①②">TaskSignal</a></code> object.</p>
    <dl class="domintro non-normative">
-    <dt><code>controller = new <code class="idl"><a data-link-type="idl" href="#dom-taskcontroller-taskcontroller" id="ref-for-dom-taskcontroller-taskcontroller①">TaskController</a></code>( <var>priority</var> )</code> 
+    <dt><code>controller = new <code class="idl"><a data-link-type="idl" href="#dom-taskcontroller-taskcontroller" id="ref-for-dom-taskcontroller-taskcontroller①">TaskController</a></code>( <var>init</var> )</code> 
     <dd>
      <p> Returns a new <code class="idl"><a data-link-type="idl" href="#taskcontroller" id="ref-for-taskcontroller⑤">TaskController</a></code> whose <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-abortcontroller-signal" id="ref-for-dom-abortcontroller-signal②">signal</a></code> is
-    set to a newly created <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①③">TaskSignal</a></code> with its <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority" id="ref-for-dom-tasksignal-priority①">priority</a></code> initialized to <var>priority</var>. </p>
+    set to a newly created <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①③">TaskSignal</a></code> with its <code class="idl"><a data-link-type="idl" href="#dom-tasksignal-priority" id="ref-for-dom-tasksignal-priority①">priority</a></code> initialized to <var>init</var>’s <code class="idl"><a data-link-type="idl" href="#dom-taskcontrollerinit-priority" id="ref-for-dom-taskcontrollerinit-priority">priority</a></code>. </p>
     <dt><code>controller . <code class="idl"><a data-link-type="idl" href="#dom-taskcontroller-setpriority" id="ref-for-dom-taskcontroller-setpriority②">setPriority</a></code>( <var>priority</var> )</code> 
     <dd>
      <p>Invoking this method will change the associated <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①④">TaskSignal</a></code>'s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority③">priority</a>, signal the priority change to any observers, and
     cause <code>prioritychange</code> events to be dispatched. </p>
    </dl>
    <div class="algorithm" data-algorithm="TaskController()" data-algorithm-for="TaskController">
-     The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskController" data-dfn-type="constructor" data-export data-lt="TaskController(priority)|constructor(priority)|TaskController()|constructor()" id="dom-taskcontroller-taskcontroller"><code>new TaskController(<var>priority</var>)</code></dfn> constructor steps are: 
+     The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskController" data-dfn-type="constructor" data-export data-lt="TaskController(init)|constructor(init)|TaskController()|constructor()" id="dom-taskcontroller-taskcontroller"><code>new TaskController(<var>init</var>)</code></dfn> constructor steps are: 
     <ol>
      <li data-md>
       <p>Let <var>signal</var> be a new <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①⑤">TaskSignal</a></code> object.</p>
      <li data-md>
-      <p>Set <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority④">priority</a> to <var>priority</var>.</p>
+      <p>Set <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority④">priority</a> to <var>init</var>["<code class="idl"><a data-link-type="idl" href="#dom-taskcontrollerinit-priority" id="ref-for-dom-taskcontrollerinit-priority①">priority</a></code>"].</p>
      <li data-md>
       <p>Set <a data-link-type="dfn" href="https://heycam.github.io/webidl/#this" id="ref-for-this①">this’s</a> <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortcontroller-signal" id="ref-for-abortcontroller-signal">signal</a> to <var>signal</var>.</p>
     </ol>
@@ -1366,7 +1370,7 @@ perspective and do not believe there to be any privacy considerations.</p>
    <li><a href="#dom-taskpriority-background">"background"</a><span>, in §2.1</span>
    <li><a href="#dom-taskpriority-background">background</a><span>, in §2.1</span>
    <li><a href="#dom-taskcontroller-taskcontroller">constructor()</a><span>, in §3.2</span>
-   <li><a href="#dom-taskcontroller-taskcontroller">constructor(priority)</a><span>, in §3.2</span>
+   <li><a href="#dom-taskcontroller-taskcontroller">constructor(init)</a><span>, in §3.2</span>
    <li><a href="#dom-taskprioritychangeevent-taskprioritychangeevent">constructor(type, priorityChangeEventInitDict)</a><span>, in §3.1</span>
    <li><a href="#create-a-scheduler-task-queue">create a scheduler task queue</a><span>, in §2.3</span>
    <li><a href="#create-a-scheduler-task-queue">creating a scheduler task queue</a><span>, in §2.3</span>
@@ -1397,6 +1401,7 @@ perspective and do not believe there to be any privacy considerations.</p>
      <li><a href="#tasksignal-priority">dfn for TaskSignal</a><span>, in §3.3</span>
      <li><a href="#scheduler-task-queue-priority">dfn for scheduler task queue</a><span>, in §2.3</span>
      <li><a href="#dom-schedulerposttaskoptions-priority">dict-member for SchedulerPostTaskOptions</a><span>, in §2.2</span>
+     <li><a href="#dom-taskcontrollerinit-priority">dict-member for TaskControllerInit</a><span>, in §3.2</span>
     </ul>
    <li><a href="#eventdef-tasksignal-prioritychange">prioritychange</a><span>, in §3.3</span>
    <li><a href="#tasksignal-priority-change-algorithms">priority change algorithms</a><span>, in §3.3</span>
@@ -1428,7 +1433,8 @@ perspective and do not believe there to be any privacy considerations.</p>
    <li><a href="#scheduler-static-priority-task-queue-map">static priority task queue map</a><span>, in §2.2</span>
    <li><a href="#taskcontroller">TaskController</a><span>, in §3.2</span>
    <li><a href="#dom-taskcontroller-taskcontroller">TaskController()</a><span>, in §3.2</span>
-   <li><a href="#dom-taskcontroller-taskcontroller">TaskController(priority)</a><span>, in §3.2</span>
+   <li><a href="#dom-taskcontroller-taskcontroller">TaskController(init)</a><span>, in §3.2</span>
+   <li><a href="#dictdef-taskcontrollerinit">TaskControllerInit</a><span>, in §3.2</span>
    <li><a href="#enumdef-taskpriority">TaskPriority</a><span>, in §2.1</span>
    <li><a href="#taskprioritychangeevent">TaskPriorityChangeEvent</a><span>, in §3.1</span>
    <li><a href="#dictdef-taskprioritychangeeventinit">TaskPriorityChangeEventInit</a><span>, in §3.1</span>
@@ -1951,7 +1957,7 @@ perspective and do not believe there to be any privacy considerations.</p>
    <dt id="biblio-infra">[INFRA]
    <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/">Infra Standard</a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
    <dt id="biblio-rfc2119">[RFC2119]
-   <dd>S. Bradner. <a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>. March 1997. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc2119">https://tools.ietf.org/html/rfc2119</a>
+   <dd>S. Bradner. <a href="https://datatracker.ietf.org/doc/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>. March 1997. Best Current Practice. URL: <a href="https://datatracker.ietf.org/doc/html/rfc2119">https://datatracker.ietf.org/doc/html/rfc2119</a>
    <dt id="biblio-webidl">[WebIDL]
    <dd>Boris Zbarsky. <a href="https://heycam.github.io/webidl/">Web IDL</a>. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
   </dl>
@@ -1992,9 +1998,13 @@ perspective and do not believe there to be any privacy considerations.</p>
   <c- b>required</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority"><c- n>TaskPriority</c-></a> <a data-type="TaskPriority " href="#dom-taskprioritychangeeventinit-previouspriority"><code><c- g>previousPriority</c-></code></a>;
 };
 
+<c- b>dictionary</c-> <a href="#dictdef-taskcontrollerinit"><code><c- g>TaskControllerInit</c-></code></a> {
+  <a data-link-type="idl-name" href="#enumdef-taskpriority"><c- n>TaskPriority</c-></a> <a data-default="&quot;user-visible&quot;" data-type="TaskPriority " href="#dom-taskcontrollerinit-priority"><code><c- g>priority</c-></code></a> = "user-visible";
+};
+
 [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
 <c- b>interface</c-> <a href="#taskcontroller"><code><c- g>TaskController</c-></code></a> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortcontroller"><c- n>AbortController</c-></a> {
-  <a class="idl-code" data-link-type="constructor" href="#dom-taskcontroller-taskcontroller"><c- g>constructor</c-></a>(<c- b>optional</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority"><c- n>TaskPriority</c-></a> <a href="#dom-taskcontroller-taskcontroller-priority-priority"><code><c- g>priority</c-></code></a> = "user-visible");
+  <a class="idl-code" data-link-type="constructor" href="#dom-taskcontroller-taskcontroller"><c- g>constructor</c-></a>(<c- b>optional</c-> <a data-link-type="idl-name" href="#dictdef-taskcontrollerinit"><c- n>TaskControllerInit</c-></a> <a href="#dom-taskcontroller-taskcontroller-init-init"><code><c- g>init</c-></code></a> = {});
 
   <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-undefined"><c- b>undefined</c-></a> <a class="idl-code" data-link-type="method" href="#dom-taskcontroller-setpriority"><c- g>setPriority</c-></a>(<a data-link-type="idl-name" href="#enumdef-taskpriority"><c- n>TaskPriority</c-></a> <a href="#dom-taskcontroller-setpriority-priority-priority"><code><c- g>priority</c-></code></a>);
 };
@@ -2293,6 +2303,18 @@ plain <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
    <ul>
     <li><a href="#ref-for-dom-taskprioritychangeevent-previouspriority">3.1. The TaskPriorityChangeEvent Interface</a> <a href="#ref-for-dom-taskprioritychangeevent-previouspriority①">(2)</a>
     <li><a href="#ref-for-dom-taskprioritychangeevent-previouspriority②">3.3. The TaskSignal Interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dictdef-taskcontrollerinit">
+   <b><a href="#dictdef-taskcontrollerinit">#dictdef-taskcontrollerinit</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dictdef-taskcontrollerinit">3.2. The TaskController Interface</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-taskcontrollerinit-priority">
+   <b><a href="#dom-taskcontrollerinit-priority">#dom-taskcontrollerinit-priority</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-taskcontrollerinit-priority">3.2. The TaskController Interface</a> <a href="#ref-for-dom-taskcontrollerinit-priority①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="taskcontroller">
