@@ -248,7 +248,7 @@ supports `AbortController` operations (`abort()`) and an additional
 with a `TaskController`:
 
 ```javascript
-const controller = new TaskController('user-blocking');
+const controller = new TaskController({priority: 'user-blocking'});
 
 // |signal| is an instance of a TaskSignal, which has read-only properties for
 // the aborted state and current priority.
@@ -274,7 +274,7 @@ masse. For example, a `TaskSignal` can be passed to `fetch` and can be used to
 cancel pending postTask tasks and ongoing fetches.
 
 ```javascript
-const controller = new TaskController('user-blocking');
+const controller = new TaskController({priority: 'user-blocking'});
 const signal = controller.signal;
 
 function doWork() {
@@ -313,7 +313,7 @@ to express priority and communicate priority change.
 Consider the following example:
 
 ```javascript
-const controller = new TaskController('user-blocking');
+const controller = new TaskController({priority: 'user-blocking'});
 const signal = controller.signal;
 
 scheduler.postTask(() => {
@@ -342,7 +342,7 @@ verbose way to handle this use case, which involves listening for the parent
 signal's [`abort` event](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/abort_event):
 
 ```javascript
-const controller = new TaskController('user-blocking');
+const controller = new TaskController({priority: 'user-blocking'});
 const signal = controller.signal;
 
 scheduler.postTask(() => {
@@ -368,7 +368,7 @@ using either the `addEventListener` method or `onprioritychange` property of a
 property of the associated event.
 
 ```javascript
-const controller = new TaskController('user-blocking');
+const controller = new TaskController({priority: 'user-blocking'});
 const signal = controller.signal;
 
 // Method 1: using onprioritychange.

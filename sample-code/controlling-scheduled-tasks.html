@@ -16,7 +16,7 @@
         //
         // TaskController takes a single argument for the priority. Similar to postTask,
         // the priority is optional and defaults to 'user-visible'.
-        const headerController = new TaskController('background');
+        const headerController = new TaskController({priority: 'background'});
 
         // To link the TaskController to tasks, the TaskController's TaskSignal needs
         // to be provided to postTask.
