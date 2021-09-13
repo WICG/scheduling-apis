@@ -1,5 +1,7 @@
 # Scheduling APIs
 
+TEST
+
 This document outlines the motivation for working on various scheduling
 APIs<sup>1</sup>, discusses some of the problems that apps and userspace
 schedulers face when writing scheduling code, and links to [various
