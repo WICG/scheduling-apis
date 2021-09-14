@@ -4,7 +4,7 @@
   <title>Prioritized Task Scheduling</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <link href="https://www.w3.org/StyleSheets/TR/2016/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 59d067506, updated Fri Jul 23 15:43:29 2021 -0700" name="generator">
+  <meta content="Bikeshed version e8cbf4ed2, updated Fri Sep 10 10:21:28 2021 -0700" name="generator">
   <link href="https://wicg.github.io/scheduling-apis/" rel="canonical">
 <style>
 /*
@@ -630,7 +630,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="profile-and-date"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2021-07-28">28 July 2021</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="profile-and-date"><span class="content">Draft Community Group Report, <time class="dt-updated" datetime="2021-09-14">14 September 2021</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1366,86 +1366,86 @@ perspective and do not believe there to be any privacy considerations.</p>
   <h2 class="no-num no-ref heading settled" id="index"><span class="content">Index</span><a class="self-link" href="#index"></a></h2>
   <h3 class="no-num no-ref heading settled" id="index-defined-here"><span class="content">Terms defined by this specification</span><a class="self-link" href="#index-defined-here"></a></h3>
   <ul class="index">
-   <li><a href="#tasksignal-add-a-priority-change-algorithm">add a priority change algorithm</a><span>, in §3.3</span>
-   <li><a href="#dom-taskpriority-background">"background"</a><span>, in §2.1</span>
-   <li><a href="#dom-taskpriority-background">background</a><span>, in §2.1</span>
-   <li><a href="#dom-taskcontroller-taskcontroller">constructor()</a><span>, in §3.2</span>
-   <li><a href="#dom-taskcontroller-taskcontroller">constructor(init)</a><span>, in §3.2</span>
-   <li><a href="#dom-taskprioritychangeevent-taskprioritychangeevent">constructor(type, priorityChangeEventInitDict)</a><span>, in §3.1</span>
-   <li><a href="#create-a-scheduler-task-queue">create a scheduler task queue</a><span>, in §2.3</span>
-   <li><a href="#create-a-scheduler-task-queue">creating a scheduler task queue</a><span>, in §2.3</span>
-   <li><a href="#dom-schedulerposttaskoptions-delay">delay</a><span>, in §2.2</span>
-   <li><a href="#scheduler-dynamic-priority-task-queue-map">dynamic priority task queue map</a><span>, in §2.2</span>
-   <li><a href="#scheduler-task-enqueue-order">enqueue order</a><span>, in §2.3</span>
-   <li><a href="#scheduler-task-queue-first-runnable-task">first runnable task</a><span>, in §2.3</span>
-   <li><a href="#get-the-runnable-task-queues">get the runnable task queues</a><span>, in §2.4.3</span>
-   <li><a href="#get-the-runnable-task-queues">getting the runnable task queues</a><span>, in §2.4.3</span>
-   <li><a href="#has-a-runnable-task">has a runnable task</a><span>, in §2.4.3</span>
-   <li><a href="#has-a-runnable-task">have a runnable task</a><span>, in §2.4.3</span>
-   <li><a href="#taskpriority-less-than">less than</a><span>, in §2.1</span>
-   <li><a href="#scheduler-next-enqueue-order">next enqueue order</a><span>, in §2.2</span>
-   <li><a href="#scheduler-task-older-than">older than</a><span>, in §2.3</span>
-   <li><a href="#dom-tasksignal-onprioritychange">onprioritychange</a><span>, in §3.3</span>
-   <li><a href="#dom-scheduler-posttask">postTask(callback)</a><span>, in §2.2</span>
-   <li><a href="#dom-scheduler-posttask">postTask(callback, options)</a><span>, in §2.2</span>
+   <li><a href="#tasksignal-add-a-priority-change-algorithm">add a priority change algorithm</a><span>, in § 3.3</span>
+   <li><a href="#dom-taskpriority-background">"background"</a><span>, in § 2.1</span>
+   <li><a href="#dom-taskpriority-background">background</a><span>, in § 2.1</span>
+   <li><a href="#dom-taskcontroller-taskcontroller">constructor()</a><span>, in § 3.2</span>
+   <li><a href="#dom-taskcontroller-taskcontroller">constructor(init)</a><span>, in § 3.2</span>
+   <li><a href="#dom-taskprioritychangeevent-taskprioritychangeevent">constructor(type, priorityChangeEventInitDict)</a><span>, in § 3.1</span>
+   <li><a href="#create-a-scheduler-task-queue">create a scheduler task queue</a><span>, in § 2.3</span>
+   <li><a href="#create-a-scheduler-task-queue">creating a scheduler task queue</a><span>, in § 2.3</span>
+   <li><a href="#dom-schedulerposttaskoptions-delay">delay</a><span>, in § 2.2</span>
+   <li><a href="#scheduler-dynamic-priority-task-queue-map">dynamic priority task queue map</a><span>, in § 2.2</span>
+   <li><a href="#scheduler-task-enqueue-order">enqueue order</a><span>, in § 2.3</span>
+   <li><a href="#scheduler-task-queue-first-runnable-task">first runnable task</a><span>, in § 2.3</span>
+   <li><a href="#get-the-runnable-task-queues">get the runnable task queues</a><span>, in § 2.4.3</span>
+   <li><a href="#get-the-runnable-task-queues">getting the runnable task queues</a><span>, in § 2.4.3</span>
+   <li><a href="#has-a-runnable-task">has a runnable task</a><span>, in § 2.4.3</span>
+   <li><a href="#has-a-runnable-task">have a runnable task</a><span>, in § 2.4.3</span>
+   <li><a href="#taskpriority-less-than">less than</a><span>, in § 2.1</span>
+   <li><a href="#scheduler-next-enqueue-order">next enqueue order</a><span>, in § 2.2</span>
+   <li><a href="#scheduler-task-older-than">older than</a><span>, in § 2.3</span>
+   <li><a href="#dom-tasksignal-onprioritychange">onprioritychange</a><span>, in § 3.3</span>
+   <li><a href="#dom-scheduler-posttask">postTask(callback)</a><span>, in § 2.2</span>
+   <li><a href="#dom-scheduler-posttask">postTask(callback, options)</a><span>, in § 2.2</span>
    <li>
     previousPriority
     <ul>
-     <li><a href="#dom-taskprioritychangeevent-previouspriority">attribute for TaskPriorityChangeEvent</a><span>, in §3.1</span>
-     <li><a href="#dom-taskprioritychangeeventinit-previouspriority">dict-member for TaskPriorityChangeEventInit</a><span>, in §3.1</span>
+     <li><a href="#dom-taskprioritychangeevent-previouspriority">attribute for TaskPriorityChangeEvent</a><span>, in § 3.1</span>
+     <li><a href="#dom-taskprioritychangeeventinit-previouspriority">dict-member for TaskPriorityChangeEventInit</a><span>, in § 3.1</span>
     </ul>
    <li>
     priority
     <ul>
-     <li><a href="#dom-tasksignal-priority">attribute for TaskSignal</a><span>, in §3.3</span>
-     <li><a href="#tasksignal-priority">dfn for TaskSignal</a><span>, in §3.3</span>
-     <li><a href="#scheduler-task-queue-priority">dfn for scheduler task queue</a><span>, in §2.3</span>
-     <li><a href="#dom-schedulerposttaskoptions-priority">dict-member for SchedulerPostTaskOptions</a><span>, in §2.2</span>
-     <li><a href="#dom-taskcontrollerinit-priority">dict-member for TaskControllerInit</a><span>, in §3.2</span>
+     <li><a href="#dom-tasksignal-priority">attribute for TaskSignal</a><span>, in § 3.3</span>
+     <li><a href="#tasksignal-priority">dfn for TaskSignal</a><span>, in § 3.3</span>
+     <li><a href="#scheduler-task-queue-priority">dfn for scheduler task queue</a><span>, in § 2.3</span>
+     <li><a href="#dom-schedulerposttaskoptions-priority">dict-member for SchedulerPostTaskOptions</a><span>, in § 2.2</span>
+     <li><a href="#dom-taskcontrollerinit-priority">dict-member for TaskControllerInit</a><span>, in § 3.2</span>
     </ul>
-   <li><a href="#eventdef-tasksignal-prioritychange">prioritychange</a><span>, in §3.3</span>
-   <li><a href="#tasksignal-priority-change-algorithms">priority change algorithms</a><span>, in §3.3</span>
-   <li><a href="#tasksignal-priority-changing">priority changing</a><span>, in §3.3</span>
-   <li><a href="#queue-a-scheduler-task">queue a scheduler task</a><span>, in §2.4.1</span>
-   <li><a href="#queue-a-scheduler-task">queuing a scheduler task</a><span>, in §2.4.1</span>
-   <li><a href="#scheduler-task-queue-remove">remove</a><span>, in §2.4.1</span>
-   <li><a href="#schedule-a-posttask-task">schedule a postTask task</a><span>, in §2.4.2</span>
-   <li><a href="#schedule-a-task-to-invoke-a-callback">schedule a task to invoke a callback</a><span>, in §2.4.2</span>
-   <li><a href="#scheduler">Scheduler</a><span>, in §2.2</span>
+   <li><a href="#eventdef-tasksignal-prioritychange">prioritychange</a><span>, in § 3.3</span>
+   <li><a href="#tasksignal-priority-change-algorithms">priority change algorithms</a><span>, in § 3.3</span>
+   <li><a href="#tasksignal-priority-changing">priority changing</a><span>, in § 3.3</span>
+   <li><a href="#queue-a-scheduler-task">queue a scheduler task</a><span>, in § 2.4.1</span>
+   <li><a href="#queue-a-scheduler-task">queuing a scheduler task</a><span>, in § 2.4.1</span>
+   <li><a href="#scheduler-task-queue-remove">remove</a><span>, in § 2.4.1</span>
+   <li><a href="#schedule-a-posttask-task">schedule a postTask task</a><span>, in § 2.4.2</span>
+   <li><a href="#schedule-a-task-to-invoke-a-callback">schedule a task to invoke a callback</a><span>, in § 2.4.2</span>
+   <li><a href="#scheduler">Scheduler</a><span>, in § 2.2</span>
    <li>
     scheduler
     <ul>
-     <li><a href="#dom-windoworworkerglobalscope-scheduler">attribute for WindowOrWorkerGlobalScope</a><span>, in §4.1.1</span>
-     <li><a href="#windoworworkerglobalscope-scheduler">dfn for WindowOrWorkerGlobalScope</a><span>, in §4.1.1</span>
+     <li><a href="#dom-windoworworkerglobalscope-scheduler">attribute for WindowOrWorkerGlobalScope</a><span>, in § 4.1.1</span>
+     <li><a href="#windoworworkerglobalscope-scheduler">dfn for WindowOrWorkerGlobalScope</a><span>, in § 4.1.1</span>
     </ul>
-   <li><a href="#callbackdef-schedulerposttaskcallback">SchedulerPostTaskCallback</a><span>, in §2.2</span>
-   <li><a href="#dictdef-schedulerposttaskoptions">SchedulerPostTaskOptions</a><span>, in §2.2</span>
-   <li><a href="#scheduler-task">scheduler task</a><span>, in §2.3</span>
-   <li><a href="#scheduler-task-queue">scheduler task queue</a><span>, in §2.3</span>
-   <li><a href="#scheduler-task-sources">scheduler task sources</a><span>, in §2.3</span>
-   <li><a href="#schedule-a-posttask-task">scheduling a postTask task</a><span>, in §2.4.2</span>
-   <li><a href="#select-the-scheduler-task-queue">selecting the scheduler task queue</a><span>, in §2.4.2</span>
-   <li><a href="#selecting-the-task-queue-of-the-next-scheduler-task">selecting the task queue of the next scheduler task</a><span>, in §2.4.3</span>
-   <li><a href="#select-the-scheduler-task-queue">select the scheduler task queue</a><span>, in §2.4.2</span>
-   <li><a href="#dom-taskcontroller-setpriority">setPriority(priority)</a><span>, in §3.2</span>
-   <li><a href="#dom-schedulerposttaskoptions-signal">signal</a><span>, in §2.2</span>
-   <li><a href="#tasksignal-signal-priority-change">signal priority change</a><span>, in §3.3</span>
-   <li><a href="#scheduler-static-priority-task-queue-map">static priority task queue map</a><span>, in §2.2</span>
-   <li><a href="#taskcontroller">TaskController</a><span>, in §3.2</span>
-   <li><a href="#dom-taskcontroller-taskcontroller">TaskController()</a><span>, in §3.2</span>
-   <li><a href="#dom-taskcontroller-taskcontroller">TaskController(init)</a><span>, in §3.2</span>
-   <li><a href="#dictdef-taskcontrollerinit">TaskControllerInit</a><span>, in §3.2</span>
-   <li><a href="#enumdef-taskpriority">TaskPriority</a><span>, in §2.1</span>
-   <li><a href="#taskprioritychangeevent">TaskPriorityChangeEvent</a><span>, in §3.1</span>
-   <li><a href="#dictdef-taskprioritychangeeventinit">TaskPriorityChangeEventInit</a><span>, in §3.1</span>
-   <li><a href="#dom-taskprioritychangeevent-taskprioritychangeevent">TaskPriorityChangeEvent(type, priorityChangeEventInitDict)</a><span>, in §3.1</span>
-   <li><a href="#scheduler-task-queue-tasks">tasks</a><span>, in §2.3</span>
-   <li><a href="#tasksignal">TaskSignal</a><span>, in §3.3</span>
-   <li><a href="#the-posted-task-task-source">The posted task task source</a><span>, in §2.3</span>
-   <li><a href="#dom-taskpriority-user-blocking">"user-blocking"</a><span>, in §2.1</span>
-   <li><a href="#dom-taskpriority-user-blocking">user-blocking</a><span>, in §2.1</span>
-   <li><a href="#dom-taskpriority-user-visible">"user-visible"</a><span>, in §2.1</span>
-   <li><a href="#dom-taskpriority-user-visible">user-visible</a><span>, in §2.1</span>
+   <li><a href="#callbackdef-schedulerposttaskcallback">SchedulerPostTaskCallback</a><span>, in § 2.2</span>
+   <li><a href="#dictdef-schedulerposttaskoptions">SchedulerPostTaskOptions</a><span>, in § 2.2</span>
+   <li><a href="#scheduler-task">scheduler task</a><span>, in § 2.3</span>
+   <li><a href="#scheduler-task-queue">scheduler task queue</a><span>, in § 2.3</span>
+   <li><a href="#scheduler-task-sources">scheduler task sources</a><span>, in § 2.3</span>
+   <li><a href="#schedule-a-posttask-task">scheduling a postTask task</a><span>, in § 2.4.2</span>
+   <li><a href="#select-the-scheduler-task-queue">selecting the scheduler task queue</a><span>, in § 2.4.2</span>
+   <li><a href="#selecting-the-task-queue-of-the-next-scheduler-task">selecting the task queue of the next scheduler task</a><span>, in § 2.4.3</span>
+   <li><a href="#select-the-scheduler-task-queue">select the scheduler task queue</a><span>, in § 2.4.2</span>
+   <li><a href="#dom-taskcontroller-setpriority">setPriority(priority)</a><span>, in § 3.2</span>
+   <li><a href="#dom-schedulerposttaskoptions-signal">signal</a><span>, in § 2.2</span>
+   <li><a href="#tasksignal-signal-priority-change">signal priority change</a><span>, in § 3.3</span>
+   <li><a href="#scheduler-static-priority-task-queue-map">static priority task queue map</a><span>, in § 2.2</span>
+   <li><a href="#taskcontroller">TaskController</a><span>, in § 3.2</span>
+   <li><a href="#dom-taskcontroller-taskcontroller">TaskController()</a><span>, in § 3.2</span>
+   <li><a href="#dom-taskcontroller-taskcontroller">TaskController(init)</a><span>, in § 3.2</span>
+   <li><a href="#dictdef-taskcontrollerinit">TaskControllerInit</a><span>, in § 3.2</span>
+   <li><a href="#enumdef-taskpriority">TaskPriority</a><span>, in § 2.1</span>
+   <li><a href="#taskprioritychangeevent">TaskPriorityChangeEvent</a><span>, in § 3.1</span>
+   <li><a href="#dictdef-taskprioritychangeeventinit">TaskPriorityChangeEventInit</a><span>, in § 3.1</span>
+   <li><a href="#dom-taskprioritychangeevent-taskprioritychangeevent">TaskPriorityChangeEvent(type, priorityChangeEventInitDict)</a><span>, in § 3.1</span>
+   <li><a href="#scheduler-task-queue-tasks">tasks</a><span>, in § 2.3</span>
+   <li><a href="#tasksignal">TaskSignal</a><span>, in § 3.3</span>
+   <li><a href="#the-posted-task-task-source">The posted task task source</a><span>, in § 2.3</span>
+   <li><a href="#dom-taskpriority-user-blocking">"user-blocking"</a><span>, in § 2.1</span>
+   <li><a href="#dom-taskpriority-user-blocking">user-blocking</a><span>, in § 2.1</span>
+   <li><a href="#dom-taskpriority-user-visible">"user-visible"</a><span>, in § 2.1</span>
+   <li><a href="#dom-taskpriority-user-visible">user-visible</a><span>, in § 2.1</span>
   </ul>
   <aside class="dfn-panel" data-for="term-for-abortcontroller">
    <a href="https://dom.spec.whatwg.org/#abortcontroller">https://dom.spec.whatwg.org/#abortcontroller</a><b>Referenced in:</b>
@@ -1951,20 +1951,20 @@ perspective and do not believe there to be any privacy considerations.</p>
   <h3 class="no-num no-ref heading settled" id="normative"><span class="content">Normative References</span><a class="self-link" href="#normative"></a></h3>
   <dl>
    <dt id="biblio-dom">[DOM]
-   <dd>Anne van Kesteren. <a href="https://dom.spec.whatwg.org/">DOM Standard</a>. Living Standard. URL: <a href="https://dom.spec.whatwg.org/">https://dom.spec.whatwg.org/</a>
+   <dd>Anne van Kesteren. <a href="https://dom.spec.whatwg.org/"><cite>DOM Standard</cite></a>. Living Standard. URL: <a href="https://dom.spec.whatwg.org/">https://dom.spec.whatwg.org/</a>
    <dt id="biblio-html">[HTML]
-   <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/">HTML Standard</a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
+   <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/"><cite>HTML Standard</cite></a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
    <dt id="biblio-infra">[INFRA]
-   <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/">Infra Standard</a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
+   <dd>Anne van Kesteren; Domenic Denicola. <a href="https://infra.spec.whatwg.org/"><cite>Infra Standard</cite></a>. Living Standard. URL: <a href="https://infra.spec.whatwg.org/">https://infra.spec.whatwg.org/</a>
    <dt id="biblio-rfc2119">[RFC2119]
-   <dd>S. Bradner. <a href="https://datatracker.ietf.org/doc/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>. March 1997. Best Current Practice. URL: <a href="https://datatracker.ietf.org/doc/html/rfc2119">https://datatracker.ietf.org/doc/html/rfc2119</a>
+   <dd>S. Bradner. <a href="https://datatracker.ietf.org/doc/html/rfc2119"><cite>Key words for use in RFCs to Indicate Requirement Levels</cite></a>. March 1997. Best Current Practice. URL: <a href="https://datatracker.ietf.org/doc/html/rfc2119">https://datatracker.ietf.org/doc/html/rfc2119</a>
    <dt id="biblio-webidl">[WebIDL]
-   <dd>Boris Zbarsky. <a href="https://heycam.github.io/webidl/">Web IDL</a>. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
+   <dd>Boris Zbarsky. <a href="https://heycam.github.io/webidl/"><cite>Web IDL</cite></a>. URL: <a href="https://heycam.github.io/webidl/">https://heycam.github.io/webidl/</a>
   </dl>
   <h3 class="no-num no-ref heading settled" id="informative"><span class="content">Informative References</span><a class="self-link" href="#informative"></a></h3>
   <dl>
    <dt id="biblio-requestidlecallback">[REQUESTIDLECALLBACK]
-   <dd>Ross McIlroy; Ilya Grigorik. <a href="https://w3c.github.io/requestidlecallback/">Cooperative Scheduling of Background Tasks</a>. URL: <a href="https://w3c.github.io/requestidlecallback/">https://w3c.github.io/requestidlecallback/</a>
+   <dd>Ross McIlroy; Ilya Grigorik. <a href="https://w3c.github.io/requestidlecallback/"><cite>Cooperative Scheduling of Background Tasks</cite></a>. URL: <a href="https://w3c.github.io/requestidlecallback/">https://w3c.github.io/requestidlecallback/</a>
   </dl>
   <h2 class="no-num no-ref heading settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
 <pre class="idl highlight def"><c- b>enum</c-> <a href="#enumdef-taskpriority"><code><c- g>TaskPriority</c-></code></a> {
