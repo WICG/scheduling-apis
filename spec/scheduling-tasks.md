@@ -53,7 +53,7 @@ The `Scheduler` Interface {#sec-scheduler}
 
   callback SchedulerPostTaskCallback = any ();
 
-  [Exposed=(Window, Worker)]
+  [Exposed=*]
   interface Scheduler {
     Promise<any> postTask(SchedulerPostTaskCallback callback,
                           optional SchedulerPostTaskOptions options = {});

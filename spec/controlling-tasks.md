@@ -12,7 +12,7 @@ The `TaskPriorityChangeEvent` Interface {#sec-task-priority-change-event}
 ---------------------
 
 <pre class='idl'>
-  [Exposed=(Window, Worker)]
+  [Exposed=*]
   interface TaskPriorityChangeEvent : Event {
     constructor(DOMString type, TaskPriorityChangeEventInit priorityChangeEventInitDict);
 
@@ -46,7 +46,7 @@ The `TaskController` Interface {#sec-task-controller}
     TaskPriority priority = "user-visible";
   };
 
-  [Exposed=(Window,Worker)]
+  [Exposed=*]
   interface TaskController : AbortController {
     constructor(optional TaskControllerInit init = {});
 
@@ -90,7 +90,7 @@ The `TaskSignal` Interface {#sec-task-signal}
 ---------------------
 
 <pre class='idl'>
-  [Exposed=(Window, Worker)]
+  [Exposed=*]
   interface TaskSignal : AbortSignal {
     readonly attribute TaskPriority priority;
 
