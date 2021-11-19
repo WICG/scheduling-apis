@@ -237,9 +237,9 @@ Processing Model {#sec-scheduling-tasks-processing-model}
   1. Let |signal| be |options|["{{SchedulerPostTaskOptions/signal}}"] if
      |options|["{{SchedulerPostTaskOptions/signal}}"] [=map/exists=], or
      otherwise null.
-  1. If |signal| is not null and its [=AbortSignal/aborted flag=] is set, then
-     [=reject=] |result| with an "{{AbortError!!exception}}" {{DOMException}}
-     and return |result|.
+  1. If |signal| is not null and it is [=AbortSignal/aborted=] is set, then
+     [=reject=] |result| with |signal|'s [=AbortSignal/aborted=] and return
+     |result|.
   1. Let |priority| be |options|["{{SchedulerPostTaskOptions/priority}}"] if
      |options|["{{SchedulerPostTaskOptions/priority}}"] [=map/exists=], or
      otherwise null.
