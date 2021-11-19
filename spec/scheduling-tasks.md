@@ -71,8 +71,8 @@ integrate the API into existing code that uses {{AbortSignal|AbortSignals}}.
   <dt><code>result = scheduler . {{Scheduler/postTask()|postTask}}( |callback|, |options| )</code></dt>
   <dd>
     <p>Returns a promise that is fulfilled with the return value of |callback|,
-    or rejected with an "{{AbortError!!exception}}" {{DOMException}} if the task
-    is aborted. If |callback| throws an error during execution, the promise
+    or rejected with the {{AbortSignal}}'s [=AbortSignal/abort reason=] if the
+    task is aborted. If |callback| throws an error during execution, the promise
     returned by {{Scheduler/postTask()}} will be rejected with that error.
 
     <p>The task's {{TaskPriority|priority}} is determined by the combination of
@@ -115,7 +115,7 @@ task queue=]. This map is initialized to a new empty [=map=].
 
 Note: We implement *dynamic prioritization* by enqueuing tasks associated with
 a specific {{TaskSignal}} into the same [=scheduler task queue=], and changing
-that queue's priority in response to `prioritychange` events. The 
+that queue's priority in response to `prioritychange` events. The
 [=Scheduler/dynamic priority task queue map=] holds the
 [=scheduler task queues=] whose priorities can change, and the map key is the
 {{TaskSignal}} which all tasks in the queue are associated with.
@@ -237,9 +237,9 @@ Processing Model {#sec-scheduling-tasks-processing-model}
   1. Let |signal| be |options|["{{SchedulerPostTaskOptions/signal}}"] if
      |options|["{{SchedulerPostTaskOptions/signal}}"] [=map/exists=], or
      otherwise null.
-  1. If |signal| is not null and its [=AbortSignal/aborted flag=] is set, then
-     [=reject=] |result| with an "{{AbortError!!exception}}" {{DOMException}}
-     and return |result|.
+  1. If |signal| is not null and it is [=AbortSignal/aborted=], then
+     [=reject=] |result| with |signal|'s [=AbortSignal/abort reason=] and return
+     |result|.
   1. Let |priority| be |options|["{{SchedulerPostTaskOptions/priority}}"] if
      |options|["{{SchedulerPostTaskOptions/priority}}"] [=map/exists=], or
      otherwise null.
@@ -321,7 +321,7 @@ to account for current throttling techniques (see also
   1. If |signal| is not null, then [=AbortSignal/add|add the following=] abort
      steps to it:
     1. [=scheduler task queue/Remove=] |task| from |queue|.
-    1. [=Reject=] |result| with an "{{AbortError!!exception}}" {{DOMException}}.
+    1. [=Reject=] |result| with |signal|'s [=AbortSignal/abort reason=].
 
   Issue: Because this algorithm can be called from [=in parallel=] steps, parts
   of this and other algorithms are racy. Specifically, the
