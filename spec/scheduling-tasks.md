@@ -246,21 +246,9 @@ Processing Model {#sec-scheduling-tasks-processing-model}
   1. Let |queue| be the result of [=selecting the scheduler task queue=] for
      |scheduler| given |signal| and |priority|.
   1. Let |delay| be |options|["{{SchedulerPostTaskOptions/delay}}"].
-  1. If |delay| is greater than 0, then run these steps [=in parallel=]:
-    1. Let |global| be the [=relevant global object=] for |scheduler|.
-    1. If |global| is a {{Window}} object, wait until |global|'s
-       <a attribute for="Window">associated <code>Document</code></a>
-       has been [=Document/fully active=] for a further |delay| milliseconds (not necessarily
-       consecutively).
-
-       Otherwise, |global| is a {{WorkerGlobalScope}} object; wait until |delay|
-       milliseconds have passed with the worker not suspended (not necessarily
-       consecutively).
-
-    1. Wait until any invocations of this algorithm that had the same |scheduler|,
-       that started before this one, and whose |delay| is equal to or less
-       than this one's, have completed.
-    1. Optionally, wait a further [=implementation-defined=] length of time.
+  1. If |delay| is greater than 0, then [=run steps after a timeout=] given
+     |scheduler|'s [=relevant global object=], "`scheduler-postTask`",
+     |delay|, and the following steps:
     1. [=Schedule a task to invoke a callback=] for |scheduler| given |queue|,
        |signal|, |callback|, and |result|.
   1. Otherwise, [=schedule a task to invoke a callback=] for |scheduler| given
@@ -268,12 +256,8 @@ Processing Model {#sec-scheduling-tasks-processing-model}
   1. Return |result|.
 </div>
 
-Issue: We need to figure out exactly how we want to spec delayed tasks, and if
-we can refactor the timer spec to use a common method. As written, this uses
-steps 15&ndash;17 of the timer initialization steps algorithm, but there are a
-couple things we might want to change: (1) how to account for suspend? (2) how
-to account for current throttling techniques (see also
-[this issue](https://github.com/whatwg/html/issues/5925))?
+Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
+see [whatwg/html#5925](https://github.com/whatwg/html/issues/5925).
 
 <div algorithm="select the scheduler task queue">
   To <dfn lt="select the scheduler task queue|selecting the scheduler task queue">select the scheduler task queue</dfn>
