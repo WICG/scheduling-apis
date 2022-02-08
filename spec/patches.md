@@ -12,7 +12,7 @@ is initialized as a new {{Scheduler}}.
 
 <pre class='idl'>
   partial interface mixin WindowOrWorkerGlobalScope {
-    readonly attribute Scheduler scheduler;
+    [Replaceable] readonly attribute Scheduler scheduler;
   };
 </pre>
 
