@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version 2e3c4c68b, updated Fri Jan 14 14:49:00 2022 -0800" name="generator">
   <link href="https://wicg.github.io/scheduling-apis/" rel="canonical">
-  <meta content="be34190d1af1ca976c254c5287e29e74ea5d4d3d" name="document-revision">
+  <meta content="3eb9ae6472618c969940bcbb37fcc9b6bac286c6" name="document-revision">
 <style>
 /*
  * Put nice boxes around each algorithm.
@@ -641,7 +641,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2022-02-07">7 February 2022</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2022-02-09">9 February 2022</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1205,7 +1205,7 @@ is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
 corresponding <dfn class="dfn-paneled" data-dfn-for="WindowOrWorkerGlobalScope" data-dfn-type="dfn" data-noexport id="windoworworkerglobalscope-scheduler">scheduler</dfn>, which
 is initialized as a new <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler①⑤">Scheduler</a></code>.</p>
 <pre class="idl highlight def"><c- b>partial</c-> <c- b>interface</c-> <c- b>mixin</c-> <a class="idl-code" data-link-type="interface" href="https://html.spec.whatwg.org/multipage/webappapis.html#windoworworkerglobalscope" id="ref-for-windoworworkerglobalscope①"><c- g>WindowOrWorkerGlobalScope</c-></a> {
-  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#scheduler" id="ref-for-scheduler①⑥"><c- n>Scheduler</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="Scheduler" href="#dom-windoworworkerglobalscope-scheduler" id="ref-for-dom-windoworworkerglobalscope-scheduler"><c- g>scheduler</c-></a>;
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Replaceable" id="ref-for-Replaceable"><c- g>Replaceable</c-></a>] <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#scheduler" id="ref-for-scheduler①⑥"><c- n>Scheduler</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="Scheduler" href="#dom-windoworworkerglobalscope-scheduler" id="ref-for-dom-windoworworkerglobalscope-scheduler"><c- g>scheduler</c-></a>;
 };
 </pre>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="WindowOrWorkerGlobalScope" data-dfn-type="attribute" data-export id="dom-windoworworkerglobalscope-scheduler"><code>scheduler</code></dfn> attribute’s
@@ -1789,6 +1789,12 @@ perspective and do not believe there to be any privacy considerations.</p>
     <li><a href="#ref-for-idl-promise">2.2. The Scheduler Interface</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-Replaceable">
+   <a href="https://webidl.spec.whatwg.org/#Replaceable">https://webidl.spec.whatwg.org/#Replaceable</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-Replaceable">4.1.1. WindowOrWorkerGlobalScope</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-a-new-promise">
    <a href="https://webidl.spec.whatwg.org/#a-new-promise">https://webidl.spec.whatwg.org/#a-new-promise</a><b>Referenced in:</b>
    <ul>
@@ -1921,6 +1927,7 @@ perspective and do not believe there to be any privacy considerations.</p>
      <li><span class="dfn-paneled" id="term-for-Exposed">Exposed</span>
      <li><span class="dfn-paneled" id="term-for-notallowederror">NotAllowedError</span>
      <li><span class="dfn-paneled" id="term-for-idl-promise">Promise</span>
+     <li><span class="dfn-paneled" id="term-for-Replaceable">Replaceable</span>
      <li><span class="dfn-paneled" id="term-for-a-new-promise">a new promise</span>
      <li><span class="dfn-paneled" id="term-for-idl-any">any</span>
      <li><span class="dfn-paneled" id="term-for-implements">implements</span>
@@ -2002,7 +2009,7 @@ perspective and do not believe there to be any privacy considerations.</p>
 };
 
 <c- b>partial</c-> <c- b>interface</c-> <c- b>mixin</c-> <a class="idl-code" data-link-type="interface" href="https://html.spec.whatwg.org/multipage/webappapis.html#windoworworkerglobalscope"><c- g>WindowOrWorkerGlobalScope</c-></a> {
-  <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#scheduler"><c- n>Scheduler</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="Scheduler" href="#dom-windoworworkerglobalscope-scheduler"><c- g>scheduler</c-></a>;
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Replaceable"><c- g>Replaceable</c-></a>] <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#scheduler"><c- n>Scheduler</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="Scheduler" href="#dom-windoworworkerglobalscope-scheduler"><c- g>scheduler</c-></a>;
 };
 
 </pre>
