@@ -264,6 +264,9 @@ see [whatwg/html#5925](https://github.com/whatwg/html/issues/5925).
   for a {{Scheduler}} |scheduler| given an {{AbortSignal}} or null |signal|, and
   a {{TaskPriority}} or null |priority|:
 
+  1. If |priority| is null, |signal| is not null and [=implements=] the {{TaskSignal}}
+     interface, and |signal| [=TaskSignal/has fixed priority=], then set |priority| to
+     |signal|'s [=TaskSignal/priority=].
   1. If |priority| is null and |signal| is not null and |signal| [=implements=]
      the {{TaskSignal}} interface, then
     1. If |scheduler|'s [=Scheduler/dynamic priority task queue map=] does not
