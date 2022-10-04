@@ -4,9 +4,9 @@
   <title>Prioritized Task Scheduling</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version 2e3c4c68b, updated Fri Jan 14 14:49:00 2022 -0800" name="generator">
+  <meta content="Bikeshed version 44af0bf3e, updated Fri Jul 29 17:05:16 2022 -0700" name="generator">
   <link href="https://wicg.github.io/scheduling-apis/" rel="canonical">
-  <meta content="3eb9ae6472618c969940bcbb37fcc9b6bac286c6" name="document-revision">
+  <meta content="05de3244e0cf56b8b57212b2d10513d40624a052" name="document-revision">
 <style>
 /*
  * Put nice boxes around each algorithm.
@@ -321,6 +321,62 @@ a[href].issue-return {
 [data-md] > :last-child {
     margin-bottom: 0;
 }</style>
+<style>/* style-mdn-anno */
+
+            @media (max-width: 767px) { .mdn-anno { opacity: .1 } }
+            .mdn-anno { font: 1em sans-serif; padding: 0.3em; position: absolute; z-index: 8; right: 0.3em; background: #EEE; color: black; box-shadow: 0 0 3px #999; overflow: hidden; border-collapse: initial; border-spacing: initial; min-width: 9em; max-width: min-content; white-space: nowrap; word-wrap: normal; hyphens: none}
+            .mdn-anno:not(.wrapped) { opacity: 1}
+            .mdn-anno:hover { z-index: 9 }
+            .mdn-anno.wrapped { min-width: 0 }
+            .mdn-anno.wrapped > :not(button) { display: none; }
+            .mdn-anno > .mdn-anno-btn { cursor: pointer; border: none; color: #000; background: transparent; margin: -8px; float: right; padding: 10px 8px 8px 8px; outline: none; }
+            .mdn-anno > .mdn-anno-btn > .less-than-two-engines-flag { color: red; padding-right: 2px; }
+            .mdn-anno > .mdn-anno-btn > .all-engines-flag { color: green; padding-right: 2px; }
+            .mdn-anno > .mdn-anno-btn > span { color: #fff; background-color: #000; font-weight: normal; font-family: zillaslab, Palatino, "Palatino Linotype", serif; padding: 2px 3px 0px 3px; line-height: 1.3em; vertical-align: top; }
+            .mdn-anno > .feature { margin-top: 20px; }
+            .mdn-anno > .feature:not(:first-of-type) { border-top: 1px solid #999; margin-top: 6px; padding-top: 2px; }
+            .mdn-anno > .feature > .less-than-two-engines-text { color: red }
+            .mdn-anno > .feature > .all-engines-text { color: green }
+            .mdn-anno > .feature > p { font-size: .75em; margin-top: 6px; margin-bottom: 0; }
+            .mdn-anno > .feature > p + p { margin-top: 3px; }
+            .mdn-anno > .feature > .support { display: block; font-size: 0.6em; margin: 0; padding: 0; margin-top: 2px }
+            .mdn-anno > .feature > .support + div { padding-top: 0.5em; }
+            .mdn-anno > .feature > .support > hr { display: block; border: none; border-top: 1px dotted #999; padding: 3px 0px 0px 0px; margin: 2px 3px 0px 3px; }
+            .mdn-anno > .feature > .support > hr::before { content: ""; }
+            .mdn-anno > .feature > .support > span { padding: 0.2em 0; display: block; display: table; }
+            .mdn-anno > .feature > .support > span.no { color: #CCCCCC; filter: grayscale(100%); }
+            .mdn-anno > .feature > .support > span.no::before { opacity: 0.5; }
+            .mdn-anno > .feature > .support > span:first-of-type { padding-top: 0.5em; }
+            .mdn-anno > .feature > .support > span > span { padding: 0 0.5em; display: table-cell; }
+            .mdn-anno > .feature > .support > span > span:first-child { width: 100%; }
+            .mdn-anno > .feature > .support > span > span:last-child { width: 100%; white-space: pre; padding: 0; }
+            .mdn-anno > .feature > .support > span::before { content: ' '; display: table-cell; min-width: 1.5em; height: 1.5em; background: no-repeat center center; background-size: contain; text-align: right; font-size: 0.75em; font-weight: bold; }
+            .mdn-anno > .feature > .support > .chrome_android::before { background-image: url(https://resources.whatwg.org/browser-logos/chrome.svg); }
+            .mdn-anno > .feature > .support > .firefox_android::before { background-image: url(https://resources.whatwg.org/browser-logos/firefox.png); }
+            .mdn-anno > .feature > .support > .chrome::before { background-image: url(https://resources.whatwg.org/browser-logos/chrome.svg); }
+            .mdn-anno > .feature > .support > .edge_blink::before { background-image: url(https://resources.whatwg.org/browser-logos/edge.svg); }
+            .mdn-anno > .feature > .support > .edge::before { background-image: url(https://resources.whatwg.org/browser-logos/edge_legacy.svg); }
+            .mdn-anno > .feature > .support > .firefox::before { background-image: url(https://resources.whatwg.org/browser-logos/firefox.png); }
+            .mdn-anno > .feature > .support > .ie::before { background-image: url(https://resources.whatwg.org/browser-logos/ie.png); }
+            .mdn-anno > .feature > .support > .safari_ios::before { background-image: url(https://resources.whatwg.org/browser-logos/safari-ios.svg); }
+            .mdn-anno > .feature > .support > .nodejs::before { background-image: url(https://nodejs.org/static/images/favicons/favicon.ico); }
+            .mdn-anno > .feature > .support > .opera_android::before { background-image: url(https://resources.whatwg.org/browser-logos/opera.svg); }
+            .mdn-anno > .feature > .support > .opera::before { background-image: url(https://resources.whatwg.org/browser-logos/opera.svg); }
+            .mdn-anno > .feature > .support > .safari::before { background-image: url(https://resources.whatwg.org/browser-logos/safari.png); }
+            .mdn-anno > .feature > .support > .samsunginternet_android::before { background-image: url(https://resources.whatwg.org/browser-logos/samsung.svg); }
+            .mdn-anno > .feature > .support > .webview_android::before { background-image: url(https://resources.whatwg.org/browser-logos/android-webview.png); }
+            .name-slug-mismatch { color: red }
+            .caniuse-status:hover { z-index: 9; }
+
+            /* dt, li, .issue, .note, and .example are "position: relative", so to put annotation at right margin, must move to right of containing block */
+            .h-entry:not(.status-LS) dt > .mdn-anno, .h-entry:not(.status-LS) li > .mdn-anno, .h-entry:not(.status-LS) .issue > .mdn-anno, .h-entry:not(.status-LS) .note > .mdn-anno, .h-entry:not(.status-LS) .example > .mdn-anno { right: -6.7em; }
+            .h-entry p + .mdn-anno { margin-top: 0; }
+            h2 + .mdn-anno.after { margin: -48px 0 0 0; }
+            h3 + .mdn-anno.after { margin: -46px 0 0 0; }
+            h4 + .mdn-anno.after { margin: -42px 0 0 0; }
+            h5 + .mdn-anno.after { margin: -40px 0 0 0; }
+            h6 + .mdn-anno.after { margin: -40px 0 0 0; }
+            </style>
 <style>/* style-selflinks */
 
 :root {
@@ -641,7 +697,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2022-02-09">9 February 2022</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2022-10-04">4 October 2022</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -817,6 +873,21 @@ before "<code class="idl"><a data-link-type="idl" href="#dom-taskpriority-backgr
   following total ordering:
   "<code class="idl"><a data-link-type="idl" href="#dom-taskpriority-background" id="ref-for-dom-taskpriority-background②">background</a></code>" &lt; "<code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-visible" id="ref-for-dom-taskpriority-user-visible②">user-visible</a></code>" &lt; "<code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-blocking" id="ref-for-dom-taskpriority-user-blocking②">user-blocking</a></code>" </div>
    <h3 class="heading settled" data-level="2.2" id="sec-scheduler"><span class="secno">2.2. </span><span class="content">The <code>Scheduler</code> Interface</span><a class="self-link" href="#sec-scheduler"></a></h3>
+   <div class="mdn-anno wrapped">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Scheduler" title="The Scheduler interface of the Prioritized Task Scheduling API provides the Scheduler.postTask() method that can be used for adding prioritized tasks to be scheduled.">Scheduler</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
 <pre class="idl highlight def"><c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-schedulerposttaskoptions"><code><c- g>SchedulerPostTaskOptions</c-></code></dfn> {
   <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal"><c- n>AbortSignal</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="SchedulerPostTaskOptions" data-dfn-type="dict-member" data-export data-type="AbortSignal " id="dom-schedulerposttaskoptions-signal"><code><c- g>signal</c-></code></dfn>;
   <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority③"><c- n>TaskPriority</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="SchedulerPostTaskOptions" data-dfn-type="dict-member" data-export data-type="TaskPriority " id="dom-schedulerposttaskoptions-priority"><code><c- g>priority</c-></code></dfn>;
@@ -881,6 +952,21 @@ same <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="
 alternative would be to place the <a data-link-type="dfn" href="#scheduler-next-enqueue-order" id="ref-for-scheduler-next-enqueue-order①">next enqueue order</a> on the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop">event loop</a>, since the only requirements are that the number be strictly
 increasing and not be repeated within a <code class="idl"><a data-link-type="idl" href="#scheduler" id="ref-for-scheduler⑦">Scheduler</a></code>.</p>
    <p class="issue" id="issue-e98751b4"><a class="self-link" href="#issue-e98751b4"></a> Would it be simpler to just use a timestamp here?</p>
+   <div class="mdn-anno wrapped">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Scheduler/postTask" title="The postTask() method of the Scheduler interface is used for adding tasks to be scheduled according to their priority.">Scheduler/postTask</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="Scheduler" data-dfn-type="method" data-export data-lt="postTask(callback, options)|postTask(callback)" id="dom-scheduler-posttask" title="postTask(callback, options)"><code>postTask(<var>callback</var>, <var>options</var>)</code></dfn> method steps are to return the result of <a data-link-type="dfn" href="#schedule-a-posttask-task" id="ref-for-schedule-a-posttask-task">scheduling a postTask task</a> for <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this">this</a> given <var>callback</var> and <var>options</var>.</p>
    <h3 class="heading settled" data-level="2.3" id="sec-scheduling-tasks-definitions"><span class="secno">2.3. </span><span class="content">Definitions</span><a class="self-link" href="#sec-scheduling-tasks-definitions"></a></h3>
    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="scheduler-task">scheduler task</dfn> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task">task</a> with an additional numeric <dfn class="dfn-paneled" data-dfn-for="scheduler task" data-dfn-type="dfn" data-noexport id="scheduler-task-enqueue-order">enqueue order</dfn> <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#struct-item" id="ref-for-struct-item">item</a>, initially set to 0.</p>
@@ -1093,6 +1179,36 @@ see <a href="https://github.com/whatwg/html/issues/5925">whatwg/html#5925</a>.</
 The <code class="idl"><a data-link-type="idl" href="#taskcontroller" id="ref-for-taskcontroller③">TaskController</a></code> interface supports aborting and changing the priority of
 a task or group of tasks.</p>
    <h3 class="heading settled" data-level="3.1" id="sec-task-priority-change-event"><span class="secno">3.1. </span><span class="content">The <code>TaskPriorityChangeEvent</code> Interface</span><a class="self-link" href="#sec-task-priority-change-event"></a></h3>
+   <div class="mdn-anno wrapped after">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/TaskPriorityChangeEvent" title="The TaskPriorityChangeEvent is the interface for the prioritychange event.">TaskPriorityChangeEvent</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
+   <div class="mdn-anno wrapped">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/TaskPriorityChangeEvent/TaskPriorityChangeEvent" title="The TaskPriorityChangeEvent() constructor creates a new TaskPriorityChangeEvent object.">TaskPriorityChangeEvent/TaskPriorityChangeEvent</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed①"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)]
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="taskprioritychangeevent"><code><c- g>TaskPriorityChangeEvent</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#event" id="ref-for-event"><c- n>Event</c-></a> {
   <dfn class="idl-code" data-dfn-for="TaskPriorityChangeEvent" data-dfn-type="constructor" data-export data-lt="TaskPriorityChangeEvent(type, priorityChangeEventInitDict)|constructor(type, priorityChangeEventInitDict)" id="dom-taskprioritychangeevent-taskprioritychangeevent"><code><c- g>constructor</c-></code><a class="self-link" href="#dom-taskprioritychangeevent-taskprioritychangeevent"></a></dfn>(<a class="idl-code" data-link-type="interface" href="https://webidl.spec.whatwg.org/#idl-DOMString" id="ref-for-idl-DOMString"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="TaskPriorityChangeEvent/TaskPriorityChangeEvent(type, priorityChangeEventInitDict), TaskPriorityChangeEvent/constructor(type, priorityChangeEventInitDict)" data-dfn-type="argument" data-export id="dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-type"><code><c- g>type</c-></code><a class="self-link" href="#dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-type"></a></dfn>, <a data-link-type="idl-name" href="#dictdef-taskprioritychangeeventinit" id="ref-for-dictdef-taskprioritychangeeventinit"><c- n>TaskPriorityChangeEventInit</c-></a> <dfn class="idl-code" data-dfn-for="TaskPriorityChangeEvent/TaskPriorityChangeEvent(type, priorityChangeEventInitDict), TaskPriorityChangeEvent/constructor(type, priorityChangeEventInitDict)" data-dfn-type="argument" data-export id="dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-prioritychangeeventinitdict"><code><c- g>priorityChangeEventInitDict</c-></code><a class="self-link" href="#dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-prioritychangeeventinitdict"></a></dfn>);
@@ -1111,10 +1227,40 @@ a task or group of tasks.</p>
     this <code>prioritychange</code> event. </p>
      <p>The new <code class="idl"><a data-link-type="idl" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①⑥">TaskPriority</a></code> can be read with <code>event.target.priority</code>. </p>
    </dl>
+   <div class="mdn-anno wrapped">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/TaskPriorityChangeEvent/previousPriority" title="The readonly previousPriority property of the TaskPriorityChangeEvent interface returns the priority of the corresponding TaskSignal before it was changed and this prioritychange event was emitted.">TaskPriorityChangeEvent/previousPriority</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskPriorityChangeEvent" data-dfn-type="attribute" data-export id="dom-taskprioritychangeevent-previouspriority"><code>previousPriority</code></dfn> getter
 steps are to return the value that the corresponding attribute was initialized
 to.</p>
    <h3 class="heading settled" data-level="3.2" id="sec-task-controller"><span class="secno">3.2. </span><span class="content">The <code>TaskController</code> Interface</span><a class="self-link" href="#sec-task-controller"></a></h3>
+   <div class="mdn-anno wrapped after">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/TaskController" title="The TaskController interface of the Prioritized Task Scheduling API represents a controller object that can be used to both abort and change the priority of one or more prioritized tasks. If there is no need to change task priorities, then AbortController can be used instead.">TaskController</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
 <pre class="idl highlight def"><c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-taskcontrollerinit"><code><c- g>TaskControllerInit</c-></code></dfn> {
   <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①⑦"><c- n>TaskPriority</c-></a> <dfn class="dfn-paneled idl-code" data-default="&quot;user-visible&quot;" data-dfn-for="TaskControllerInit" data-dfn-type="dict-member" data-export data-type="TaskPriority " id="dom-taskcontrollerinit-priority"><code><c- g>priority</c-></code></dfn> = "user-visible";
 };
@@ -1138,6 +1284,21 @@ inherited from <code class="idl"><a data-link-type="idl" href="https://dom.spec.
      <p>Invoking this method will change the associated <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal①④">TaskSignal</a></code>'s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority③">priority</a>, signal the priority change to any observers, and
     cause <code>prioritychange</code> events to be dispatched. </p>
    </dl>
+   <div class="mdn-anno wrapped">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/TaskController/TaskController" title="The TaskController() constructor creates a new TaskController object, optionally setting the initial priority of its associated signal.">TaskController/TaskController</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
    <div class="algorithm" data-algorithm="TaskController()" data-algorithm-for="TaskController">
      The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskController" data-dfn-type="constructor" data-export data-lt="TaskController(init)|constructor(init)|TaskController()|constructor()" id="dom-taskcontroller-taskcontroller"><code>new TaskController(<var>init</var>)</code></dfn> constructor steps are: 
     <ol>
@@ -1149,8 +1310,38 @@ inherited from <code class="idl"><a data-link-type="idl" href="https://dom.spec.
       <p>Set <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this①">this’s</a> <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortcontroller-signal" id="ref-for-abortcontroller-signal">signal</a> to <var>signal</var>.</p>
     </ol>
    </div>
+   <div class="mdn-anno wrapped">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/TaskController/setPriority" title="The setPriority() method of the TaskController interface can be called to set a new priority for this controller&apos;s signal. If a prioritized task is configured to use the signal, this will also change the task priority.">TaskController/setPriority</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskController" data-dfn-type="method" data-export id="dom-taskcontroller-setpriority"><code>setPriority(<var>priority</var>)</code></dfn> method steps are to <a data-link-type="dfn" href="#tasksignal-signal-priority-change" id="ref-for-tasksignal-signal-priority-change">signal priority change</a> on <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this②">this</a>'s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortcontroller-signal" id="ref-for-abortcontroller-signal①">signal</a> given <var>priority</var>.</p>
    <h3 class="heading settled" data-level="3.3" id="sec-task-signal"><span class="secno">3.3. </span><span class="content">The <code>TaskSignal</code> Interface</span><a class="self-link" href="#sec-task-signal"></a></h3>
+   <div class="mdn-anno wrapped">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/TaskSignal" title="The TaskSignal interface of the Prioritized Task Scheduling API represents a signal object that allows you to communicate with a prioritized task, and abort it or change the priority (if required) via a TaskController object.">TaskSignal</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Exposed" id="ref-for-Exposed③"><c- g>Exposed</c-></a>=(<c- n>Window</c->, <c- n>Worker</c->)]
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="tasksignal"><code><c- g>TaskSignal</c-></code></dfn> : <a data-link-type="idl-name" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal⑨"><c- n>AbortSignal</c-></a> {
   <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#enumdef-taskpriority" id="ref-for-enumdef-taskpriority①⑨"><c- n>TaskPriority</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="TaskPriority" href="#dom-tasksignal-priority" id="ref-for-dom-tasksignal-priority②"><c- g>priority</c-></a>;
@@ -1171,7 +1362,37 @@ accept an <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatw
 which is a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set④">set</a> of algorithms, initialized to a new empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set" id="ref-for-ordered-set⑤">set</a>. These
 algorithms are to be executed when its <a data-link-type="dfn" href="#tasksignal-priority-changing" id="ref-for-tasksignal-priority-changing">priority changing</a> value
 is true.</p>
+   <div class="mdn-anno wrapped">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/TaskSignal/priority" title="The read-only priority property of the TaskSignal interface indicates the signal priority.">TaskSignal/priority</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-priority"><code>priority</code></dfn> getter steps are to return <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this③">this</a>'s <a data-link-type="dfn" href="#tasksignal-priority" id="ref-for-tasksignal-priority⑤">priority</a>.</p>
+   <div class="mdn-anno wrapped">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/TaskSignal/prioritychange_event" title="The prioritychange event is sent to a TaskSignal if its priority is changed.">TaskSignal/prioritychange_event</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="attribute" data-export id="dom-tasksignal-onprioritychange"><code>onprioritychange</code></dfn> attribute
 is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes">event handler IDL attribute</a> for the <code>onprioritychange</code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers">event handler</a>, whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type">event handler event type</a> is <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="event" data-export id="eventdef-tasksignal-prioritychange"><code>prioritychange</code></dfn>.</p>
    <p>To <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-add-a-priority-change-algorithm">add a priority change algorithm</dfn> <var>algorithm</var> to a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal②⓪">TaskSignal</a></code> object <var>signal</var>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#set-append" id="ref-for-set-append①">append</a> <var>algorithm</var> to <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority-change-algorithms" id="ref-for-tasksignal-priority-change-algorithms">priority change algorithms</a>.</p>
@@ -1191,6 +1412,21 @@ is an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webap
      <li data-md>
       <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate">For each</a> <var>algorithm</var> of <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority-change-algorithms" id="ref-for-tasksignal-priority-change-algorithms①">priority change algorithms</a>, run <var>algorithm</var>.</p>
      <li data-md>
+      <div class="mdn-anno wrapped">
+       <button class="mdn-anno-btn"><span>MDN</span></button>
+       <div class="feature">
+        <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/TaskSignal/prioritychange_event" title="The prioritychange event is sent to a TaskSignal if its priority is changed.">TaskSignal/prioritychange_event</a></p>
+        <div class="support">
+         <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+         <hr>
+         <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+         <hr>
+         <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+         <hr>
+         <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+        </div>
+       </div>
+      </div>
       <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire" id="ref-for-concept-event-fire">Fire an event</a> named <code class="idl"><a data-link-type="idl" href="#eventdef-tasksignal-prioritychange" id="ref-for-eventdef-tasksignal-prioritychange">prioritychange</a></code> at <var>signal</var> using <code class="idl"><a data-link-type="idl" href="#taskprioritychangeevent" id="ref-for-taskprioritychangeevent">TaskPriorityChangeEvent</a></code>, with its <code class="idl"><a data-link-type="idl" href="#dom-taskprioritychangeevent-previouspriority" id="ref-for-dom-taskprioritychangeevent-previouspriority②">previousPriority</a></code> attribute initialized to <var>previousPriority</var>.</p>
      <li data-md>
       <p>Set <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority-changing" id="ref-for-tasksignal-priority-changing③">priority changing</a> to false.</p>
@@ -1208,6 +1444,21 @@ is initialized as a new <code class="idl"><a data-link-type="idl" href="#schedul
   [<a class="idl-code" data-link-type="extended-attribute" href="https://webidl.spec.whatwg.org/#Replaceable" id="ref-for-Replaceable"><c- g>Replaceable</c-></a>] <c- b>readonly</c-> <c- b>attribute</c-> <a data-link-type="idl-name" href="#scheduler" id="ref-for-scheduler①⑥"><c- n>Scheduler</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="Scheduler" href="#dom-windoworworkerglobalscope-scheduler" id="ref-for-dom-windoworworkerglobalscope-scheduler"><c- g>scheduler</c-></a>;
 };
 </pre>
+   <div class="mdn-anno wrapped">
+    <button class="mdn-anno-btn"><span>MDN</span></button>
+    <div class="feature">
+     <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/scheduler" title="The global read-only scheduler property is the entry point for using the Prioritized Task Scheduling API.">Window/scheduler</a></p>
+     <div class="support">
+      <span class="firefox yes"><span>Firefox</span><span>preview+</span></span><span class="safari no"><span>Safari</span><span>None</span></span><span class="chrome yes"><span>Chrome</span><span>94+</span></span>
+      <hr>
+      <span class="opera no"><span>Opera</span><span>?</span></span><span class="edge_blink yes"><span>Edge</span><span>94+</span></span>
+      <hr>
+      <span class="edge no"><span>Edge (Legacy)</span><span>?</span></span><span class="ie no"><span>IE</span><span>None</span></span>
+      <hr>
+      <span class="firefox_android no"><span>Firefox for Android</span><span>None</span></span><span class="safari_ios no"><span>iOS Safari</span><span>?</span></span><span class="chrome_android no"><span>Chrome for Android</span><span>?</span></span><span class="webview_android no"><span>Android WebView</span><span>?</span></span><span class="samsunginternet_android no"><span>Samsung Internet</span><span>?</span></span><span class="opera_android no"><span>Opera Mobile</span><span>?</span></span>
+     </div>
+    </div>
+   </div>
    <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="WindowOrWorkerGlobalScope" data-dfn-type="attribute" data-export id="dom-windoworworkerglobalscope-scheduler"><code>scheduler</code></dfn> attribute’s
 getter steps are to return <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#this" id="ref-for-this④">this</a>'s <a data-link-type="dfn" href="#windoworworkerglobalscope-scheduler" id="ref-for-windoworworkerglobalscope-scheduler">scheduler</a>.</p>
    <h4 class="heading settled" data-level="4.1.2" id="sec-patches-html-event-loop-definitions"><span class="secno">4.1.2. </span><span class="content"><a href="https://html.spec.whatwg.org/multipage/webappapis.html#definitions-3">Event loop: definitions</a></span><a class="self-link" href="#sec-patches-html-event-loop-definitions"></a></h4>
@@ -1341,7 +1592,7 @@ perspective and do not believe there to be any privacy considerations.</p>
     and are set apart from the normative text
     with <code>class="note"</code>,
     like this: </p>
-   <p class="note" role="note">Note, this is an informative note. </p>
+   <p class="note" role="note">Note, this is an informative note.</p>
    <h3 class="no-ref no-num heading settled" id="w3c-conformant-algorithms"><span class="content">Conformant Algorithms</span><a class="self-link" href="#w3c-conformant-algorithms"></a></h3>
    <p>Requirements phrased in the imperative as part of algorithms
     (such as "strip any leading space characters"
@@ -1914,7 +2165,7 @@ perspective and do not believe there to be any privacy considerations.</p>
      <li><span class="dfn-paneled" id="term-for-struct">struct</span>
     </ul>
    <li>
-    <a data-link-type="biblio">[requestidlecallback]</a> defines the following terms:
+    <a data-link-type="biblio">[REQUESTIDLECALLBACK]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="term-for-dom-window-requestidlecallback">requestIdleCallback()</span>
     </ul>
@@ -1956,7 +2207,7 @@ perspective and do not believe there to be any privacy considerations.</p>
   <h3 class="no-num no-ref heading settled" id="informative"><span class="content">Informative References</span><a class="self-link" href="#informative"></a></h3>
   <dl>
    <dt id="biblio-requestidlecallback">[REQUESTIDLECALLBACK]
-   <dd>Ross McIlroy; Ilya Grigorik. <a href="https://w3c.github.io/requestidlecallback/"><cite>Cooperative Scheduling of Background Tasks</cite></a>. URL: <a href="https://w3c.github.io/requestidlecallback/">https://w3c.github.io/requestidlecallback/</a>
+   <dd>Ross McIlroy; Ilya Grigorik. <a href="https://w3c.github.io/requestidlecallback/"><cite>requestIdleCallback() Cooperative Scheduling of Background Tasks</cite></a>. URL: <a href="https://w3c.github.io/requestidlecallback/">https://w3c.github.io/requestidlecallback/</a>
   </dl>
   <h2 class="no-num no-ref heading settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
 <pre class="idl highlight def"><c- b>enum</c-> <a href="#enumdef-taskpriority"><code><c- g>TaskPriority</c-></code></a> {
@@ -2461,6 +2712,14 @@ document.body.addEventListener("click", function(e) {
 
 });
 </script>
+<script>/* script-mdn-anno */
+
+            document.body.addEventListener("click", (e) => {
+                if(e.target.closest(".mdn-anno-btn")) {
+                    e.target.closest(".mdn-anno").classList.toggle("wrapped");
+                }
+            });
+            </script>
 <script>/* script-var-click-highlighting */
 
     document.addEventListener("click", e=>{
