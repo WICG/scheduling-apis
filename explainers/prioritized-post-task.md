@@ -353,7 +353,7 @@ scheduler.postTask(() => {
   // Listen for the parent task being aborted.
   signal.onabort = () => { subtaskController.abort(); };
 
-  scheduler.postTask(foo, {subtaskSignal, priority: 'background'});
+  scheduler.postTask(foo, {signal: subtaskSignal, priority: 'background'});
 });
 ```
 
