@@ -122,8 +122,10 @@ time.
 analysis.
 
 Our primary goal is to facilitate improving responsiveness on the web. Long
-tasks contribute to poor responsiveness in two primary ways. First, long tasks
-can block the UA from handling pending input because [JS tasks are
+tasks contribute to poor responsiveness in two primary ways.
+
+First, long tasks can block the UA from handling pending input because [JS
+tasks are
 non-preemptable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#run-to-completion).
 A recent analysis of traces captured from Chrome on Android users showed
 script-heavy input-blocking long tasks contributing to slow interactions. Of
@@ -648,7 +650,7 @@ Many thanks for valuable feedback and advice from:
 [@domenic](https://github.com/domenic),
 [@malchata](https://github.com/malchata),
 [@philipwalton](https://github.com/philipwalton), and
-[@tdresser](https://github.com/tdresser)
+[@tdresser](https://github.com/tdresser).
 
 ## Appendix
 
