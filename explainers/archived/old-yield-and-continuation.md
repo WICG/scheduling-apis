@@ -1,6 +1,6 @@
 # Main Thread Scheduling: Yield and Continuation
 
-For an overview of the larger problem space, see [Main Thread Scheduling API](../README.md).
+For an overview of the larger problem space, see [Main Thread Scheduling API](../../README.md).
 
 ## The Problem
 
@@ -31,7 +31,7 @@ yielding.
 
 Visually, the overhead might look something like this:
 
-![Yield Overhead](../images/yield-overhead.png)
+![Yield Overhead](../../images/yield-overhead.png)
 
 This overhead can **disincentivize script from yielding**, which can lead to
 unresponsiveness in apps.
