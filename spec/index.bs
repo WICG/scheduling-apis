@@ -83,14 +83,14 @@ spec:html; type:dfn; for:/; text:task queue
 spec: HTML; urlPrefix: https://html.spec.whatwg.org/multipage/;
   type: attribute;
     text: steps; for:task; url: webappapis.html#concept-task-steps
-    text: source; for:task; url: webappapis.html#concept-source
-    text: document; for:task; url: webappapis.html#concept-document
+    text: source; for:task; url: webappapis.html#concept-task-source
+    text: document; for:task; url: webappapis.html#concept-task-document
     text: script evaluation environment settings object set; for:task; url: webappapis.html#script-evaluation-environment-settings-object-set
     text: associated Document; for:Window; url: window-object.html#concept-document-window
   type: dfn
     text: runnable; for:task; url: webappapis.html#concept-task-runnable
 spec: dom; urlPrefix: https://dom.spec.whatwg.org/#;
-  type: dfn; 
+  type: dfn;
     text: signal; for: AbortController; url: abortcontroller-signal
 spec: requestidlecallback; urlPrefix: https://www.w3.org/TR/requestidlecallback/#;
   type: method;
