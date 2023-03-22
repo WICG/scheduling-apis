@@ -105,13 +105,13 @@ integrate the API into existing code that uses {{AbortSignal|AbortSignals}}.
 </dl>
 
 
-A {{Scheduler}} object has an associated <dfn for="Scheduler">static priority
-task queue map</dfn>, which is a [=map=] from {{TaskPriority}} to [=scheduler
-task queue=].  This map is initialized to a new empty [=map=].
+A {{Scheduler}} object has an associated <dfn for="Scheduler">static priority task queue map</dfn>,
+which is a [=map=] from {{TaskPriority}} to [=scheduler task queue=]. This map
+is initialized to a new empty [=map=].
 
-A {{Scheduler}} object has an associated <dfn for="Scheduler">dynamic priority
-task queue map</dfn>, which is a [=map=] from {{TaskSignal}} to [=scheduler
-task queue=]. This map is initialized to a new empty [=map=].
+A {{Scheduler}} object has an associated <dfn for="Scheduler">dynamic priority task queue map</dfn>,
+which is a [=map=] from {{TaskSignal}} to [=scheduler task queue=]. This map is
+initialized to a new empty [=map=].
 
 Note: We implement *dynamic prioritization* by enqueuing tasks associated with
 a specific {{TaskSignal}} into the same [=scheduler task queue=], and changing
@@ -137,8 +137,8 @@ single per-{{TaskPriority}} [=scheduler task queue=], and move tasks between
 changes more complex.
 
 
-A {{Scheduler}} object has a numeric <dfn for="Scheduler">next enqueue
-order</dfn> which is initialized to 1.
+A {{Scheduler}} object has a numeric <dfn for="Scheduler">next enqueue order</dfn>
+which is initialized to 1.
 
 Note: The [=Scheduler/next enqueue order=] is a strictly increasing number that
 is used to determine task execution order across [=scheduler task queues=] of the
