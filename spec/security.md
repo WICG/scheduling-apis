@@ -45,10 +45,10 @@ amount of information as described below.
 Concretely, an attacker would be able to detect when other tasks are executed
 by the browser by either flooding the system with tasks or by recursively
 scheduling tasks. This is a [known attack](https://www.usenix.org/conference/usenixsecurity17/technical-sessions/presentation/vila)
-that can be executed with existing APIs like {{Window/postMessage(message,
-options)|postMessage()}}. The tasks that run instead of the attacker's can be
-tasks in other event loops as well as other tasks in the attacker's event loop,
-including internal UA tasks (e.g. garbage collection).
+that can be executed with existing APIs like {{Window/postMessage(message, options)|postMessage()}}.
+The tasks that run instead of the attacker's can be tasks in other event loops
+as well as other tasks in the attacker's event loop, including internal UA tasks
+(e.g. garbage collection).
 
 Assuming the attacker can determine with a high degree of probability that the
 task executing is in another event loop, then the question becomes what
