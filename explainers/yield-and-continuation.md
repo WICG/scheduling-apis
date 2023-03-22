@@ -42,6 +42,7 @@
   - [Priorities on `fetch()` and Other Async Tasks](#priorities-on-fetch-and-other-async-tasks)
 - [Stakeholder Feedback / Opposition](#stakeholder-feedback--opposition)
 - [References & Acknowledgements](#references--acknowledgements)
+- [Self-Review Questionnaire: Security and Privacy](#self-review-questionnaire-security-and-privacy)
 - [Appendix](#appendix)
   - [Event Loop Scheduling](#event-loop-scheduling)
 
@@ -651,6 +652,120 @@ Many thanks for valuable feedback and advice from:
 [@malchata](https://github.com/malchata),
 [@philipwalton](https://github.com/philipwalton), and
 [@tdresser](https://github.com/tdresser).
+
+
+## [Self-Review Questionnaire: Security and Privacy](https://w3ctag.github.io/security-questionnaire/)
+
+> 01.  What information does this feature expose, and for what purposes?
+
+This API does not directly expose any information &mdash; it only provides a way
+to yield from the current task and resume in a new task. But like other
+scheduling APIs (prioritized or otherwise), some information about an origin's
+tasks might be learned by another origin sharing the _same thread_. An origin
+could flood the system with continuations, e.g. by calling `scheduler.yield()`
+in a loop or many times consecutively and measuring delay. The malicious origin
+would learn that the UA either chose something else to run or throttled it, and
+might try to infer what ran, e.g. input, rendering, high priority task,
+continuation, etc.
+
+See [Monitoring Another Origin's
+Tasks](https://wicg.github.io/scheduling-apis/#sec-security-monitoring-tasks)
+for more detail and possible mitigations.
+
+> 02.  Do features in your specification expose the minimum amount of information
+>      necessary to implement the intended functionality?
+
+Yes.
+
+> 03.  Do the features in your specification expose personal information,
+>      personally-identifiable information (PII), or information derived from
+>      either?
+
+No.
+
+> 04.  How do the features in your specification deal with sensitive information?
+
+The feature does not interact with sensitive information.
+
+> 05.  Do the features in your specification introduce state
+>      that persists across browsing sessions?
+
+No.
+
+> 06.  Do the features in your specification expose information about the
+>      underlying platform to origins?
+
+No.
+
+> 07.  Does this specification allow an origin to send data to the underlying
+>      platform?
+
+No.
+
+> 08.  Do features in this specification enable access to device sensors?
+
+No.
+
+> 09.  Do features in this specification enable new script execution/loading
+>      mechanisms?
+
+No, the API is used within existing script execution mechanisms.
+
+> 10.  Do features in this specification allow an origin to access other devices?
+
+No.
+
+> 11.  Do features in this specification allow an origin some measure of control over
+>      a user agent's native UI?
+
+No.
+
+> 12.  What temporary identifiers do the features in this specification create or
+>      expose to the web?
+
+None.
+
+> 13.  How does this specification distinguish between behavior in first-party and
+>      third-party contexts?
+
+It does not make a distinction.
+
+> 14.  How do the features in this specification work in the context of a browser’s
+>      Private Browsing or Incognito mode?
+
+No distinction is made; they work the same.
+
+> 15.  Does this specification have both "Security Considerations" and "Privacy
+>      Considerations" sections?
+
+This API will be specified in [Prioritized Task Scheduling](https://w3ctag.github.io/security-questionnaire/),
+which has [security](https://wicg.github.io/scheduling-apis/#sec-security)
+and [privacy](https://wicg.github.io/scheduling-apis/#sec-privacy)
+considerations sections relevant to this API, particularly the section about
+[Monitoring another Origin's tasks](https://wicg.github.io/scheduling-apis/#sec-security-monitoring-tasks).
+The relevant sections will be updated to reflect the new API.
+
+> 16.  Do features in your specification enable origins to downgrade default
+>      security protections?
+
+No.
+
+> 17.  What happens when a document that uses your feature is kept alive in BFCache
+>      (instead of getting destroyed) after navigation, and potentially gets reused
+>      on future navigations back to the document?
+
+The feature will resume working. `yield()` continuations will be implemented as
+HTML tasks, and BFCache behavior is inherited from how the event loop works
+(tasks stop running in BFCache and resume if reused).
+
+> 18.  What happens when a document that uses your feature gets disconnected?
+
+The feature stops working when a document is detached. The event loops stops
+running tasks for detached documents, so any unresolved promises will not be
+resolved or rejected. Calls to `scheduler.yield()` on a `scheduler` whose
+document is detached will return a rejected promise.
+
+> 19.  What should this questionnaire have asked?
 
 ## Appendix
 
