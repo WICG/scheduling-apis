@@ -120,27 +120,24 @@ accept an {{AbortSignal}}. Additionally, {{Scheduler/postTask()}} accepts an
   <dd><p>Returns the {{TaskPriority}} of the signal.
 </dl>
 
-A {{TaskSignal}} object has an associated {{TaskPriority}}
-<dfn for=TaskSignal>priority</dfn>.
+A {{TaskSignal}} object has an associated <dfn for=TaskSignal>priority</dfn> (a {{TaskPriority}}).
 
-A {{TaskSignal}} object has an associated <dfn for=TaskSignal>priority changing</dfn>
-[=boolean=], intially set to false.
+A {{TaskSignal}} object has an associated <dfn for=TaskSignal>priority changing</dfn> (a
+[=boolean=]), which is intially set to false.
 
 A {{TaskSignal}} object has associated <dfn for=TaskSignal>priority change algorithms</dfn>,
-which is a [=set=] of algorithms, initialized to a new empty [=set=]. These
-algorithms are to be executed when its [=TaskSignal/priority changing=] value
-is true.
+(a [=set=] of algorithms that are to be executed when its [=TaskSignal/priority changing=] value
+is true), which is initially empty.
 
-A {{TaskSignal}} object has an associated <dfn for=TaskSignal>source signal</dfn> {{TaskSignal}},
-which is a weak reference to a {{TaskSignal}} that the object is dependent on for its
-[=TaskSignal/priority=]. Unless specified otherwise, its value is null.
+A {{TaskSignal}} object has an associated <dfn for=TaskSignal>source signal</dfn> {{TaskSignal}} (a
+weak reference to a {{TaskSignal}} that the object is dependent on for its [=TaskSignal/priority=]),
+which is initially null.
 
-A {{TaskSignal}} object has associated <dfn for=TaskSignal>dependent signals</dfn>, which is a
-[=set=] of weak references to {{TaskSignal}} objects that are dependent on it for their
-[=TaskSignal/priority=]. Unless specified otherwise, its value is the empty set.
+A {{TaskSignal}} object has associated <dfn for=TaskSignal>dependent signals</dfn> (a weak [=set=]
+of {{TaskSignal}} objects that are dependent on the object for their [=TaskSignal/priority=]), which
+is initially empty.
 
-A {{TaskSignal}} <dfn for=TaskSignal lt="has fixed priority|have fixed priority">has fixed priority</dfn>
-is a [=AbortSignal/composite=] signal with a null [=TaskSignal/source signal=].
+<br>
 
 The <dfn attribute for="TaskSignal">priority</dfn> getter steps are to return
 [=this=]'s [=TaskSignal/priority=].
@@ -154,11 +151,16 @@ To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
 {{TaskSignal}} object |signal|, [=set/append=] |algorithm| to |signal|'s
 [=TaskSignal/priority change algorithms=].
 
+<br>
+
+A {{TaskSignal}} <dfn for=TaskSignal lt="has fixed priority|have fixed priority">has fixed priority</dfn>
+if it is a [=AbortSignal/composite=] signal with a null [=TaskSignal/source signal=].
+
 <div algorithm>
   The static <dfn method for=TaskSignal><code>any(|signals|, |init|)</code></dfn> method steps are:
 
   1. Let |resultSignal| be the result of <a for=AbortSignal>creating a composite signal</a> from
-     |signals| with the {{TaskSignal}} interface.
+     |signals| using the {{TaskSignal}} interface and the [=current realm=].
   1. If |init|["{{TaskSignalAnyInit/priority}}"] is a {{TaskPriority}}, then:
     1. Set |resultSignal|'s [=TaskSignal/priority=] to |init|["{{TaskSignalAnyInit/priority}}"].
   1. Otherwise:
@@ -168,7 +170,7 @@ To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
       1. If |sourceSignal|'s [=AbortSignal/composite=] is true, then set |sourceSignal| to
          |sourceSignal|'s [=TaskSignal/source signal=].
       1. Assert: |sourceSignal| is not [=AbortSignal/composite=].
-      1. Set |resultSignal|'s [=TaskSignal/source signal=] to |sourceSignal|.
+      1. Set |resultSignal|'s [=TaskSignal/source signal=] to a weak reference to |sourceSignal|.
       1. [=set/Append=] |resultSignal| to |sourceSignal|'s [=TaskSignal/dependent signals=].
   1. Return |resultSignal|.
 </div>
