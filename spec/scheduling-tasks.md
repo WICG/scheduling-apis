@@ -218,7 +218,7 @@ Processing Model {#sec-scheduling-tasks-processing-model}
 <div algorithm="schedule a postTask task">
   To <dfn lt="schedule a postTask task|scheduling a postTask task">schedule a postTask task</dfn>
   for {{Scheduler}} |scheduler| given a {{SchedulerPostTaskCallback}} |callback| and
-  {{SchedulerPostTaskOptions}} |options|, run the following steps:
+  {{SchedulerPostTaskOptions}} |options|:
 
   1. Let |result| be [=a new promise=].
   1. Let |signal| be |options|["{{SchedulerPostTaskOptions/signal}}"] if
@@ -310,12 +310,12 @@ see [whatwg/html#5925](https://github.com/whatwg/html/issues/5925).
 
 <div algorithm="get the runnable task queues">
   To <dfn lt="get the runnable task queues|getting the runnable task queues">get the runnable task queues</dfn>
-  for a {{Scheduler}} |scheduler|, run the following steps:
+  for a {{Scheduler}} |scheduler|:
 
-  1. Let |queues| be the result of [=map/get the values|getting the values=] of
-     |scheduler|'s [=Scheduler/static priority task queue map=].
-  1. [=list/Extend=] |queues| with the result of [=map/get the values|getting the values=]
-     of |scheduler|'s [=Scheduler/dynamic priority task queue map=].
+  1. Let |queues| be the result of [=map/get the values|getting the values=] of |scheduler|'s
+     [=Scheduler/static priority task queue map=].
+  1. [=list/Extend=] |queues| with the result of [=map/get the values|getting the values=] of
+     |scheduler|'s [=Scheduler/dynamic priority task queue map=].
   1. [=list/Remove=] from |queues| any |queue| such that |queue|'s [=scheduler task queue/tasks=]
      do not contain a [=task/runnable=] [=scheduler task=].
   1. Return |queues|.
