@@ -177,7 +177,7 @@ if it is a [=AbortSignal/composite=] signal with a null [=TaskSignal/source sign
 
 <div algorithm>
   To <dfn for="TaskSignal">signal priority change</dfn> on a {{TaskSignal}}
-  object |signal|, given a {{TaskPriority}} |priority|, run the following steps:
+  object |signal|, given a {{TaskPriority}} |priority|:
 
   1. If |signal|'s [=TaskSignal/priority changing=] is true, then [=exception/throw=]
      a "{{NotAllowedError!!exception}}" {{DOMException}}.
