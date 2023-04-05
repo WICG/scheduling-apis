@@ -7,20 +7,22 @@ various APIs and their statuses, please see the repo's
 
 ## Features and Minimum Versions
 
+### Experimental Features
+
+ | Feature | Flag(s) | Minimum Version |
+ | --- | --- | --- |
+ | [`scheduler.yield()`](https://github.com/WICG/scheduling-apis/blob/main/explainers/yield-and-continuation.md) | `SchedulerYield` | 113.0.5672.24 |
+ | [`TaskSignal.any()`](https://github.com/shaseley/abort-signal-any) | `AbortSignalAny` | 112.0.5599.0 |
+
+
+### Shipped Features
+
  | Feature | Minimum Version |
  | --- | --- |
- | `scheduler.postTask()` with the current Promise-based API shape | 81.0.4044.9 |
- | `prioritychange` events and `onprioritychange` |  82.0.4084.0 |
- | `scheduler.currentTaskSignal` | 82.0.4084.0 |
- | TaskPriorityChangeEvent with `previousPriority` property | 91.0.4469.4 |
- | `postTask` and `currentTaskSignal` on Workers | 93.0.4549.3 |
-
-### Feature Flags
-
- | Feature | Flag(s) |
- | --- | --- |
- | `scheduler.postTask()`, `TaskController`, `TaskSignal` | `WebScheduler` |
- | `scheduler.currentTaskSignal` | `WebScheduler`,`SchedulerCurrentTaskSignal` |
+ | `scheduler.postTask()` (Window and Workers) | M94 |
+ | `TaskController` and `TaskSignal` | M94 |
+ | `prioritychange` events and `onprioritychange` | M94 |
+ | TaskPriorityChangeEvent | M94 |
 
 ## Local Testing
 
@@ -36,19 +38,18 @@ chrome://flags/#enable-experimental-web-platform-features
 appropriate [flags](#feature-flags) at the command line, for example:
 
 ```
---enable-blink-features=WebScheduler
+--enable-blink-features=SchedulerYield
 ```
 
 ## Origin Trials
 
 No [Origin Trials](https://www.chromium.org/blink/origin-trials) for scheduling
-APIs are currently running. We previously ran origin trials for
-`scheduler.postTask()` in Chrome 82&ndash;84 and Chrome 88&ndash;89.
+APIs are currently running, but an Origin Trial for `scheduler.yield()` is being
+planned for sometime in 2023 Q2.
 
 ## Examples
 
-Sample code can be found [here](sample-code/) and in the
-[explainer](./explainers/prioritized-post-task.md).
+Sample code can be found in the [explainers](./explainers/).
 
 ## Filing Issues
 
