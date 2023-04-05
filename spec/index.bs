@@ -89,6 +89,7 @@ spec: HTML; urlPrefix: https://html.spec.whatwg.org/multipage/;
     text: associated Document; for:Window; url: window-object.html#concept-document-window
   type: dfn
     text: runnable; for:task; url: webappapis.html#concept-task-runnable
+    text: posted message task source; url: web-messaging.html#posted-message-task-source
 spec: dom; urlPrefix: https://dom.spec.whatwg.org/#;
   type: dfn;
     text: signal; for: AbortController; url: abortcontroller-signal
