@@ -129,9 +129,9 @@ A {{TaskSignal}} object has associated <dfn for=TaskSignal>priority change algor
 (a [=set=] of algorithms that are to be executed when its [=TaskSignal/priority changing=] value
 is true), which is initially empty.
 
-A {{TaskSignal}} object has an associated <dfn for=TaskSignal>source signal</dfn> {{TaskSignal}} (a
-weak reference to a {{TaskSignal}} that the object is dependent on for its [=TaskSignal/priority=]),
-which is initially null.
+A {{TaskSignal}} object has an associated <dfn for=TaskSignal>source signal</dfn> (a weak refernece
+to a {{TaskSignal}} that the object is dependent on for its [=TaskSignal/priority=]), which is
+initially null.
 
 A {{TaskSignal}} object has associated <dfn for=TaskSignal>dependent signals</dfn> (a weak [=set=]
 of {{TaskSignal}} objects that are dependent on the object for their [=TaskSignal/priority=]), which
