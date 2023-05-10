@@ -137,6 +137,9 @@ A {{TaskSignal}} object has associated <dfn for=TaskSignal>dependent signals</df
 of {{TaskSignal}} objects that are dependent on the object for their [=TaskSignal/priority=]), which
 is initially empty.
 
+A {{TaskSignal}} object has an associated <dfn for=TaskSignal>dependent</dfn> (a
+boolean), which is initially false.
+
 <br>
 
 The <dfn attribute for="TaskSignal">priority</dfn> getter steps are to return
@@ -154,22 +157,23 @@ To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
 <br>
 
 A {{TaskSignal}} <dfn for=TaskSignal lt="has fixed priority|have fixed priority">has fixed priority</dfn>
-if it is a [=AbortSignal/composite=] signal with a null [=TaskSignal/source signal=].
+if it is a [=TaskSignal/dependent=] signal with a null [=TaskSignal/source signal=].
 
 <div algorithm>
   The static <dfn method for=TaskSignal><code>any(|signals|, |init|)</code></dfn> method steps are:
 
-  1. Let |resultSignal| be the result of <a for=AbortSignal>creating a composite signal</a> from
+  1. Let |resultSignal| be the result of <a for=AbortSignal>creating a dependent signal</a> from
      |signals| using the {{TaskSignal}} interface and the [=current realm=].
+  1. Set |resultSignal|'s [=TaskSignal/dependent=] to true.
   1. If |init|["{{TaskSignalAnyInit/priority}}"] is a {{TaskPriority}}, then:
     1. Set |resultSignal|'s [=TaskSignal/priority=] to |init|["{{TaskSignalAnyInit/priority}}"].
   1. Otherwise:
     1. Set |sourceSignal| to |init|["{{TaskSignalAnyInit/priority}}"].
     1. Set |resultSignal|'s [=TaskSignal/priority=] to |sourceSignal|'s [=TaskSignal/priority=].
     1. If |sourceSignal| does not [=TaskSignal/have fixed priority=], then:
-      1. If |sourceSignal|'s [=AbortSignal/composite=] is true, then set |sourceSignal| to
+      1. If |sourceSignal|'s [=TaskSignal/dependent=] is true, then set |sourceSignal| to
          |sourceSignal|'s [=TaskSignal/source signal=].
-      1. Assert: |sourceSignal| is not [=AbortSignal/composite=].
+      1. Assert: |sourceSignal| is not [=TaskSignal/dependent=].
       1. Set |resultSignal|'s [=TaskSignal/source signal=] to a weak reference to |sourceSignal|.
       1. [=set/Append=] |resultSignal| to |sourceSignal|'s [=TaskSignal/dependent signals=].
   1. Return |resultSignal|.
@@ -197,7 +201,7 @@ if it is a [=AbortSignal/composite=] signal with a null [=TaskSignal/source sign
 
 ### Garbage Collection {#sec-task-signal-garbage-collection}
 
-A [=AbortSignal/composite=] {{TaskSignal}} object must not be garbage collected while its
+A [=TaskSignal/dependent=] {{TaskSignal}} object must not be garbage collected while its
 [=TaskSignal/source signal=] is non-null and it has registered event listeners for its
 {{TaskSignal/prioritychange}} event or its [=TaskSignal/priority change algorithms=] is non-empty.
 

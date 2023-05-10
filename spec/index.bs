@@ -89,10 +89,9 @@ spec: HTML; urlPrefix: https://html.spec.whatwg.org/multipage/;
     text: associated Document; for:Window; url: window-object.html#concept-document-window
   type: dfn
     text: runnable; for:task; url: webappapis.html#concept-task-runnable
-spec: dom; urlPrefix: https://dom.spec.whatwg.org/#;
+spec: dom; urlPrefix: https://whatpr.org/dom/1152.html#
   type: dfn;
-    text: composite; for:AbortSignal; url: abortsignal-composite
-    text: creating a composite signal; for:AbortSignal; url: create-a-composite-abort-signal
+    text: creating a dependent signal; for:AbortSignal; url: create-a-dependent-abort-signal
     text: signal; for: AbortController; url: abortcontroller-signal
 spec: requestidlecallback; urlPrefix: https://www.w3.org/TR/requestidlecallback/#;
   type: method;
