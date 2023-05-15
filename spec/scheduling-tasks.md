@@ -264,21 +264,21 @@ see [whatwg/html#5925](https://github.com/whatwg/html/issues/5925).
   for a {{Scheduler}} |scheduler| given an {{AbortSignal}} or null |signal|, and
   a {{TaskPriority}} or null |priority|:
 
-  1. If |priority| is null, |signal| is not null and [=implements=] the {{TaskSignal}}
-     interface, and |signal| [=TaskSignal/has fixed priority=], then set |priority| to
-     |signal|'s [=TaskSignal/priority=].
   1. If |priority| is null and |signal| is not null and |signal| [=implements=]
      the {{TaskSignal}} interface, then
-    1. If |scheduler|'s [=Scheduler/dynamic priority task queue map=] does not
-       [=map/contain=] |signal|, then
-      1. Let |queue| be the result of [=creating a scheduler task queue=] given
-         |signal|'s [=TaskSignal/priority=].
-      1. Set [=Scheduler/dynamic priority task queue map=][|signal|] to |queue|.
-      1. [=TaskSignal/Add a priority change algorithm=] to |signal| that
-         runs the following steps:
-        1. Set |queue|'s [=scheduler task queue/priority=] to |signal|'s
-           {{TaskSignal/priority}}.
-    1. Return [=Scheduler/dynamic priority task queue map=][|signal|].
+    1. If |signal| [=TaskSignal/has fixed priority=], then set |priority| to |signal|'s
+       [=TaskSignal/priority=].
+    1. Otherwise:
+        1. If |scheduler|'s [=Scheduler/dynamic priority task queue map=] does not
+           [=map/contain=] |signal|, then
+          1. Let |queue| be the result of [=creating a scheduler task queue=] given
+             |signal|'s [=TaskSignal/priority=].
+          1. Set [=Scheduler/dynamic priority task queue map=][|signal|] to |queue|.
+          1. [=TaskSignal/Add a priority change algorithm=] to |signal| that
+             runs the following steps:
+            1. Set |queue|'s [=scheduler task queue/priority=] to |signal|'s
+               {{TaskSignal/priority}}.
+        1. Return [=Scheduler/dynamic priority task queue map=][|signal|].
   1. Otherwise |priority| is used to determine the task queue:
     1. If |priority| is null, set |priority| to "{{TaskPriority/user-visible}}".
     1. If |scheduler|'s [=Scheduler/static priority task queue map=] does not

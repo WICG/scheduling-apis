@@ -168,7 +168,7 @@ if it is a [=TaskSignal/dependent=] signal with a null [=TaskSignal/source signa
   1. If |init|["{{TaskSignalAnyInit/priority}}"] is a {{TaskPriority}}, then:
     1. Set |resultSignal|'s [=TaskSignal/priority=] to |init|["{{TaskSignalAnyInit/priority}}"].
   1. Otherwise:
-    1. Set |sourceSignal| to |init|["{{TaskSignalAnyInit/priority}}"].
+    1. Let |sourceSignal| be |init|["{{TaskSignalAnyInit/priority}}"].
     1. Set |resultSignal|'s [=TaskSignal/priority=] to |sourceSignal|'s [=TaskSignal/priority=].
     1. If |sourceSignal| does not [=TaskSignal/have fixed priority=], then:
       1. If |sourceSignal|'s [=TaskSignal/dependent=] is true, then set |sourceSignal| to
@@ -199,7 +199,7 @@ if it is a [=TaskSignal/dependent=] signal with a null [=TaskSignal/source signa
   1. Set |signal|'s [=TaskSignal/priority changing=] to false.
 </div>
 
-### Garbage Collection {#sec-task-signal-garbage-collection}
+### Garbage Collection ### {#sec-task-signal-garbage-collection}
 
 A [=TaskSignal/dependent=] {{TaskSignal}} object must not be garbage collected while its
 [=TaskSignal/source signal=] is non-null and it has registered event listeners for its
