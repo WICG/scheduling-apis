@@ -89,12 +89,16 @@ spec: HTML; urlPrefix: https://html.spec.whatwg.org/multipage/;
     text: associated Document; for:Window; url: window-object.html#concept-document-window
   type: dfn
     text: runnable; for:task; url: webappapis.html#concept-task-runnable
-spec: dom; urlPrefix: https://dom.spec.whatwg.org/#;
+spec: dom; urlPrefix: https://dom.spec.whatwg.org/#
   type: dfn;
+    text: creating a dependent signal; for:AbortSignal; url: create-a-dependent-abort-signal
     text: signal; for: AbortController; url: abortcontroller-signal
 spec: requestidlecallback; urlPrefix: https://www.w3.org/TR/requestidlecallback/#;
   type: method;
     text: requestIdleCallback(); for: Window; url: dom-window-requestidlecallback
+spec: ECMASCRIPT urlPrefix: https://tc39.es/ecma262/#;
+  type: dfn
+    text: current realm; url: current-realm
 </pre>
 
 <pre class=include>

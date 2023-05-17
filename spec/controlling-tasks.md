@@ -90,8 +90,14 @@ The `TaskSignal` Interface {#sec-task-signal}
 ---------------------
 
 <pre class='idl'>
+  dictionary TaskSignalAnyInit {
+    (TaskPriority or TaskSignal) priority = "user-visible";
+  };
+
   [Exposed=(Window, Worker)]
   interface TaskSignal : AbortSignal {
+    [NewObject] static TaskSignal _any(sequence&lt;AbortSignal> signals, optional TaskSignalAnyInit init = {});
+
     readonly attribute TaskPriority priority;
 
     attribute EventHandler onprioritychange;
@@ -103,22 +109,38 @@ accept an {{AbortSignal}}. Additionally, {{Scheduler/postTask()}} accepts an
 {{AbortSignal}}, which can be useful if dynamic prioritization is not needed.
 
 <dl class="domintro non-normative">
+  <dt><code>TaskSignal . <a method for=TaskSignal lt="any(signals, init)">any</a>(|signals|, |init|)</code>
+  <dd>Returns a {{TaskSignal}} instance which will be aborted if any of |signals| is aborted. Its
+  [=AbortSignal/abort reason=] will be set to whichever one of |signals| caused it to be aborted.
+  The signal's [=TaskSignal/priority=] will be determined by |init|'s {{TaskSignalAnyInit/priority}},
+  which can either be a fixed {{TaskPriority}} or a {{TaskSignal}}, in which case the new signal's
+  [=TaskSignal/priority=] will change along with this signal.
+
   <dt><code>signal . {{TaskSignal/priority}}</code>
-  <dd>
-    <p>Returns the {{TaskPriority}} of the signal.
-  </dd>
+  <dd><p>Returns the {{TaskPriority}} of the signal.
 </dl>
 
-A {{TaskSignal}} object has an associated {{TaskPriority}}
-<dfn for=TaskSignal>priority</dfn>.
+A {{TaskSignal}} object has an associated <dfn for=TaskSignal>priority</dfn> (a {{TaskPriority}}).
 
-A {{TaskSignal}} object has an associated <dfn for=TaskSignal>priority changing</dfn>
-[=boolean=], intially set to false.
+A {{TaskSignal}} object has an associated <dfn for=TaskSignal>priority changing</dfn> (a
+[=boolean=]), which is intially set to false.
 
 A {{TaskSignal}} object has associated <dfn for=TaskSignal>priority change algorithms</dfn>,
-which is a [=set=] of algorithms, initialized to a new empty [=set=]. These
-algorithms are to be executed when its [=TaskSignal/priority changing=] value
-is true.
+(a [=set=] of algorithms that are to be executed when its [=TaskSignal/priority changing=] value
+is true), which is initially empty.
+
+A {{TaskSignal}} object has an associated <dfn for=TaskSignal>source signal</dfn> (a weak refernece
+to a {{TaskSignal}} that the object is dependent on for its [=TaskSignal/priority=]), which is
+initially null.
+
+A {{TaskSignal}} object has associated <dfn for=TaskSignal>dependent signals</dfn> (a weak [=set=]
+of {{TaskSignal}} objects that are dependent on the object for their [=TaskSignal/priority=]), which
+is initially empty.
+
+A {{TaskSignal}} object has an associated <dfn for=TaskSignal>dependent</dfn> (a
+boolean), which is initially false.
+
+<br>
 
 The <dfn attribute for="TaskSignal">priority</dfn> getter steps are to return
 [=this=]'s [=TaskSignal/priority=].
@@ -132,9 +154,34 @@ To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
 {{TaskSignal}} object |signal|, [=set/append=] |algorithm| to |signal|'s
 [=TaskSignal/priority change algorithms=].
 
+<br>
+
+A {{TaskSignal}} <dfn for=TaskSignal lt="has fixed priority|have fixed priority">has fixed priority</dfn>
+if it is a [=TaskSignal/dependent=] signal with a null [=TaskSignal/source signal=].
+
+<div algorithm>
+  The static <dfn method for=TaskSignal><code>any(|signals|, |init|)</code></dfn> method steps are:
+
+  1. Let |resultSignal| be the result of <a for=AbortSignal>creating a dependent signal</a> from
+     |signals| using the {{TaskSignal}} interface and the [=current realm=].
+  1. Set |resultSignal|'s [=TaskSignal/dependent=] to true.
+  1. If |init|["{{TaskSignalAnyInit/priority}}"] is a {{TaskPriority}}, then:
+    1. Set |resultSignal|'s [=TaskSignal/priority=] to |init|["{{TaskSignalAnyInit/priority}}"].
+  1. Otherwise:
+    1. Let |sourceSignal| be |init|["{{TaskSignalAnyInit/priority}}"].
+    1. Set |resultSignal|'s [=TaskSignal/priority=] to |sourceSignal|'s [=TaskSignal/priority=].
+    1. If |sourceSignal| does not [=TaskSignal/have fixed priority=], then:
+      1. If |sourceSignal|'s [=TaskSignal/dependent=] is true, then set |sourceSignal| to
+         |sourceSignal|'s [=TaskSignal/source signal=].
+      1. Assert: |sourceSignal| is not [=TaskSignal/dependent=].
+      1. Set |resultSignal|'s [=TaskSignal/source signal=] to a weak reference to |sourceSignal|.
+      1. [=set/Append=] |resultSignal| to |sourceSignal|'s [=TaskSignal/dependent signals=].
+  1. Return |resultSignal|.
+</div>
+
 <div algorithm>
   To <dfn for="TaskSignal">signal priority change</dfn> on a {{TaskSignal}}
-  object |signal|, given a {{TaskPriority}} |priority|, run the following steps:
+  object |signal|, given a {{TaskPriority}} |priority|:
 
   1. If |signal|'s [=TaskSignal/priority changing=] is true, then [=exception/throw=]
      a "{{NotAllowedError!!exception}}" {{DOMException}}.
@@ -147,8 +194,16 @@ To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
   1. [=Fire an event=] named {{TaskSignal/prioritychange}} at |signal| using
      {{TaskPriorityChangeEvent}}, with its {{TaskPriorityChangeEvent/previousPriority}}
      attribute initialized to |previousPriority|.
+  1. [=list/iterate|For each=] |dependentSignal| of |signal|'s [=TaskSignal/dependent signals=],
+     [=TaskSignal/signal priority change=] on |dependentSignal| with |priority|.
   1. Set |signal|'s [=TaskSignal/priority changing=] to false.
 </div>
+
+### Garbage Collection ### {#sec-task-signal-garbage-collection}
+
+A [=TaskSignal/dependent=] {{TaskSignal}} object must not be garbage collected while its
+[=TaskSignal/source signal=] is non-null and it has registered event listeners for its
+{{TaskSignal/prioritychange}} event or its [=TaskSignal/priority change algorithms=] is non-empty.
 
 Examples {#sec-controlling-tasks-examples}
 ---------------------
