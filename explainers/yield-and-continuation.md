@@ -59,7 +59,7 @@ There are typically two approaches to breaking up long tasks:
 
 1. Break long tasks into smaller pieces, e.g. at selected function boundaries,
    scheduling the pieces as subtasks with `scheduler.postTask()` or another
-   macrotask scheduling API
+   task scheduling API
 2. Periodically or strategically yield to the event loop by scheduling a _task
    continuation_ (continuation)<sup>[1](#footnote1)</sup>, again with
    `scheduler.postTask()` or similar
