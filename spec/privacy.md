@@ -1,5 +1,4 @@
-Privacy Considerations {#sec-privacy}
-=====================
+# Privacy Considerations # {#sec-privacy}
 
 <div class="non-normative">
 

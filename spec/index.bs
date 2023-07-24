@@ -69,6 +69,19 @@ Include MDN Panels: maybe
   top: -0.8em;
   left: -0.8em;
 }
+
+/* WHATWG-style <hr>s, instead of WICG-style. Specific selector is necessary to override WICG styles. */
+:not(.head) > :not(.head) + hr {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 2em 0;
+  height: auto;
+}
+:not(.head) > :not(.head) + hr::before {
+  content: none;
+}
 </style>
 
 <pre class=link-defaults>
