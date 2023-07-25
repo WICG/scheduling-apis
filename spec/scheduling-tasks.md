@@ -295,7 +295,7 @@ see [whatwg/html#5925](https://github.com/whatwg/html/issues/5925).
   null |signal|, a SchedulerPostTaskCallback |callback|, and a promise |result|:
 
   1. Let |global| be the [=relevant global object=] for |scheduler|.
-  1. Let |document| be |global|'s <a attribute for="Window">associated `Document`</a>
+  1. Let |document| be |global|'s <a attribute for="Window">associated <code>Document</code></a>
      if |global| is a {{Window}} object; otherwise null.
   1. Let |enqueue order| be |scheduler|'s [=Scheduler/next enqueue order=].
   1. Increment |scheduler|'s [=Scheduler/next enqueue order=] by 1.
