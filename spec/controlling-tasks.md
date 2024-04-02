@@ -194,6 +194,15 @@ object |signal|, [=set/append=] |algorithm| to |signal|'s [=TaskSignal/priority 
   1. Set |signal|'s [=TaskSignal/priority changing=] to false.
 </div>
 
+<div algorithm>
+  To <dfn>create a fixed priority unabortable task signal</dfn> given {{TaskPriority}} |priority|
+  and a |realm|.
+
+  1. Let |init| be a new {{TaskSignalAnyInit}}.
+  1. Set |init|["{{TaskSignalAnyInit/priority}}"] to |priority|.
+  1. Return the result of [=creating a dependent task signal=] from « », |init|, and |realm|.
+</div>
+
 ### Garbage Collection ### {#sec-task-signal-garbage-collection}
 
 A [=TaskSignal/dependent=] {{TaskSignal}} object must not be garbage collected while its
