@@ -11,11 +11,11 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
       with:
-        python-version: '3.8'
-    - run: pip install bikeshed
+        python-version: '3.11'
+    - run: pipx install bikeshed
     - run: bikeshed update
     - name: Build
       run: make
