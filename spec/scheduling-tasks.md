@@ -159,7 +159,21 @@ A <dfn>scheduler task queue</dfn> is a [=struct=] with the following [=struct/it
 :: A {{TaskPriority}}.
 : <dfn for="scheduler task queue">tasks</dfn>
 :: A [=set=] of [=scheduler tasks=].
+: <dfn for="scheduler task queue">removal steps</dfn>
+:: An algorithm.
 
+<br/>
+
+A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
+
+: <dfn for="task handle">task</dfn>
+:: A [=scheduler task=] or null.
+: <dfn for="task handle">queue</dfn>
+:: A [=scheduler task queue=] or null.
+: <dfn for="task handle">abort steps</dfn>
+:: An algorithm.
+: <dfn for="task handle">task complete steps</dfn>
+:: An algorithm.
 
 ## Processing Model ## {#sec-scheduling-tasks-processing-model}
 
@@ -169,12 +183,34 @@ A <dfn>scheduler task queue</dfn> is a [=struct=] with the following [=struct/it
 </div>
 
 <div algorithm>
-  To <dfn>create a scheduler task queue</dfn> with {{TaskPriority}} |priority|:
+  To <dfn>create a scheduler task queue</dfn> with {{TaskPriority}} |priority| and |removalSteps|:
 
   1. Let |queue| be a new [=scheduler task queue=].
   1. Set |queue|'s [=scheduler task queue/priority=] to |priority|.
   1. Set |queue|'s [=scheduler task queue/tasks=] to a new empty [=set=].
+  1. Set |queue|'s [=scheduler task queue/removal steps=] to |removalSteps|.
   1. Return |queue|.
+</div>
+
+<div algorithm>
+  To <dfn>create a task handle</dfn> given a promise |result| and an {{AbortSignal}} or null
+  |signal|:
+
+  1. Let |handle| be a new [=task handle=].
+  1. Set |handle|'s [=task handle/task=] to null.
+  1. Set |handle|'s [=task handle/queue=] to null.
+  1. Set |handle|'s [=task handle/abort steps=] to the following steps:
+    1. [=Reject=] |result| with |signal|'s [=AbortSignal/abort reason=].
+    1. If |task| is not null, then
+      1. [=scheduler task queue/Remove=] |task| from |queue|.
+      1. If |queue| is [=scheduler task queue/empty=], then run |queue|'s [=scheduler task
+         queue/removal steps=].
+  1. Set |handle|'s [=task handle/task complete steps=] to the following steps:
+    1. If |signal| is not null, then [=AbortSignal/remove=] |handle|'s [=task handle/abort steps=]
+       from |signal|.
+    1. If |queue| is [=scheduler task queue/empty=], then run |queue|'s [=scheduler task
+       queue/removal steps=].
+  1. Return |handle|.
 </div>
 
 <div algorithm>
@@ -209,6 +245,12 @@ A <dfn>scheduler task queue</dfn> is a [=struct=] with the following [=struct/it
   queue=] |queue|, [=set/remove=] |task| from |queue|'s [=scheduler task queue/tasks=].
 </div>
 
+<div algorithm>
+  A [=scheduler task queue=] |queue| is <dfn for="scheduler task queue">empty</dfn> if |queue|'s
+  [=scheduler task queue/tasks=] is [=list/empty=].
+</div>
+
+
 ### Scheduling Tasks ### {#sec-scheduler-alg-scheduling-tasks}
 
 <div algorithm>
@@ -220,17 +262,21 @@ A <dfn>scheduler task queue</dfn> is a [=struct=] with the following [=struct/it
      |options|["{{SchedulerPostTaskOptions/signal}}"] [=map/exists=], or otherwise null.
   1. If |signal| is not null and it is [=AbortSignal/aborted=], then [=reject=] |result| with
      |signal|'s [=AbortSignal/abort reason=] and return |result|.
+  1. Let |handle| be the result of [=creating a task handle=] given |result| and |signal|.
+  1. If |signal| is not null, then [=AbortSignal/add=] |handle|'s [=task handle/abort steps=] to
+     |signal|.
   1. Let |priority| be |options|["{{SchedulerPostTaskOptions/priority}}"] if
      |options|["{{SchedulerPostTaskOptions/priority}}"] [=map/exists=], or otherwise null.
-  1. Let |queue| be the result of [=selecting the scheduler task queue=] for |scheduler| given
-     |signal| and |priority|.
+  1. Let |enqueueSteps| be the following steps:
+    1. Let |queue| be the result of [=selecting the scheduler task queue=] for |scheduler| given
+       |signal| and |priority|.
+    1. [=Schedule a task to invoke a callback=] for |scheduler| given |queue|, |callback|, |result|,
+       and |handle|.
   1. Let |delay| be |options|["{{SchedulerPostTaskOptions/delay}}"].
   1. If |delay| is greater than 0, then [=run steps after a timeout=] given |scheduler|'s [=relevant
      global object=], "`scheduler-postTask`", |delay|, and the following steps:
-    1. [=Schedule a task to invoke a callback=] for |scheduler| given |queue|, |signal|, |callback|,
-       and |result|.
-  1. Otherwise, [=schedule a task to invoke a callback=] for |scheduler| given |queue|, |signal|,
-     |callback|, and |result|.
+    1. If |signal| is null or |signal| is not [=AbortSignal/aborted=], then run |enqueueSteps|.
+  1. Otherwise, run |enqueueSteps|.
   1. Return |result|.
 </div>
 
@@ -249,7 +295,8 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
     1. If |scheduler|'s [=Scheduler/dynamic priority task queue map=] does not [=map/contain=]
        |signal|, then
       1. Let |queue| be the result of [=creating a scheduler task queue=] given |signal|'s
-         [=TaskSignal/priority=].
+         [=TaskSignal/priority=] and the following steps:
+          1. [=map/Remove=] [=Scheduler/dynamic priority task queue map=][|signal|].
       1. Set [=Scheduler/dynamic priority task queue map=][|signal|] to |queue|.
       1. [=TaskSignal/Add a priority change algorithm=] to |signal| that runs the following steps:
         1. Set |queue|'s [=scheduler task queue/priority=] to |signal|'s {{TaskSignal/priority}}.
@@ -258,15 +305,17 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
     1. If |priority| is null, set |priority| to "{{TaskPriority/user-visible}}".
     1. If |scheduler|'s [=Scheduler/static priority task queue map=] does not [=map/contain=]
        |priority|, then
-      1. Let |queue| be the result of [=creating a scheduler task queue=] given |priority|.
+      1. Let |queue| be the result of [=creating a scheduler task queue=] given |priority| and the
+         following steps:
+        1. [=map/Remove=] [=Scheduler/static priority task queue map=][|priority|].
       1. Set [=Scheduler/static priority task queue map=][|priority|] to |queue|.
     1. Return [=Scheduler/static priority task queue map=][|priority|].
 </div>
 
 <div algorithm>
   To <dfn>schedule a task to invoke a callback</dfn> for {{Scheduler}} |scheduler| given a
-  [=scheduler task queue=] |queue|, an {{AbortSignal}} or null |signal|, a SchedulerPostTaskCallback
-  |callback|, and a promise |result|:
+  [=scheduler task queue=] |queue|, a {{SchedulerPostTaskCallback}} |callback|, a promise |result|,
+  and a [=task handle=] |handle|:
 
   1. Let |global| be the [=relevant global object=] for |scheduler|.
   1. Let |document| be |global|'s <a attribute for="Window">associated `Document`</a> if |global| is
@@ -277,9 +326,9 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
      the [=posted task task source=], and |document|, and that performs the following steps:
     1. Let |callback result| be the result of [=invoking=] |callback|. If that threw an exception,
        then [=reject=] |result| with that, otherwise resolve |result| with |callback result|.
-  1. If |signal| is not null, then [=AbortSignal/add|add the following=] abort steps to it:
-    1. [=scheduler task queue/Remove=] |task| from |queue|.
-    1. [=Reject=] |result| with |signal|'s [=AbortSignal/abort reason=].
+    1. Run |handle|'s [=task handle/task complete steps=].
+  1. Set |handle|'s [=task handle/task=] to |task|.
+  1. Set |handle|'s [=task handle/queue=] to |queue|.
 
   Issue: Because this algorithm can be called from [=in parallel=] steps, parts of this and other
   algorithms are racy. Specifically, the [=Scheduler/next enqueue order=] should be updated
