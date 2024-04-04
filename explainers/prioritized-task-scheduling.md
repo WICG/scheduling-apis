@@ -247,10 +247,17 @@ console.log(signal.aborted);                 // true
 (See also the [`TaskSignal.any()` explainer](https://github.com/shaseley/abort-signal-any#tasksignal-apis)
 and [specification](https://wicg.github.io/scheduling-apis/#dom-tasksignal-any).)
 
-[`AbortSignal.any()`](https://dom.spec.whatwg.org/#dom-abortsignal-any) enables creating a signal
-that is dependent on other signals for its abort state.
+[`AbortSignal.any()`](https://dom.spec.whatwg.org/#dom-abortsignal-any) creates an `AbortSignal`
+that is aborted when any of the signals passed to it are aborted. We call this a _dependent signal_
+since it is dependent on other signals for its abort state.
+
 [`TaskSignal.any()`](https://wicg.github.io/scheduling-apis/#dom-tasksignal-any) is a specialization
-of the inherited method which:
+of this (inherited) method. It returns a `TaskSignal` which is similarly aborted when any of the
+signals passed to it are aborted, but additionally it has priority, which by default is
+"user-visible" but can be customized &mdash; either to a fixed priority or a dynamic priority based
+on another `TaskSignal`.
+
+Summarizing, compared to `AbortSignal.any()`, `TaskSignal.any()`:
  - Returns a `TaskSignal` instead of an `AbortSignal`
  - Has the same behavior for abort, i.e. it is dependent on the input signals for its abort state
  - Also initializes the priority component of the signal, to either a fixed priority or a dynamic
@@ -845,4 +852,5 @@ them in the right queues, which would complicate the implementation and raises e
 
 Many thanks for valuable feedback and advice from:
 
+ - [anniesullie](https://github.com/anniesullie)
  - [tdresser](https://github.com/tdresser)
