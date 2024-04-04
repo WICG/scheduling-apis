@@ -2,7 +2,7 @@
 
 Tasks scheduled through the {{Scheduler}} interface can be controlled with a {{TaskController}} by
 passing the {{TaskSignal}} provided by {{AbortController/signal|controller.signal}} as the
-{{SchedulerPostTaskOptions/signal|option}} when calling {{Scheduler/postTask()}}.  The
+{{SchedulerPostTaskOptions/signal|option}} when calling {{Scheduler/postTask()}}. The
 {{TaskController}} interface supports aborting and changing the priority of a task or group of
 tasks.
 
