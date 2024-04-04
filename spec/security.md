@@ -1,5 +1,4 @@
-Security Considerations {#sec-security}
-=====================
+# Security Considerations # {#sec-security}
 
 <div class="non-normative">
 *This section is non-normative.*
@@ -9,8 +8,7 @@ whether or not any information is potentially leaked between origins by
 timing-based side-channel attacks.
 </div>
 
-`postTask` as a High-Resolution Timing Source {#sec-security-high-res-timer}
----------------------
+## `postTask` as a High-Resolution Timing Source ## {#sec-security-high-res-timer}
 
 <div class="non-normative">
 This  API cannot be used as a high-resolution timing source. Like
@@ -22,8 +20,7 @@ their delay expires and not run instantly, the precision available to callers
 is further reduced.
 </div>
 
-Monitoring Another Origin's Tasks {#sec-security-monitoring-tasks}
----------------------
+## Monitoring Another Origin's Tasks ## {#sec-security-monitoring-tasks}
 
 <div class="non-normative">
 The second consideration is whether {{Scheduler/postTask()}} leaks any

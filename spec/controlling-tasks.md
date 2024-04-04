@@ -1,15 +1,12 @@
-Controlling Tasks {#sec-controlling-tasks}
-=====================
+# Controlling Tasks # {#sec-controlling-tasks}
 
-Tasks scheduled through the {{Scheduler}} interface can be controlled with a
-{{TaskController}} by passing the {{TaskSignal}} provided by
-{{AbortController/signal|controller.signal}} as the
-{{SchedulerPostTaskOptions/signal|option}} when calling {{Scheduler/postTask()}}.
-The {{TaskController}} interface supports aborting and changing the priority of
-a task or group of tasks.
+Tasks scheduled through the {{Scheduler}} interface can be controlled with a {{TaskController}} by
+passing the {{TaskSignal}} provided by {{AbortController/signal|controller.signal}} as the
+{{SchedulerPostTaskOptions/signal|option}} when calling {{Scheduler/postTask()}}. The
+{{TaskController}} interface supports aborting and changing the priority of a task or group of
+tasks.
 
-The `TaskPriorityChangeEvent` Interface {#sec-task-priority-change-event}
----------------------
+## The `TaskPriorityChangeEvent` Interface ## {#sec-task-priority-change-event}
 
 <pre class='idl'>
   [Exposed=(Window, Worker)]
@@ -27,19 +24,17 @@ The `TaskPriorityChangeEvent` Interface {#sec-task-priority-change-event}
 <dl class="domintro non-normative">
   <dt><code>event . {{TaskPriorityChangeEvent/previousPriority}}</code></dt>
   <dd>
-    <p>Returns the {{TaskPriority}} of the corresponding {{TaskSignal}} prior to
-    this `prioritychange` event.
+    <p>Returns the {{TaskPriority}} of the corresponding {{TaskSignal}} prior to this
+    `prioritychange` event.
 
     <p>The new {{TaskPriority}} can be read with `event.target.priority`.
   </dd>
 </dl>
 
-The <dfn attribute for=TaskPriorityChangeEvent>previousPriority</dfn> getter
-steps are to return the value that the corresponding attribute was initialized
-to.
+The <dfn attribute for=TaskPriorityChangeEvent>previousPriority</dfn> getter steps are to return the
+value that the corresponding attribute was initialized to.
 
-The `TaskController` Interface {#sec-task-controller}
----------------------
+## The `TaskController` Interface ## {#sec-task-controller}
 
 <pre class='idl'>
   dictionary TaskControllerInit {
@@ -54,22 +49,21 @@ The `TaskController` Interface {#sec-task-controller}
   };
 </pre>
 
-Note: {{TaskController}}'s {{AbortController/signal}} getter, which is
-inherited from {{AbortController}}, returns a {{TaskSignal}} object.
+Note: {{TaskController}}'s {{AbortController/signal}} getter, which is inherited from
+{{AbortController}}, returns a {{TaskSignal}} object.
 
 <dl class="domintro non-normative">
   <dt><code>controller = new {{TaskController/TaskController()|TaskController}}( |init| )</code>
   <dd>
-    <p> Returns a new {{TaskController}} whose {{AbortController/signal}} is
-    set to a newly created {{TaskSignal}} with its {{TaskSignal/priority}}
-    initialized to |init|'s {{TaskControllerInit/priority}}.
+    <p> Returns a new {{TaskController}} whose {{AbortController/signal}} is set to a newly created
+    {{TaskSignal}} with its {{TaskSignal/priority}} initialized to |init|'s
+    {{TaskControllerInit/priority}}.
   </dd>
 
   <dt><code>controller . {{TaskController/setPriority()|setPriority}}( |priority| )</code>
   <dd>
-    <p>Invoking this method will change the associated {{TaskSignal}}'s
-    [=TaskSignal/priority=], signal the priority change to any observers, and
-    cause `prioritychange` events to be dispatched.
+    <p>Invoking this method will change the associated {{TaskSignal}}'s [=TaskSignal/priority=],
+    signal the priority change to any observers, and cause `prioritychange` events to be dispatched.
   </dd>
 </dl>
 
@@ -82,12 +76,10 @@ inherited from {{AbortController}}, returns a {{TaskSignal}} object.
   1. Set [=this's=] [=AbortController/signal=] to |signal|.
 </div>
 
-The <dfn method for=TaskController><code>setPriority(|priority|)</code></dfn>
-method steps are to [=TaskSignal/signal priority change=] on [=this=]'s
-[=AbortController/signal=] given |priority|.
+The <dfn method for=TaskController><code>setPriority(|priority|)</code></dfn> method steps are to
+[=TaskSignal/signal priority change=] on [=this=]'s [=AbortController/signal=] given |priority|.
 
-The `TaskSignal` Interface {#sec-task-signal}
----------------------
+## The `TaskSignal` Interface ## {#sec-task-signal}
 
 <pre class='idl'>
   dictionary TaskSignalAnyInit {
@@ -104,9 +96,9 @@ The `TaskSignal` Interface {#sec-task-signal}
   };
 </pre>
 
-Note: {{TaskSignal}} inherits from {{AbortSignal}} and can be used in APIs that
-accept an {{AbortSignal}}. Additionally, {{Scheduler/postTask()}} accepts an
-{{AbortSignal}}, which can be useful if dynamic prioritization is not needed.
+Note: {{TaskSignal}} inherits from {{AbortSignal}} and can be used in APIs that accept an
+{{AbortSignal}}. Additionally, {{Scheduler/postTask()}} accepts an {{AbortSignal}}, which can be
+useful if dynamic prioritization is not needed.
 
 <dl class="domintro non-normative">
   <dt><code>TaskSignal . <a method for=TaskSignal lt="any(signals, init)">any</a>(|signals|, |init|)</code>
@@ -137,30 +129,32 @@ A {{TaskSignal}} object has associated <dfn for=TaskSignal>dependent signals</df
 of {{TaskSignal}} objects that are dependent on the object for their [=TaskSignal/priority=]), which
 is initially empty.
 
-A {{TaskSignal}} object has an associated <dfn for=TaskSignal>dependent</dfn> (a
-boolean), which is initially false.
+A {{TaskSignal}} object has an associated <dfn for=TaskSignal>dependent</dfn> (a boolean), which is
+initially false.
 
-<br>
+<hr>
 
-The <dfn attribute for="TaskSignal">priority</dfn> getter steps are to return
-[=this=]'s [=TaskSignal/priority=].
+The <dfn attribute for="TaskSignal">priority</dfn> getter steps are to return [=this=]'s
+[=TaskSignal/priority=].
 
-The <dfn attribute for=TaskSignal><code>onprioritychange</code></dfn> attribute
-is an [=event handler IDL attribute=] for the `onprioritychange`
-[=event handler=], whose [=event handler event type=] is
-<dfn event for=TaskSignal>prioritychange</dfn>.
+The <dfn attribute for=TaskSignal><code>onprioritychange</code></dfn> attribute is an [=event
+handler IDL attribute=] for the `onprioritychange` [=event handler=], whose [=event handler event
+type=] is <dfn event for=TaskSignal>prioritychange</dfn>.
 
-To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a
-{{TaskSignal}} object |signal|, [=set/append=] |algorithm| to |signal|'s
-[=TaskSignal/priority change algorithms=].
+The static <dfn method for=TaskSignal><code>any(|signals|, |init|)</code></dfn> method steps are to
+return the result of [=creating a dependent task signal=] from |signals| and |init|.
 
-<br>
+<hr>
 
 A {{TaskSignal}} <dfn for=TaskSignal lt="has fixed priority|have fixed priority">has fixed priority</dfn>
 if it is a [=TaskSignal/dependent=] signal with a null [=TaskSignal/source signal=].
 
+To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a {{TaskSignal}}
+object |signal|, [=set/append=] |algorithm| to |signal|'s [=TaskSignal/priority change algorithms=].
+
 <div algorithm>
-  The static <dfn method for=TaskSignal><code>any(|signals|, |init|)</code></dfn> method steps are:
+  To <dfn>create a dependent task signal</dfn> from a [=list=] of {{AbortSignal}} objects |signals|
+  and a {{TaskSignalAnyInit}} |init|:
 
   1. Let |resultSignal| be the result of <a for=AbortSignal>creating a dependent signal</a> from
      |signals| using the {{TaskSignal}} interface and the [=current realm=].
@@ -180,8 +174,8 @@ if it is a [=TaskSignal/dependent=] signal with a null [=TaskSignal/source signa
 </div>
 
 <div algorithm>
-  To <dfn for="TaskSignal">signal priority change</dfn> on a {{TaskSignal}}
-  object |signal|, given a {{TaskPriority}} |priority|:
+  To <dfn for="TaskSignal">signal priority change</dfn> on a {{TaskSignal}} object |signal|, given a
+  {{TaskPriority}} |priority|:
 
   1. If |signal|'s [=TaskSignal/priority changing=] is true, then [=exception/throw=]
      a "{{NotAllowedError!!exception}}" {{DOMException}}.
@@ -205,7 +199,6 @@ A [=TaskSignal/dependent=] {{TaskSignal}} object must not be garbage collected w
 [=TaskSignal/source signal=] is non-null and it has registered event listeners for its
 {{TaskSignal/prioritychange}} event or its [=TaskSignal/priority change algorithms=] is non-empty.
 
-Examples {#sec-controlling-tasks-examples}
----------------------
+## Examples ## {#sec-controlling-tasks-examples}
 
 **TODO**(shaseley): Add examples.

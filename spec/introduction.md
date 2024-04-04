@@ -1,5 +1,4 @@
-Introduction {#intro}
-=====================
+# Introduction # {#intro}
 
 <div class="non-normative">
 
