@@ -268,10 +268,10 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
   1. Let |priority| be |options|["{{SchedulerPostTaskOptions/priority}}"] if
      |options|["{{SchedulerPostTaskOptions/priority}}"] [=map/exists=], or otherwise null.
   1. Let |enqueueSteps| be the following steps:
-    1. Let |queue| be the result of [=selecting the scheduler task queue=] for |scheduler| given
-       |signal| and |priority|.
-    1. [=Schedule a task to invoke a callback=] for |scheduler| given |queue|, |callback|, |result|,
-       and |handle|.
+    1. Set |handle|'s [=task handle/queue=] to the result of [=selecting the scheduler task queue=]
+       for |scheduler| given |signal| and |priority|.
+    1. [=Schedule a task to invoke a callback=] for |scheduler| given |callback|, |result|, and
+       |handle|.
   1. Let |delay| be |options|["{{SchedulerPostTaskOptions/delay}}"].
   1. If |delay| is greater than 0, then [=run steps after a timeout=] given |scheduler|'s [=relevant
      global object=], "`scheduler-postTask`", |delay|, and the following steps:
@@ -314,21 +314,19 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
 
 <div algorithm>
   To <dfn>schedule a task to invoke a callback</dfn> for {{Scheduler}} |scheduler| given a
-  [=scheduler task queue=] |queue|, a {{SchedulerPostTaskCallback}} |callback|, a promise |result|,
-  and a [=task handle=] |handle|:
+  {{SchedulerPostTaskCallback}} |callback|, a promise |result|, and a [=task handle=] |handle|:
 
   1. Let |global| be the [=relevant global object=] for |scheduler|.
   1. Let |document| be |global|'s <a attribute for="Window">associated `Document`</a> if |global| is
      a {{Window}} object; otherwise null.
   1. Let |enqueue order| be |scheduler|'s [=Scheduler/next enqueue order=].
   1. Increment |scheduler|'s [=Scheduler/next enqueue order=] by 1.
-  1. Let |task| be the result of [=queuing a scheduler task=] on |queue| given |enqueue order|,
-     the [=posted task task source=], and |document|, and that performs the following steps:
+  1. Set |handle|'s [=task handle/task=] to the result of [=queuing a scheduler task=] on |handle|'s
+     [=task handle/queue=] given |enqueue order|, the [=posted task task source=], and |document|,
+     and that performs the following steps:
     1. Let |callback result| be the result of [=invoking=] |callback|. If that threw an exception,
        then [=reject=] |result| with that, otherwise resolve |result| with |callback result|.
     1. Run |handle|'s [=task handle/task complete steps=].
-  1. Set |handle|'s [=task handle/task=] to |task|.
-  1. Set |handle|'s [=task handle/queue=] to |queue|.
 
   Issue: Because this algorithm can be called from [=in parallel=] steps, parts of this and other
   algorithms are racy. Specifically, the [=Scheduler/next enqueue order=] should be updated
