@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version d765c696b, updated Fri Mar 8 15:58:52 2024 -0800" name="generator">
   <link href="https://wicg.github.io/scheduling-apis/" rel="canonical">
-  <meta content="27cd411d8e5a4244480fb1aa0e0a4f5d941439f6" name="revision">
+  <meta content="d1bf8abeb0f21b75debd2b8f6b14e40e47222897" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -1005,7 +1005,7 @@ var[data-var-color="6"] { background-color: #FFBCF2; box-shadow: 0 0 0 2px #FFBC
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-04-04">4 April 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-04-09">9 April 2024</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1554,15 +1554,16 @@ initially false.</p>
 handler IDL attribute</a> for the <code>onprioritychange</code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers">event handler</a>, whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type">event handler event
 type</a> is <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="event" data-export id="eventdef-tasksignal-prioritychange"><code>prioritychange</code></dfn>.</p>
    <p>The static <dfn class="dfn-paneled idl-code" data-dfn-for="TaskSignal" data-dfn-type="method" data-export data-lt="any(signals, init)|any(signals)" id="dom-tasksignal-any"><code>any(<var>signals</var>, <var>init</var>)</code></dfn> method steps are to
-return the result of <a data-link-type="dfn" href="#create-a-dependent-task-signal" id="ref-for-create-a-dependent-task-signal">creating a dependent task signal</a> from <var>signals</var> and <var>init</var>.</p>
+return the result of <a data-link-type="dfn" href="#create-a-dependent-task-signal" id="ref-for-create-a-dependent-task-signal">creating a dependent task signal</a> from <var>signals</var>, <var>init</var>, and the <a data-link-type="dfn" href="https://tc39.es/ecma262/#current-realm" id="ref-for-current-realm">current realm</a>.</p>
    <hr>
    <p>A <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal③⓪">TaskSignal</a></code> <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-lt="has fixed priority|have fixed priority" data-noexport id="tasksignal-has-fixed-priority">has fixed priority</dfn> if it is a <a data-link-type="dfn" href="#tasksignal-dependent" id="ref-for-tasksignal-dependent">dependent</a> signal with a null <a data-link-type="dfn" href="#tasksignal-source-signal" id="ref-for-tasksignal-source-signal">source signal</a>.</p>
    <p>To <dfn class="dfn-paneled" data-dfn-for="TaskSignal" data-dfn-type="dfn" data-noexport id="tasksignal-add-a-priority-change-algorithm">add a priority change algorithm</dfn> <var>algorithm</var> to a <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal③①">TaskSignal</a></code> object <var>signal</var>, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#set-append" id="ref-for-set-append①">append</a> <var>algorithm</var> to <var>signal</var>’s <a data-link-type="dfn" href="#tasksignal-priority-change-algorithms" id="ref-for-tasksignal-priority-change-algorithms">priority change algorithms</a>.</p>
    <div class="algorithm" data-algorithm="create a dependent task signal">
-     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-dependent-task-signal">create a dependent task signal</dfn> from a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list">list</a> of <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal①④">AbortSignal</a></code> objects <var>signals</var> and a <code class="idl"><a data-link-type="idl" href="#dictdef-tasksignalanyinit" id="ref-for-dictdef-tasksignalanyinit①">TaskSignalAnyInit</a></code> <var>init</var>: 
+     To <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="create-a-dependent-task-signal">create a dependent task signal</dfn> from a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list">list</a> of <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#abortsignal" id="ref-for-abortsignal①④">AbortSignal</a></code> objects <var>signals</var>,
+  a <code class="idl"><a data-link-type="idl" href="#dictdef-tasksignalanyinit" id="ref-for-dictdef-tasksignalanyinit①">TaskSignalAnyInit</a></code> <var>init</var>, and a <var>realm</var>: 
     <ol>
      <li data-md>
-      <p>Let <var>resultSignal</var> be the result of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#create-a-dependent-abort-signal" id="ref-for-create-a-dependent-abort-signal">creating a dependent signal</a> from <var>signals</var> using the <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal③②">TaskSignal</a></code> interface and the <a data-link-type="dfn" href="current-realm" id="ref-for-something">current realm</a>.</p>
+      <p>Let <var>resultSignal</var> be the result of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#create-a-dependent-abort-signal" id="ref-for-create-a-dependent-abort-signal">creating a dependent signal</a> from <var>signals</var> using the <code class="idl"><a data-link-type="idl" href="#tasksignal" id="ref-for-tasksignal③②">TaskSignal</a></code> interface and <var>realm</var>.</p>
      <li data-md>
       <p>Set <var>resultSignal</var>’s <a data-link-type="dfn" href="#tasksignal-dependent" id="ref-for-tasksignal-dependent①">dependent</a> to true.</p>
      <li data-md>
@@ -1873,9 +1874,9 @@ perspective and do not believe there to be any privacy considerations.</p>
      <li><span class="dfn-paneled" id="0fe84b59">signal</span>
     </ul>
    <li>
-    <a data-link-type="biblio">[ECMASCRIPT URLPREFIX: HTTPS://TC39.ES/ECMA262/#]</a> defines the following terms:
+    <a data-link-type="biblio">[ECMASCRIPT]</a> defines the following terms:
     <ul>
-     <li><span class="dfn-paneled" id="4b279ac4">current realm</span>
+     <li><span class="dfn-paneled" id="3aec4bbc">current realm</span>
     </ul>
    <li>
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
@@ -1958,6 +1959,8 @@ perspective and do not believe there to be any privacy considerations.</p>
   <dl>
    <dt id="biblio-dom">[DOM]
    <dd>Anne van Kesteren. <a href="https://dom.spec.whatwg.org/"><cite>DOM Standard</cite></a>. Living Standard. URL: <a href="https://dom.spec.whatwg.org/">https://dom.spec.whatwg.org/</a>
+   <dt id="biblio-ecmascript">[ECMASCRIPT]
+   <dd><a href="https://tc39.es/ecma262/multipage/"><cite>ECMAScript Language Specification</cite></a>. URL: <a href="https://tc39.es/ecma262/multipage/">https://tc39.es/ecma262/multipage/</a>
    <dt id="biblio-html">[HTML]
    <dd>Anne van Kesteren; et al. <a href="https://html.spec.whatwg.org/multipage/"><cite>HTML Standard</cite></a>. Living Standard. URL: <a href="https://html.spec.whatwg.org/multipage/">https://html.spec.whatwg.org/multipage/</a>
    <dt id="biblio-infra">[INFRA]
@@ -2457,10 +2460,10 @@ let dfnPanelData = {
 "32dd7834": {"dfnID":"32dd7834","dfnText":"get the values","external":true,"refSections":[{"refs":[{"id":"ref-for-map-getting-the-values"},{"id":"ref-for-map-getting-the-values\u2460"}],"title":"2.4.3. Selecting the Next Task to Run"}],"url":"https://infra.spec.whatwg.org/#map-getting-the-values"},
 "3332e595": {"dfnID":"3332e595","dfnText":"setTimeout(handler, timeout, ...arguments)","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-settimeout"},{"id":"ref-for-dom-settimeout\u2460"}],"title":"1. Introduction"},{"refs":[{"id":"ref-for-dom-settimeout\u2461"}],"title":"5.1. postTask as a High-Resolution Timing Source"}],"url":"https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#dom-settimeout"},
 "36858240": {"dfnID":"36858240","dfnText":"boolean","external":true,"refSections":[{"refs":[{"id":"ref-for-boolean"}],"title":"3.3. The TaskSignal Interface"}],"url":"https://infra.spec.whatwg.org/#boolean"},
+"3aec4bbc": {"dfnID":"3aec4bbc","dfnText":"current realm","external":true,"refSections":[{"refs":[{"id":"ref-for-current-realm"}],"title":"3.3. The TaskSignal Interface"}],"url":"https://tc39.es/ecma262/#current-realm"},
 "3fca5a9e": {"dfnID":"3fca5a9e","dfnText":"map","external":true,"refSections":[{"refs":[{"id":"ref-for-ordered-map"},{"id":"ref-for-ordered-map\u2460"},{"id":"ref-for-ordered-map\u2461"},{"id":"ref-for-ordered-map\u2462"}],"title":"2.2. The Scheduler Interface"}],"url":"https://infra.spec.whatwg.org/#ordered-map"},
 "4013a022": {"dfnID":"4013a022","dfnText":"this","external":true,"refSections":[{"refs":[{"id":"ref-for-this"}],"title":"2.2. The Scheduler Interface"},{"refs":[{"id":"ref-for-this\u2460"},{"id":"ref-for-this\u2461"}],"title":"3.2. The TaskController Interface"},{"refs":[{"id":"ref-for-this\u2462"}],"title":"3.3. The TaskSignal Interface"},{"refs":[{"id":"ref-for-this\u2463"}],"title":"4.1.1. WindowOrWorkerGlobalScope"}],"url":"https://webidl.spec.whatwg.org/#this"},
 "44a7708c": {"dfnID":"44a7708c","dfnText":"EventInit","external":true,"refSections":[{"refs":[{"id":"ref-for-dictdef-eventinit"}],"title":"3.1. The TaskPriorityChangeEvent Interface"}],"url":"https://dom.spec.whatwg.org/#dictdef-eventinit"},
-"4b279ac4": {"dfnID":"4b279ac4","dfnText":"current realm","external":true,"refSections":[{"refs":[{"id":"ref-for-something"}],"title":"3.3. The TaskSignal Interface"}],"url":"current-realm"},
 "535dd335": {"dfnID":"535dd335","dfnText":"aborted","external":true,"refSections":[{"refs":[{"id":"ref-for-abortsignal-aborted"}],"title":"2.4.2. Scheduling Tasks"}],"url":"https://dom.spec.whatwg.org/#abortsignal-aborted"},
 "5afbefcd": {"dfnID":"5afbefcd","dfnText":"item (for list)","external":true,"refSections":[{"refs":[{"id":"ref-for-list-item"}],"title":"2.4.3. Selecting the Next Task to Run"},{"refs":[{"id":"ref-for-list-item\u2460"}],"title":"4.1.3. Event loop: processing model"}],"url":"https://infra.spec.whatwg.org/#list-item"},
 "5d7209e9": {"dfnID":"5d7209e9","dfnText":"Window","external":true,"refSections":[{"refs":[{"id":"ref-for-window"}],"title":"2.4.2. Scheduling Tasks"}],"url":"https://html.spec.whatwg.org/multipage/nav-history-apis.html#window"},
@@ -3086,7 +3089,6 @@ let refsData = {
 "#tasksignal-source-signal": {"export":true,"for_":["TaskSignal"],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"source signal","type":"dfn","url":"#tasksignal-source-signal"},
 "#the-posted-task-task-source": {"export":true,"for_":[],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"the posted task task source","type":"dfn","url":"#the-posted-task-task-source"},
 "#windoworworkerglobalscope-scheduler": {"export":true,"for_":["WindowOrWorkerGlobalScope"],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"scheduler","type":"dfn","url":"#windoworworkerglobalscope-scheduler"},
-"current-realm": {"export":true,"for_":[],"level":"","normative":true,"shortname":"ecmascript urlprefix: https://tc39.es/ecma262/#","spec":"ecmascript urlprefix: https://tc39.es/ecma262/#","status":"anchor-block","text":"current realm","type":"dfn","url":"current-realm"},
 "https://dom.spec.whatwg.org/#abortcontroller": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"AbortController","type":"interface","url":"https://dom.spec.whatwg.org/#abortcontroller"},
 "https://dom.spec.whatwg.org/#abortcontroller-signal": {"export":true,"for_":["AbortController"],"level":"","normative":true,"shortname":"dom","spec":"dom","status":"anchor-block","text":"signal","type":"dfn","url":"https://dom.spec.whatwg.org/#abortcontroller-signal"},
 "https://dom.spec.whatwg.org/#abortsignal": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"AbortSignal","type":"interface","url":"https://dom.spec.whatwg.org/#abortsignal"},
@@ -3138,6 +3140,7 @@ let refsData = {
 "https://infra.spec.whatwg.org/#set-append": {"export":true,"for_":["set"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"append","type":"dfn","url":"https://infra.spec.whatwg.org/#set-append"},
 "https://infra.spec.whatwg.org/#struct": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"struct","type":"dfn","url":"https://infra.spec.whatwg.org/#struct"},
 "https://infra.spec.whatwg.org/#struct-item": {"export":true,"for_":["struct","tuple"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"item","type":"dfn","url":"https://infra.spec.whatwg.org/#struct-item"},
+"https://tc39.es/ecma262/#current-realm": {"export":true,"for_":[],"level":"","normative":true,"shortname":"ecmascript","spec":"ecmascript","status":"anchor-block","text":"current realm","type":"dfn","url":"https://tc39.es/ecma262/#current-realm"},
 "https://webidl.spec.whatwg.org/#EnforceRange": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"EnforceRange","type":"extended-attribute","url":"https://webidl.spec.whatwg.org/#EnforceRange"},
 "https://webidl.spec.whatwg.org/#Exposed": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"Exposed","type":"extended-attribute","url":"https://webidl.spec.whatwg.org/#Exposed"},
 "https://webidl.spec.whatwg.org/#NewObject": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"NewObject","type":"extended-attribute","url":"https://webidl.spec.whatwg.org/#NewObject"},
