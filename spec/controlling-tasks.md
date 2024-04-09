@@ -142,7 +142,8 @@ handler IDL attribute=] for the `onprioritychange` [=event handler=], whose [=ev
 type=] is <dfn event for=TaskSignal>prioritychange</dfn>.
 
 The static <dfn method for=TaskSignal><code>any(|signals|, |init|)</code></dfn> method steps are to
-return the result of [=creating a dependent task signal=] from |signals| and |init|.
+return the result of [=creating a dependent task signal=] from |signals|, |init|, and the
+[=current realm=].
 
 <hr>
 
@@ -153,11 +154,11 @@ To <dfn for="TaskSignal">add a priority change algorithm</dfn> |algorithm| to a 
 object |signal|, [=set/append=] |algorithm| to |signal|'s [=TaskSignal/priority change algorithms=].
 
 <div algorithm>
-  To <dfn>create a dependent task signal</dfn> from a [=list=] of {{AbortSignal}} objects |signals|
-  and a {{TaskSignalAnyInit}} |init|:
+  To <dfn>create a dependent task signal</dfn> from a [=list=] of {{AbortSignal}} objects |signals|,
+  a {{TaskSignalAnyInit}} |init|, and a |realm|:
 
   1. Let |resultSignal| be the result of <a for=AbortSignal>creating a dependent signal</a> from
-     |signals| using the {{TaskSignal}} interface and the [=current realm=].
+     |signals| using the {{TaskSignal}} interface and |realm|.
   1. Set |resultSignal|'s [=TaskSignal/dependent=] to true.
   1. If |init|["{{TaskSignalAnyInit/priority}}"] is a {{TaskPriority}}, then:
     1. Set |resultSignal|'s [=TaskSignal/priority=] to |init|["{{TaskSignalAnyInit/priority}}"].

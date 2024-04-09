@@ -109,7 +109,7 @@ spec: dom; urlPrefix: https://dom.spec.whatwg.org/#
 spec: requestidlecallback; urlPrefix: https://www.w3.org/TR/requestidlecallback/#;
   type: method;
     text: requestIdleCallback(); for: Window; url: dom-window-requestidlecallback
-spec: ECMASCRIPT urlPrefix: https://tc39.es/ecma262/#;
+spec: ECMASCRIPT; urlPrefix: https://tc39.es/ecma262/#;
   type: dfn
     text: current realm; url: current-realm
 </pre>
