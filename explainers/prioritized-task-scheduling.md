@@ -77,10 +77,11 @@ developer's point of view, they are related and part of the same _logical task_.
 
 Scheduling can be used to improve site performance, specifically **responsiveness** and
 **user-perceived latency** (or end-to-end latency). These measure latency on different timescales.
-Responsiveness refers to how fast a page is able to respond to user input, which is measured by
-[Interaction to Next Paint (INP)](https://web.dev/articles/inp). User-perceived latency is an
-application- and event-specific measure of latency, e.g. how long a SPA navigation takes or how it
-takes to fetch and display results when clicking a "search" button.
+Responsiveness refers to how fast a page is able to respond to user input, which [Interaction to
+Next Paint (INP)](https://web.dev/articles/inp) attempts to measure using the primitives in [Event
+Timing](https://w3c.github.io/event-timing/).  User-perceived latency is an application- and
+event-specific measure of latency, e.g. how long a SPA navigation takes or how it takes to fetch and
+display results when clicking a "search" button.
 
 ### Notes
 
@@ -104,15 +105,15 @@ on interactive pages with a lot of JavaScript. Two important aspects of this are
 Modern pages and frameworks often do some form of this, ranging from breaking up long tasks with
 `setTimeout()` to building complex [userland schedulers](../misc/userspace-schedulers.md) that
 manage prioritization and execution of all internal tasks. While these approaches can be effective,
-there are gaps and rough edges with existing scheduling APIs that makes this difficult. For example:
+there are gaps and rough edges with existing scheduling APIs that make this difficult. For example:
 
  - `requestIdleCallback()` is the only way to schedule prioritized tasks. It's helpful for
    deprioritizing certain types of work, but can't be used to increase priority of important tasks
    or be used to prioritize I/O. To gain higher priority, developers might use
    `requestAnimationFrame()` as a hack to get higher priority (with UA-specific results), but that
-   can negatively affect rendering performance by pushing out frames. In general, UA schedulers are
-   unaware of high priority userland tasks, which limits their ability to effectively prioritize
-   work.
+   can negatively affect rendering performance by delaying visual updates since rAF callbacks run
+   before a new frame is produced. In general, UA schedulers are unaware of high priority userland
+   tasks, which limits their ability to effectively prioritize work.
 
  - Continuations scheduled with existing APIs are indistinguishable from other tasks, and the
    pending continuation is appended to the end of the relevant task queue. Task continuations aren't
@@ -659,8 +660,6 @@ scheduler.postTask(task, {signal: someSignal});
 
 ### Integration with Other APIs
 
-
-
 UAs can prioritize on a per-[task
 source](https://html.spec.whatwg.org/multipage/webappapis.html#task-source) basis; but such
 decisions are difficult without explicit (userland) priority information. Integrating `scheduler`
@@ -688,17 +687,18 @@ This can be used to increase the priority such that fetch-related tasks won't be
 background work.
 
 Note that:
- 1. This is separate from the `fetchpriority` option, which only controls network priority.
+ 1. This is separate from the [`priority`](https://fetch.spec.whatwg.org/#request-priority) option,
+    which only controls network priority.
  2. This proposal could be extended, for convenience, to include a `taskpriority` fetch option,
     similar to `<script async>` below.
 
 #### `<script async>`
 
 Async scripts are executed independently when ready, but the UA doesn't know the importance relative
-to other queued work (e.g. other async scripts, tasks and continuations, etc.). Like `fetch()`, the
-tag supports a `fetchpriority` attribute for network prioritization, but doesn't have a way to
-specify the execution priority. We propose adding a `taskpriority` attribute (a [task
-priority](#task-priorities)) for this purpose.
+to other queued work (e.g. other async scripts, tasks and continuations, etc.). Similar to
+`fetch()`, the tag supports a [`fetchpriority`](https://html.spec.whatwg.org/#attr-link-fetchpriority)
+attribute for network prioritization, but doesn't have a way to specify the execution priority. We
+propose adding a `taskpriority` attribute (a [task priority](#task-priorities)) for this purpose.
 
 **Example: The `taskpriority` `<script>` attribute.**
 ```html
@@ -853,4 +853,5 @@ them in the right queues, which would complicate the implementation and raises e
 Many thanks for valuable feedback and advice from:
 
  - [anniesullie](https://github.com/anniesullie)
+ - [clelland](https://github.com/clelland)
  - [tdresser](https://github.com/tdresser)
