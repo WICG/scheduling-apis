@@ -22,8 +22,6 @@
 - [User research](#user-research)
 - [Proposal](#proposal)
   - [Task Priorities](#task-priorities)
-  - [`TaskSignal` and `TaskController`](#tasksignal-and-taskcontroller)
-    - [`TaskSignal.any()` Specialization](#tasksignalany-specialization)
   - [`scheduler.postTask()`](#schedulerposttask)
   - [`scheduler.yield()`](#scheduleryield)
     - [How Continuations are Prioritized](#how-continuations-are-prioritized)
@@ -33,12 +31,14 @@
     - [Prioritizing Continuations](#prioritizing-continuations)
     - [Relationship to `setTimeout()` and `scheduler.postTask()`](#relationship-to-settimeout-and-schedulerposttask)
     - [Future Enhancements](#future-enhancements)
-  - [`scheduler.currentTaskSignal`](#schedulercurrenttasksignal)
   - [Integration with Other APIs](#integration-with-other-apis)
     - [`fetch`](#fetch)
     - [`<script async>`](#script-async)
     - [`MessageChannel`](#messagechannel)
     - [Storage APIs](#storage-apis)
+  - [`TaskSignal` and `TaskController`](#tasksignal-and-taskcontroller)
+    - [`TaskSignal.any()` Specialization](#tasksignalany-specialization)
+  - [`scheduler.currentTaskSignal`](#schedulercurrenttasksignal)
   - [Key scenarios](#key-scenarios)
 - [Considered alternatives](#considered-alternatives)
   - [`TaskSignal`](#tasksignal)
@@ -202,99 +202,6 @@ queues](https://source.chromium.org/chromium/chromium/src/+/261ad5cb51f1dbf3385a
    These tasks are comparable to _idle tasks_ scheduled by `requestIdleCallback()`, but without the
    requirements that come with an idle period (deadlines, idle period length, etc.).
 
-### `TaskSignal` and `TaskController`
-
-(See also the original [`scheduler` explainer](./prioritized-post-task.md#controlling-posted-tasks)
-and [specification](https://wicg.github.io/scheduling-apis/#sec-controlling-tasks).)
-
-`scheduler` tasks and continuations have an associated [priority](#task-priorities), and they can be
-aborted with an `AbortSignal`. `TaskSignal` &mdash; which inherits from `AbortSignal` &mdash;
-encapsulates this state. `TaskController` is used to signal a change in this state.
-
-A `TaskController` is an `AbortController` (inheritance) with the additional capability of changing
-its signal's (`TaskSignal`) priority. This can be used to dynamically reprioritize pending tasks
-associated with the signal.
-
-These primitives are used to control `scheduler` tasks through the `signal` option in the APIs that
-follow.
-
-**Example: Creating a `TaskController.`**
-```js
-const controller = new TaskController({priority: 'background'});
-// `signal` can be passed to `scheduler` APIs and other AbortSignal-accepting APIs.
-const signal = controller.signal;
-console.log(signal.priority);                // 'background'
-console.log(signal instanceof AbortSignal);  // true
-console.log(signal.aborted);                 // false
-```
-
-**Example: Signaling 'prioritychange' and 'abort'.**
-```js
-const controller = new TaskController({priority: 'background'});
-const signal = controller.signal;
-// TaskSignal fires 'prioritychange' events when the priority changes.
-signal.addEventListener('prioritychange', handler);
-controller.setPriority('user-visible');
-console.log(signal.priority);                // 'user-visible'
-
-// TaskController can abort the associated TaskSignal.
-controller.abort();
-console.log(signal.aborted);                 // true
-```
-
-
-#### `TaskSignal.any()` Specialization
-
-(See also the [`TaskSignal.any()` explainer](https://github.com/shaseley/abort-signal-any#tasksignal-apis)
-and [specification](https://wicg.github.io/scheduling-apis/#dom-tasksignal-any).)
-
-[`AbortSignal.any()`](https://dom.spec.whatwg.org/#dom-abortsignal-any) creates an `AbortSignal`
-that is aborted when any of the signals passed to it are aborted. We call this a _dependent signal_
-since it is dependent on other signals for its abort state.
-
-[`TaskSignal.any()`](https://wicg.github.io/scheduling-apis/#dom-tasksignal-any) is a specialization
-of this (inherited) method. It returns a `TaskSignal` which is similarly aborted when any of the
-signals passed to it are aborted, but additionally it has priority, which by default is
-"user-visible" but can be customized &mdash; either to a fixed priority or a dynamic priority based
-on another `TaskSignal`.
-
-Summarizing, compared to `AbortSignal.any()`, `TaskSignal.any()`:
- - Returns a `TaskSignal` instead of an `AbortSignal`
- - Has the same behavior for abort, i.e. it is dependent on the input signals for its abort state
- - Also initializes the priority component of the signal, to either a fixed priority or a dynamic
-   priority based on an input `TaskSignal` (meaning it changes as the input signal changes)
-
-**Example: `TaskSignal.any()` with default priority.**
-```js
-// The following behaves identical to AbortSignal.any([signal1, signal2]), but
-// the signal returned is a TaskSignal with default priority.
-const signal = TaskSignal.any([signal1, signal2]);
-console.log(signal instanceof TaskSignal);  // true
-console.log(signal.priority);               // 'user-visible' (default)
-```
-
-**Example: `TaskSignal.any()` with a fixed priority.**
-```js
-// The resulting signal can also be created with a fixed priority:
-const signal = TaskSignal.any([signal1, signal2], {priority: 'background'});
-console.log(signal.priority);               // 'background'
-```
-
-**Example: `TaskSignal.any()` with a dynamic priority.**
-```js
-// Here, `signal` is dependent on `controller.signal` for priority.
-const controller = new TaskController();
-const sourceSignal = controller.signal;
-
-const signal = TaskSignal.any([signal1, sourceSignal], {priority: sourceSignal});
-console.log(signal.priority);               // 'user-visible'
-controller.setPriority('background');
-console.log(signal.priority);               // 'background'
-```
-
-`TaskSignal.any()` provides developers with a lot of flexibility about how tasks are scheduled and
-which other signals should affect a task or group of tasks.
-
 ### `scheduler.postTask()`
 
 (See also the original [`scheduler` explainer](./prioritized-post-task.md) and
@@ -359,8 +266,12 @@ function inputHandler() {
 
 <hr/>
 
-Tasks can also be [controlled](#tasksignal-and-taskcontroller) with a `TaskController` by passing
-its `TaskSignal` to `scheduler.postTask()`.
+Similar to how `fetch()` and other async APIs can be controlled with an `AbortController`, tasks can
+be [controlled](#tasksignal-and-taskcontroller) with a `TaskController` by passing its `TaskSignal`
+to `scheduler.postTask()`. Like `AbortSignal`, `TaskSignal` can be used to abort tasks (a
+`TaskSignal` _is_ an `AbortSignal`). Additionally, `TaskSignal` has a `priority` property, which can
+be changed with the associated controller. For more details, see the section on [`TaskSignal` and
+`TaskController`](#tasksignal-and-taskcontroller).
 
 **Example: Controlling tasks with a `TaskSignal`.**
 ```js
@@ -386,7 +297,8 @@ controller.abort();
 <hr/>
 
 If signal and priority are both provided, the task will have a fixed priority and use the signal for
-abort. Note that this is equivalent to passing `TaskSignal.any([signal], priority)`.
+abort. Note that this is equivalent to passing
+[`TaskSignal.any([signal], priority)`](#tasksignalany-specialization).
 
 **Example: Scheduling a task with signal and priority.**
 
@@ -399,6 +311,26 @@ function task(signal) {
   const newSignal = TaskSignal.any([signal], {priority: 'background'});
   scheduler.postTask(otherTask, {signal: newSignal});
 }
+```
+
+**Note**: the `signal` option for `scheduler.postTask()` and other `scheduler` APIs is specified as
+an `AbortSignal`, which means either a plain `AbortSignal` or a `TaskSignal` can be used, since
+`TaskSignal` inherits from `AbortSignal`. This allows these APIs to work with existing code that
+uses `AbortSignal`. It also means a `TaskSignal` can be passed as the `signal` option to other APIs
+that take an `AbortSignal`.
+
+```js
+function doSomethingWithAbortSignal(signal) {
+  // This will work if signal is either an AbortSignal or TaskSignal.
+  scheduler.postTask(task, {signal});
+}
+
+// ... somewhere else ...
+
+const controller = new AbortController();
+const signal = controller.signal;
+fetch(someUrl, {signal});
+doSomethingWithAbortSignal(signal);
 ```
 
 ### `scheduler.yield()`
@@ -620,44 +552,6 @@ An extension of this API would be to enable waiting for things other than time, 
 to explore integrating this with [observables](https://github.com/WICG/observable), depending on how
 that work proceeds.
 
-### `scheduler.currentTaskSignal`
-
-`scheduler.currentTaskSignal` returns the current task's signal, which is the `TaskSignal` used by
-the "yieldy APIs" (`scheduler.yield()` et al.) for signal inheritance. Exposing this signal enables
-using it to schedule related work or combining it with other signals without needing to pass the
-signal through every function along the way.
-
-**Example: reading the current task's priority.**
-
-```js
-function task() {
-  console.log(scheduler.currentTaskSignal.priority);  // 'background'
-}
-
-scheduler.postTask(task, {priority: 'background'});
-```
-
-**Example: combining signals with the current task's signal.**
-
-
-```js
-async function task() {
-  // Subtasks should be aborted if this task's signal is aborted, but can
-  // separately be aborted by this controller.
-  const controller = new AbortController();
-  const signal = TaskSignal.any(
-   [controller.signal, scheduler.currentTaskSignal],
-   {priority: scheduler.currentTaskSignal});
-
-  scheduler.postTask(subtask1, {signal});
-  scheduler.postTask(subtask2, {signal});
-
-  // ...
-}
-
-scheduler.postTask(task, {signal: someSignal});
-```
-
 ### Integration with Other APIs
 
 UAs can prioritize on a per-[task
@@ -729,6 +623,138 @@ const channel = new MessageChannel({priority: 'background'});
 #### Storage APIs
 
 This section is left as future work.
+
+### `TaskSignal` and `TaskController`
+
+(See also the original [`scheduler` explainer](./prioritized-post-task.md#controlling-posted-tasks)
+and [specification](https://wicg.github.io/scheduling-apis/#sec-controlling-tasks).)
+
+`scheduler` tasks and continuations have an associated [priority](#task-priorities), and they can be
+aborted with an `AbortSignal`. `TaskSignal` &mdash; which inherits from `AbortSignal` &mdash;
+encapsulates this state. `TaskController` is used to signal a change in this state.
+
+A `TaskController` is an `AbortController` (inheritance) with the additional capability of changing
+its signal's (`TaskSignal`) priority. This can be used to dynamically reprioritize pending tasks
+associated with the signal.
+
+These primitives are used to control `scheduler` tasks through the `signal` option in the APIs that
+follow.
+
+**Example: Creating a `TaskController.`**
+```js
+const controller = new TaskController({priority: 'background'});
+// `signal` can be passed to `scheduler` APIs and other AbortSignal-accepting APIs.
+const signal = controller.signal;
+console.log(signal.priority);                // 'background'
+console.log(signal instanceof AbortSignal);  // true
+console.log(signal.aborted);                 // false
+```
+
+**Example: Signaling 'prioritychange' and 'abort'.**
+```js
+const controller = new TaskController({priority: 'background'});
+const signal = controller.signal;
+// TaskSignal fires 'prioritychange' events when the priority changes.
+signal.addEventListener('prioritychange', handler);
+controller.setPriority('user-visible');
+console.log(signal.priority);                // 'user-visible'
+
+// TaskController can abort the associated TaskSignal.
+controller.abort();
+console.log(signal.aborted);                 // true
+```
+
+#### `TaskSignal.any()` Specialization
+
+(See also the [`TaskSignal.any()` explainer](https://github.com/shaseley/abort-signal-any#tasksignal-apis)
+and [specification](https://wicg.github.io/scheduling-apis/#dom-tasksignal-any).)
+
+[`AbortSignal.any()`](https://dom.spec.whatwg.org/#dom-abortsignal-any) creates an `AbortSignal`
+that is aborted when any of the signals passed to it are aborted. We call this a _dependent signal_
+since it is dependent on other signals for its abort state.
+
+[`TaskSignal.any()`](https://wicg.github.io/scheduling-apis/#dom-tasksignal-any) is a specialization
+of this (inherited) method. It returns a `TaskSignal` which is similarly aborted when any of the
+signals passed to it are aborted, but additionally it has priority, which by default is
+"user-visible" but can be customized &mdash; either to a fixed priority or a dynamic priority based
+on another `TaskSignal`.
+
+Summarizing, compared to `AbortSignal.any()`, `TaskSignal.any()`:
+ - Returns a `TaskSignal` instead of an `AbortSignal`
+ - Has the same behavior for abort, i.e. it is dependent on the input signals for its abort state
+ - Also initializes the priority component of the signal, to either a fixed priority or a dynamic
+   priority based on an input `TaskSignal` (meaning it changes as the input signal changes)
+
+**Example: `TaskSignal.any()` with default priority.**
+```js
+// The following behaves identical to AbortSignal.any([signal1, signal2]), but
+// the signal returned is a TaskSignal with default priority.
+const signal = TaskSignal.any([signal1, signal2]);
+console.log(signal instanceof TaskSignal);  // true
+console.log(signal.priority);               // 'user-visible' (default)
+```
+
+**Example: `TaskSignal.any()` with a fixed priority.**
+```js
+// The resulting signal can also be created with a fixed priority:
+const signal = TaskSignal.any([signal1, signal2], {priority: 'background'});
+console.log(signal.priority);               // 'background'
+```
+
+**Example: `TaskSignal.any()` with a dynamic priority.**
+```js
+// Here, `signal` is dependent on `controller.signal` for priority.
+const controller = new TaskController();
+const sourceSignal = controller.signal;
+
+const signal = TaskSignal.any([signal1, sourceSignal], {priority: sourceSignal});
+console.log(signal.priority);               // 'user-visible'
+controller.setPriority('background');
+console.log(signal.priority);               // 'background'
+```
+
+`TaskSignal.any()` provides developers with a lot of flexibility about how tasks are scheduled and
+which other signals should affect a task or group of tasks.
+
+### `scheduler.currentTaskSignal`
+
+`scheduler.currentTaskSignal` returns the current task's signal, which is the `TaskSignal` used by
+the "yieldy APIs" (`scheduler.yield()` et al.) for signal inheritance. Exposing this signal enables
+using it to schedule related work or combining it with other signals without needing to pass the
+signal through every function along the way.
+
+**Example: reading the current task's priority.**
+
+```js
+function task() {
+  console.log(scheduler.currentTaskSignal.priority);  // 'background'
+}
+
+scheduler.postTask(task, {priority: 'background'});
+```
+
+**Example: combining signals with the current task's signal.**
+
+
+```js
+async function task() {
+  // Subtasks should be aborted if this task's signal is aborted, but can
+  // separately be aborted by this controller.
+  const controller = new AbortController();
+  const signal = TaskSignal.any(
+   [controller.signal, scheduler.currentTaskSignal],
+   {priority: scheduler.currentTaskSignal});
+
+  scheduler.postTask(subtask1, {signal});
+  scheduler.postTask(subtask2, {signal});
+
+  // ...
+}
+
+scheduler.postTask(task, {signal: someSignal});
+```
+
+
 
 ### Key scenarios
 
