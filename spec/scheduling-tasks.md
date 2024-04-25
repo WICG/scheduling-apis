@@ -148,7 +148,7 @@ A <dfn>scheduler task</dfn> is a [=/task=] with an additional numeric
 The following [=task sources=] are defined as <dfn>scheduler task sources</dfn>,
 and must only be used for [=scheduler tasks=].
 
-: <dfn>The posted task's task source</dfn>
+: The <dfn>posted task task source</dfn>
 :: This [=task source=] is used for tasks scheduled through {{Scheduler/postTask()}}.
 
 <br/>
@@ -274,7 +274,7 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
   1. Let |enqueue order| be |scheduler|'s [=Scheduler/next enqueue order=].
   1. Increment |scheduler|'s [=Scheduler/next enqueue order=] by 1.
   1. Let |task| be the result of [=queuing a scheduler task=] on |queue| given |enqueue order|,
-     [=the posted task's task source=], and |document|, and that performs the following steps:
+     the [=posted task task source=], and |document|, and that performs the following steps:
     1. Let |callback result| be the result of [=invoking=] |callback|. If that threw an exception,
        then [=reject=] |result| with that, otherwise resolve |result| with |callback result|.
   1. If |signal| is not null, then [=AbortSignal/add|add the following=] abort steps to it:
