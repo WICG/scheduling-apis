@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version d765c696b, updated Fri Mar 8 15:58:52 2024 -0800" name="generator">
   <link href="https://wicg.github.io/scheduling-apis/" rel="canonical">
-  <meta content="d1bf8abeb0f21b75debd2b8f6b14e40e47222897" name="revision">
+  <meta content="921f8170ec41fb105fbd9bf3b591ec403beb2365" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -1005,7 +1005,7 @@ var[data-var-color="6"] { background-color: #FFBCF2; box-shadow: 0 0 0 2px #FFBC
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-04-09">9 April 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-04-25">25 April 2024</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1169,8 +1169,8 @@ order.  Additionally, a <code class="idl"><a data-link-type="idl" href="#taskcon
 used for tasks that are blocking the user’s ability to interact with the page, such as rendering the
 core experience or responding to user input.</p>
    <p><dfn class="dfn-paneled idl-code" data-dfn-for="TaskPriority" data-dfn-type="enum-value" data-export data-lt="&quot;user-visible&quot;|user-visible" id="dom-taskpriority-user-visible"><code>user-visible</code></dfn> is the second highest priority, and is meant to
-be used for tasks that visible to the user but not necessarily blocking user actions, such as
-rendering secondary parts of the page. This is the default priority.</p>
+be used for tasks that are observable to the user but not necessarily blocking user actions, such as
+updating secondary parts of the page. This is the default priority.</p>
    <p><dfn class="dfn-paneled idl-code" data-dfn-for="TaskPriority" data-dfn-type="enum-value" data-export data-lt="&quot;background&quot;|background" id="dom-taskpriority-background"><code>background</code></dfn> is the lowest priority, and is meant to be used
 for tasks that are not time-critical, such as background log processing or initializing certain
 third party libraries.</p>
@@ -1248,7 +1248,7 @@ increasing and not be repeated within a <code class="idl"><a data-link-type="idl
    <p>The following <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source">task sources</a> are defined as <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="scheduler-task-sources">scheduler task sources</dfn>,
 and must only be used for <a data-link-type="dfn" href="#scheduler-task" id="ref-for-scheduler-task">scheduler tasks</a>.</p>
    <dl>
-    <dt data-md><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="the-posted-task-task-source">The posted task task source</dfn>
+    <dt data-md>The <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport id="posted-task-task-source">posted task task source</dfn>
     <dd data-md>
      <p>This <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source①">task source</a> is used for tasks scheduled through <code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask④">postTask()</a></code>.</p>
    </dl>
@@ -1396,7 +1396,8 @@ and must only be used for <a data-link-type="dfn" href="#scheduler-task" id="ref
      <li data-md>
       <p>Increment <var>scheduler</var>’s <a data-link-type="dfn" href="#scheduler-next-enqueue-order" id="ref-for-scheduler-next-enqueue-order③">next enqueue order</a> by 1.</p>
      <li data-md>
-      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#queue-a-scheduler-task" id="ref-for-queue-a-scheduler-task">queuing a scheduler task</a> on <var>queue</var> given <var>enqueue order</var>, <a data-link-type="dfn" href="#the-posted-task-task-source" id="ref-for-the-posted-task-task-source">the posted task task source</a>, and <var>document</var>, and that performs the following steps:</p>
+      <p>Let <var>task</var> be the result of <a data-link-type="dfn" href="#queue-a-scheduler-task" id="ref-for-queue-a-scheduler-task">queuing a scheduler task</a> on <var>queue</var> given <var>enqueue order</var>,
+ the <a data-link-type="dfn" href="#posted-task-task-source" id="ref-for-posted-task-task-source">posted task task source</a>, and <var>document</var>, and that performs the following steps:</p>
       <ol>
        <li data-md>
         <p>Let <var>callback result</var> be the result of <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#invoke-a-callback-function" id="ref-for-invoke-a-callback-function">invoking</a> <var>callback</var>. If that threw an exception,
@@ -1795,6 +1796,7 @@ perspective and do not believe there to be any privacy considerations.</p>
    <li><a href="#scheduler-next-enqueue-order">next enqueue order</a><span>, in § 2.2</span>
    <li><a href="#scheduler-task-older-than">older than</a><span>, in § 2.4</span>
    <li><a href="#dom-tasksignal-onprioritychange">onprioritychange</a><span>, in § 3.3</span>
+   <li><a href="#posted-task-task-source">posted task task source</a><span>, in § 2.3</span>
    <li><a href="#dom-scheduler-posttask">postTask(callback)</a><span>, in § 2.2</span>
    <li><a href="#dom-scheduler-posttask">postTask(callback, options)</a><span>, in § 2.2</span>
    <li>
@@ -1850,7 +1852,6 @@ perspective and do not believe there to be any privacy considerations.</p>
    <li><a href="#scheduler-task-queue-tasks">tasks</a><span>, in § 2.3</span>
    <li><a href="#tasksignal">TaskSignal</a><span>, in § 3.3</span>
    <li><a href="#dictdef-tasksignalanyinit">TaskSignalAnyInit</a><span>, in § 3.3</span>
-   <li><a href="#the-posted-task-task-source">The posted task task source</a><span>, in § 2.3</span>
    <li><a href="#dom-taskpriority-user-blocking">"user-blocking"</a><span>, in § 2.1</span>
    <li><a href="#dom-taskpriority-user-blocking">user-blocking</a><span>, in § 2.1</span>
    <li><a href="#dom-taskpriority-user-visible">"user-visible"</a><span>, in § 2.1</span>
@@ -2551,6 +2552,7 @@ let dfnPanelData = {
 "fcc3f167": {"dfnID":"fcc3f167","dfnText":"source","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-task-source"}],"title":"2.4.1. Queueing and Removing Scheduler Tasks"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-task-source"},
 "get-the-runnable-task-queues": {"dfnID":"get-the-runnable-task-queues","dfnText":"get the runnable task queues","external":false,"refSections":[{"refs":[{"id":"ref-for-get-the-runnable-task-queues"},{"id":"ref-for-get-the-runnable-task-queues\u2460"}],"title":"2.4.3. Selecting the Next Task to Run"}],"url":"#get-the-runnable-task-queues"},
 "has-a-runnable-task": {"dfnID":"has-a-runnable-task","dfnText":"has a runnable\n  task","external":false,"refSections":[{"refs":[{"id":"ref-for-has-a-runnable-task"}],"title":"4.1.3. Event loop: processing model"}],"url":"#has-a-runnable-task"},
+"posted-task-task-source": {"dfnID":"posted-task-task-source","dfnText":"posted task task source","external":false,"refSections":[{"refs":[{"id":"ref-for-posted-task-task-source"}],"title":"2.4.2. Scheduling Tasks"}],"url":"#posted-task-task-source"},
 "queue-a-scheduler-task": {"dfnID":"queue-a-scheduler-task","dfnText":"queue a scheduler task","external":false,"refSections":[{"refs":[{"id":"ref-for-queue-a-scheduler-task"}],"title":"2.4.2. Scheduling Tasks"}],"url":"#queue-a-scheduler-task"},
 "schedule-a-posttask-task": {"dfnID":"schedule-a-posttask-task","dfnText":"schedule a postTask task","external":false,"refSections":[{"refs":[{"id":"ref-for-schedule-a-posttask-task"}],"title":"2.2. The Scheduler Interface"}],"url":"#schedule-a-posttask-task"},
 "schedule-a-task-to-invoke-a-callback": {"dfnID":"schedule-a-task-to-invoke-a-callback","dfnText":"schedule a task to invoke a callback","external":false,"refSections":[{"refs":[{"id":"ref-for-schedule-a-task-to-invoke-a-callback"},{"id":"ref-for-schedule-a-task-to-invoke-a-callback\u2460"}],"title":"2.4.2. Scheduling Tasks"}],"url":"#schedule-a-task-to-invoke-a-callback"},
@@ -2582,7 +2584,6 @@ let dfnPanelData = {
 "tasksignal-priority-changing": {"dfnID":"tasksignal-priority-changing","dfnText":"priority changing","external":false,"refSections":[{"refs":[{"id":"ref-for-tasksignal-priority-changing"},{"id":"ref-for-tasksignal-priority-changing\u2460"},{"id":"ref-for-tasksignal-priority-changing\u2461"},{"id":"ref-for-tasksignal-priority-changing\u2462"}],"title":"3.3. The TaskSignal Interface"}],"url":"#tasksignal-priority-changing"},
 "tasksignal-signal-priority-change": {"dfnID":"tasksignal-signal-priority-change","dfnText":"signal priority change","external":false,"refSections":[{"refs":[{"id":"ref-for-tasksignal-signal-priority-change"}],"title":"3.2. The TaskController Interface"},{"refs":[{"id":"ref-for-tasksignal-signal-priority-change\u2460"}],"title":"3.3. The TaskSignal Interface"}],"url":"#tasksignal-signal-priority-change"},
 "tasksignal-source-signal": {"dfnID":"tasksignal-source-signal","dfnText":"source signal","external":false,"refSections":[{"refs":[{"id":"ref-for-tasksignal-source-signal"},{"id":"ref-for-tasksignal-source-signal\u2460"},{"id":"ref-for-tasksignal-source-signal\u2461"}],"title":"3.3. The TaskSignal Interface"},{"refs":[{"id":"ref-for-tasksignal-source-signal\u2462"}],"title":"3.3.1. Garbage Collection"}],"url":"#tasksignal-source-signal"},
-"the-posted-task-task-source": {"dfnID":"the-posted-task-task-source","dfnText":"The posted task task source","external":false,"refSections":[{"refs":[{"id":"ref-for-the-posted-task-task-source"}],"title":"2.4.2. Scheduling Tasks"}],"url":"#the-posted-task-task-source"},
 "windoworworkerglobalscope-scheduler": {"dfnID":"windoworworkerglobalscope-scheduler","dfnText":"scheduler","external":false,"refSections":[{"refs":[{"id":"ref-for-windoworworkerglobalscope-scheduler"}],"title":"4.1.1. WindowOrWorkerGlobalScope"}],"url":"#windoworworkerglobalscope-scheduler"},
 };
 
@@ -3056,6 +3057,7 @@ let refsData = {
 "#eventdef-tasksignal-prioritychange": {"export":true,"for_":["TaskSignal"],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"prioritychange","type":"event","url":"#eventdef-tasksignal-prioritychange"},
 "#get-the-runnable-task-queues": {"export":true,"for_":[],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"get the runnable task queues","type":"dfn","url":"#get-the-runnable-task-queues"},
 "#has-a-runnable-task": {"export":true,"for_":[],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"have a runnable task","type":"dfn","url":"#has-a-runnable-task"},
+"#posted-task-task-source": {"export":true,"for_":[],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"posted task task source","type":"dfn","url":"#posted-task-task-source"},
 "#queue-a-scheduler-task": {"export":true,"for_":[],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"queue a scheduler task","type":"dfn","url":"#queue-a-scheduler-task"},
 "#schedule-a-posttask-task": {"export":true,"for_":[],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"schedule a posttask task","type":"dfn","url":"#schedule-a-posttask-task"},
 "#schedule-a-task-to-invoke-a-callback": {"export":true,"for_":[],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"schedule a task to invoke a callback","type":"dfn","url":"#schedule-a-task-to-invoke-a-callback"},
@@ -3087,7 +3089,6 @@ let refsData = {
 "#tasksignal-priority-changing": {"export":true,"for_":["TaskSignal"],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"priority changing","type":"dfn","url":"#tasksignal-priority-changing"},
 "#tasksignal-signal-priority-change": {"export":true,"for_":["TaskSignal"],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"signal priority change","type":"dfn","url":"#tasksignal-signal-priority-change"},
 "#tasksignal-source-signal": {"export":true,"for_":["TaskSignal"],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"source signal","type":"dfn","url":"#tasksignal-source-signal"},
-"#the-posted-task-task-source": {"export":true,"for_":[],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"the posted task task source","type":"dfn","url":"#the-posted-task-task-source"},
 "#windoworworkerglobalscope-scheduler": {"export":true,"for_":["WindowOrWorkerGlobalScope"],"level":"","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"local","text":"scheduler","type":"dfn","url":"#windoworworkerglobalscope-scheduler"},
 "https://dom.spec.whatwg.org/#abortcontroller": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"dom","spec":"dom","status":"current","text":"AbortController","type":"interface","url":"https://dom.spec.whatwg.org/#abortcontroller"},
 "https://dom.spec.whatwg.org/#abortcontroller-signal": {"export":true,"for_":["AbortController"],"level":"","normative":true,"shortname":"dom","spec":"dom","status":"anchor-block","text":"signal","type":"dfn","url":"https://dom.spec.whatwg.org/#abortcontroller-signal"},
