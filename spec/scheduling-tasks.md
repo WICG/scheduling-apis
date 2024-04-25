@@ -17,8 +17,8 @@ used for tasks that are blocking the user's ability to interact with the page, s
 core experience or responding to user input.
 
 <dfn enum-value for=TaskPriority>user-visible</dfn> is the second highest priority, and is meant to
-be used for tasks that visible to the user but not necessarily blocking user actions, such as
-rendering secondary parts of the page. This is the default priority.
+be used for tasks that are observable to the user but not necessarily blocking user actions, such as
+updating secondary parts of the page. This is the default priority.
 
 <dfn enum-value for=TaskPriority>background</dfn> is the lowest priority, and is meant to be used
 for tasks that are not time-critical, such as background log processing or initializing certain
@@ -110,7 +110,7 @@ Note: We implement *dynamic prioritization* by enqueuing tasks associated with a
 response to `prioritychange` events. The [=Scheduler/dynamic priority task queue map=] holds the
 [=scheduler task queues=] whose priorities can change, and the map key is the {{TaskSignal}} which
 all tasks in the queue are associated with.
-<br/></br>
+<br/><br/>
 The values of the [=Scheduler/static priority task queue map=] are [=scheduler task queues=] whose
 priorities do not change. Tasks with *static priorities* &mdash; those that were scheduled with an
 explicit {{SchedulerPostTaskOptions/priority}} option or a {{SchedulerPostTaskOptions/signal}}
@@ -148,7 +148,7 @@ A <dfn>scheduler task</dfn> is a [=/task=] with an additional numeric
 The following [=task sources=] are defined as <dfn>scheduler task sources</dfn>,
 and must only be used for [=scheduler tasks=].
 
-: <dfn>The posted task task source</dfn>
+: <dfn>The posted task's task source</dfn>
 :: This [=task source=] is used for tasks scheduled through {{Scheduler/postTask()}}.
 
 <br/>
@@ -274,7 +274,7 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
   1. Let |enqueue order| be |scheduler|'s [=Scheduler/next enqueue order=].
   1. Increment |scheduler|'s [=Scheduler/next enqueue order=] by 1.
   1. Let |task| be the result of [=queuing a scheduler task=] on |queue| given |enqueue order|,
-     [=the posted task task source=], and |document|, and that performs the following steps:
+     [=the posted task's task source=], and |document|, and that performs the following steps:
     1. Let |callback result| be the result of [=invoking=] |callback|. If that threw an exception,
        then [=reject=] |result| with that, otherwise resolve |result| with |callback result|.
   1. If |signal| is not null, then [=AbortSignal/add|add the following=] abort steps to it:
