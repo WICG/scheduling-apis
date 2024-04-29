@@ -120,20 +120,8 @@ option that is null or is an {{AbortSignal}} &mdash; are placed in these queues,
 An alternative, and logicially equivalent implementation, would be to maintain a single
 per-{{TaskPriority}} [=scheduler task queue=], and move tasks between [=scheduler task queues=] in
 response to a {{TaskSignal}}'s [=TaskSignal/priority=] changing, inserting based on [=scheduler
-task/enqueue order=]. This approach would simplify [=selecting the task queue of the next scheduler
-task=], but make priority changes more complex.
-
-
-A {{Scheduler}} object has a numeric <dfn for="Scheduler">next enqueue order</dfn> which is
-initialized to 1.
-
-Note: The [=Scheduler/next enqueue order=] is a strictly increasing number that is used to determine
-task execution order across [=scheduler task queues=] of the same {{TaskPriority}} within the same
-{{Scheduler}}. A logically equivalent alternative would be to place the [=Scheduler/next enqueue
-order=] on the [=event loop=], since the only requirements are that the number be strictly
-increasing and not be repeated within a {{Scheduler}}.
-
-Issue: Would it be simpler to just use a timestamp here?
+task/enqueue order=]. This approach would simplify [=selecting the next scheduler task queue from
+all schedulers=], but make priority changes more complex.
 
 The <dfn method for=Scheduler title="postTask(callback, options)">postTask(|callback|, |options|)</dfn>
 method steps are to return the result of [=scheduling a postTask task=] for [=this=] given
@@ -319,8 +307,9 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
   1. Let |global| be the [=relevant global object=] for |scheduler|.
   1. Let |document| be |global|'s <a attribute for="Window">associated `Document`</a> if |global| is
      a {{Window}} object; otherwise null.
-  1. Let |enqueue order| be |scheduler|'s [=Scheduler/next enqueue order=].
-  1. Increment |scheduler|'s [=Scheduler/next enqueue order=] by 1.
+  1. Let |event loop| be |scheduler|'s [=relevant agent's=] [=agent/event loop=].
+  1. Let |enqueue order| be |event loop|'s [=event loop/next enqueue order=].
+  1. Increment |event loop|'s [=event loop/next enqueue order=] by 1.
   1. Set |handle|'s [=task handle/task=] to the result of [=queuing a scheduler task=] on |handle|'s
      [=task handle/queue=] given |enqueue order|, the [=posted task task source=], and |document|,
      and that performs the following steps:
@@ -329,7 +318,7 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
     1. Run |handle|'s [=task handle/task complete steps=].
 
   Issue: Because this algorithm can be called from [=in parallel=] steps, parts of this and other
-  algorithms are racy. Specifically, the [=Scheduler/next enqueue order=] should be updated
+  algorithms are racy. Specifically, the [=event loop/next enqueue order=] should be updated
   atomically, and accessing the [=scheduler task queues=] should occur atomically. The latter also
   affects the event loop task queues (see [this issue](https://github.com/whatwg/html/issues/6475)).
 </div>
@@ -355,10 +344,15 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
 </div>
 
 <div algorithm>
-  The result of <dfn>selecting the task queue of the next scheduler task</dfn> for {{Scheduler}}
-  |scheduler| is a [=set=] of [=scheduler tasks=] as defined by the following steps:
+  To <dfn>select the next scheduler task queue from all schedulers</dfn> given an [=event loop=]
+  |event loop|, perform the following steps. They return a [=scheduler task queue=] or null if no
+  {{Scheduler}} associated with the |event loop| [=has a runnable task=].
 
-  1. Let |queues| be the result of [=getting the runnable task queues=] for |scheduler|.
+  1. Let |queues| be an empty [=set=].
+  1. Let |schedulers| be the [=set=] of all {{Scheduler}} objects whose [=relevant agent's=]
+     [=agent/event loop=] is |event loop| and that [=have a runnable task=].
+  1. For each |scheduler| in |schedulers|, [=list/extend=] |queues| with the result of [=getting the
+     runnable task queues=] for |scheduler|.
   1. If |queues| is [=list/empty=] return null.
   1. [=set/Remove=] from |queues| any |queue| such that |queue|'s [=scheduler task queue/priority=]
      is [=TaskPriority/less than=] any other [=set/item=] of |queues|.
@@ -366,10 +360,12 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
      runnable task=] is the [=scheduler task/older than|oldest=].
      <br/><span class=note>Two tasks cannot have the same age since [=scheduler task/enqueue order=]
      is unique.</span>
-  1. Return |queue|'s [=scheduler task queue/tasks=].
+  1. Return |queue|.
 
-  Note: The next task to run is the oldest, highest priority [=task/runnable=] [=scheduler task=].
-</div>
+  Note: The next task to run is the oldest, highest priority [=task/runnable=] [=scheduler task=]
+  from all {{Scheduler}}s associated with the [=event loop=].
+ </div>
+
 
 ## Examples ## {#sec-scheduling-tasks-examples}
 
