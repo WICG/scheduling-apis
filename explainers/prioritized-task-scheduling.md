@@ -181,15 +181,20 @@ similarly small set) can be found in other platforms like Apple's
 internal [browser task
 queues](https://source.chromium.org/chromium/chromium/src/+/261ad5cb51f1dbf3385af53218512796602100ed:content/browser/scheduler/browser_task_queues.h).
 
-1. **user-blocking**: tasks that block a user from interacting with and using the app. This could be
-   (chunked) work that is directly in response to user input, or updating in-viewport UI state.
+1. **user-blocking**: tasks that are essential for user experience. This is the highest priority and
+   should be reserved for tasks that should run as soon as possible, such that running them at a
+   lower priority would degrade user experience. This could be (chunked) work that is directly in
+   response to user input, or updating the in-viewport UI state, for example.
 
    User-blocking tasks are meant to have a higher priority in the event loop compared to other JS
-   tasks, i.e. they are prioritized by UA schedulers.
+   tasks, i.e. they are prioritized by UA schedulers. But while they run at a high priority, they
+   are not guaranteed to block critical tasks like rendering and input. So unlike synchronous code,
+   user-blocking tasks provide a way to break up critical work while still remaining responsive to
+   input.
 
-2. **user-visible**: tasks that will be visible to the user, but either not immediately or do not
-   block the user from interacting with the page. These tasks are either less important or less
-   urgent than user-blocking tasks.
+2. **user-visible**: tasks that will be visible to the user, but either not immediately or are not
+   essential to user experience. These tasks are either less important or less urgent than
+   user-blocking tasks.
 
    This is the default priority used for `postTask()` and the `TaskController`
    constructor, and it is meant to be scheduled by UAs similarly to other scheduling methods, e.g.
@@ -394,7 +399,7 @@ async function task() {
 <hr/>
 
 If the yielding task was originally scheduled with `scheduler.postTask()` and no options are passed
-to `scheduler.yield()`, then the current priority/signal will be **inherited**. This works across
+to `scheduler.yield()`, then the current priority/signal will be **inherited**. This works
 throughout the entire async task. Similarly, yielding within a `requestIdleCallback` callback will
 inherit `'background'` priority by default.
 
@@ -478,8 +483,8 @@ async function handleInput() {
 ```
 
 This API takes the same options as `scheduler.yield()`, which can be used to abort the continuation
-and control its priority. Furthermore, prioritization (continuation scheduling) works the same as
-`scheduler.yield()`.
+and control its priority. Furthermore, prioritization (continuation scheduling) and inheritance work
+the same as `scheduler.yield()`.
 
 #### High Priority Rendering Updates
 
@@ -513,7 +518,8 @@ async function task() {
 }
 ```
 
-This API has the same optional parameters as `scheduler.yield()` for controlling abort and priority:
+This API has the same optional parameters as `scheduler.yield()` for controlling abort and priority,
+including inheriting from the current task:
 
 ```js
 const controller = new TaskController({priority: 'background'});
@@ -876,8 +882,9 @@ them in the right queues, which would complicate the implementation and raises e
 
 ## References & Acknowledgments
 
-Many thanks for valuable feedback and advice from:
-
- - [anniesullie](https://github.com/anniesullie)
- - [clelland](https://github.com/clelland)
- - [tdresser](https://github.com/tdresser)
+Many thanks for valuable feedback and advice from
+[anniesullie](https://github.com/anniesullie),
+[clelland](https://github.com/clelland),
+[mmocny](https://github.com/mmocny),
+[philipwalton](https://github.com/philipwalton),
+and [tdresser](https://github.com/tdresser).
