@@ -80,7 +80,7 @@ Scheduling can be used to improve site performance, specifically **responsivenes
 Responsiveness refers to how fast a page is able to respond to user input, which [Interaction to
 Next Paint (INP)](https://web.dev/articles/inp) attempts to measure using the primitives in [Event
 Timing](https://w3c.github.io/event-timing/).  User-perceived latency is an application- and
-event-specific measure of latency, e.g. how long a SPA navigation takes or how it takes to fetch and
+event-specific measure of latency, e.g. how long an SPA navigation takes or how long it takes to fetch and
 display results when clicking a "search" button.
 
 ### Notes
@@ -507,7 +507,7 @@ window.addEventListener('load', async () => {
 
 async function task() {
   while (!ready()) {
-    scheduler.wait(100);
+    await scheduler.wait(100);
   }
   // Carry on...
 }
@@ -857,7 +857,7 @@ function handleInput() {
 Note that continuing in the initial `requestAnimationFrame` can lead to poor responsiveness since
 the rAF handler blocks the frame. `scheduler.render()` avoids this problem and is more ergonomic for
 async code. It is also more efficient in that it doesn't _cause_ a frame if one isn't needed and,
-it's more robust in that it works regardless page visibility (which can be important if loading a
+it's more robust in that it works regardless of page visibility (which can be important if loading a
 page in the background, for example).
 
 The previously proposed
