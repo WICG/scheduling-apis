@@ -64,23 +64,25 @@ method that would return a plain [=task=], but that would involve a fair amount 
 
 Add the following before step 5:
 
-  1. Let |state| be the [=incumbent realm=]'s [=realm/agent=]'s associated [=event loop=]'s
-     [=event loop/current scheduling state=].
+  1. Let |event loop| be <var ignore=''>incumbent settings<var>'s
+     [=environment settings object/realm=]'s [=realm/agent=]'s [=agent/event loop=].
+  1. Let |state| be |event loop|'s [=event loop/current scheduling state=].
 
 Modify step 5 to read:
 
- 1. Return the <span>JobCallback Record</span> { `[[Callback]]`: <var ignore=''>callable</var>,
-    `[[HostDefined]]`: { `[[IncumbentSettings]]`: <var ignore=''>incumbent settings</var>,
-    `[[ActiveScriptContext]]`: <var ignore=''>script execution context</var>,
-    `[[SchedulingState]]`: |state| } }.
+ 1. Return the <span>JobCallback Record</span> { \[[Callback]]: <var ignore=''>callable</var>,
+    \[[HostDefined]]: { \[[IncumbentSettings]]: <var ignore=''>incumbent settings</var>,
+    \[[ActiveScriptContext]]: <var ignore=''>script execution context</var>,
+    \[[SchedulingState]]: |state| } }.
 
 ### <a href="https://html.spec.whatwg.org/multipage/webappapis.html#hostcalljobcallback">HostCallJobCallback(callback, V, argumentsList)</a> ### {#sec-patches-html-hostcalljobcallback}
 
 Add the following steps before step 5:
 
-  1. Let |event loop| be the [=incumbent realm=]'s [=realm/agent=]'s associated [=event loop=].
+  1. Let |event loop| be <var ignore=''>incumbent settings<var>'s
+     [=environment settings object/realm=]'s [=realm/agent=]'s [=agent/event loop=].
   1. Set |event loop|'s [=event loop/current scheduling state=] to
-     <var ignore=''>callback</var>.`[[HostDefined]]`.`[[SchedulingState]]`.
+     <var ignore=''>callback</var>.\[[HostDefined]].\[[SchedulingState]].
 
 Add the following after step 7:
 
@@ -92,11 +94,11 @@ Add the following after step 7:
 
 Add the following step before step 3.3:
 
-  1. Let |realm| be <var ignore=''> window's [=relevant realm=].
+  1. Let |realm| be the [=relevant realm=] for <var ignore=''>window</var>.
   1. Let |state| be a new [=scheduling state=].
   1. Set |state|'s [=scheduling state/priority source=] to the result of [=creating a fixed priority
      unabortable task signal=] given "{{TaskPriority/background}}" and |realm|.
-  1. Let |event loop| be |realm|'s [=realm/agent=]'s associated [=event loop=].
+  1. Let |event loop| be |realm|'s [=realm/agent=]'s [=agent/event loop=].
   1. Set |event loop|'s [=event loop/current scheduling state=] to |state|.
 
 Add the following after step 3.3:
