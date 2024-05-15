@@ -55,14 +55,14 @@ response to user input, like scrolling.
 
 This specification introduces a new interface for developers to schedule and
 control prioritized tasks and continuations. A task in this context is a
-JavaScript callback that runs asynchrounously in its own [=event loop=]
-[=task=]. A continuation is the resumption of JavaScript code (e.g. a task) in a
-new [=event loop=] [=task=] after yielding control to the browser. The
-{{Scheduler}} interface exposes a {{Scheduler/postTask()}} method to schedule
-tasks and a {{Scheduler/yield()}} method to schedule continuations. The
-specification defines a number of {{TaskPriority|TaskPriorities}} to control
-task and continuation execution order. Additionally, a {{TaskController}} and
-its associated {{TaskSignal}} can be used to abort scheduled tasks and control
-their priorities.
+JavaScript callback that runs asynchronously in its own [=event loop=] [=task=].
+A continuation is the resumption of JavaScript code in a new [=event loop=]
+[=task=] after yielding control to the browser. The {{Scheduler}} interface
+exposes a {{Scheduler/postTask()}} method to schedule tasks and a
+{{Scheduler/yield()}} method to schedule continuations. The specification
+defines a number of {{TaskPriority|TaskPriorities}} to control task and
+continuation execution order. Additionally, a {{TaskController}} and its
+associated {{TaskSignal}} can be used to abort scheduled tasks and control their
+priorities.
 
 </div>

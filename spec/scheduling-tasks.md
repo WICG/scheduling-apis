@@ -116,26 +116,35 @@ the API into existing code that uses {{AbortSignal|AbortSignals}}.
     <p>Returns a promise that is fulfilled with <code>undefined</code> or rejected with the
     {{AbortSignal}}'s [=AbortSignal/abort reason=], if the continuation is aborted.
 
-    The priority and abort properties of the continuation are determined in a similar way as
-    {{Scheduler/postTask()}}, but can additionally be inherited from the originating task. If
-    neither the {{SchedulerYieldOptions/signal}} nor the {{SchedulerYieldOptions/priority}}
-    |options| are specified, then they default to "{{SchedulerSignalInherit/inherit}}".
+    <p>By default, the priority of the continuation and the signal used to abort it are inherited from
+    the originating task, but they can optionally be specified in a similar manner as
+    {{Scheduler/postTask()}} through the {{SchedulerYieldOptions/signal}} and
+    {{SchedulerYieldOptions/priority}} |options|.
 
-    For abort:
+    <p>For determining the {{AbortSignal}} used to abort the continuation:
     <ul>
-      <li><p>If |option|'s {{SchedulerYieldOptions/signal}} is "{{SchedulerSignalInherit/inherit}}",
-      then the originating task's signal is used determine if the continuation is abort, if it
-      exists.
-      <li><p>Otherwise if |option|'s {{SchedulerYieldOptions/signal}} is specified, then the
-      {{SchedulerYieldOptions/signal}} is used to determine if the continuation is aborted.
+      <li>If neither the {{SchedulerYieldOptions/signal}} nor the {{SchedulerYieldOptions/priority}}
+      |options| are specified, then |option|'s {{SchedulerYieldOptions/signal}} is defaulted to
+      "{{SchedulerSignalInherit/inherit}}".
+
+      <li><p>If |option|'s {{SchedulerYieldOptions/signal}} is "{{SchedulerSignalInherit/inherit}}"
+      and the originating task was scheduled with via {{Scheduler/postTask()}} with an
+      {{AbortSignal}}, then that signal is used to determine if the continuation is aborted.
+
+      <li><p>Otherwise if |option|'s {{SchedulerYieldOptions/signal}} is specified, then that is
+      used to determine if the continuation is aborted.
     </ul>
 
-    For priority:
+    <p>For determining the continuation's priority:
     <ul>
-      <li><p>If |option|'s {{SchedulerYieldOptions/signal}} is "{{SchedulerSignalInherit/inherit}}"
-      and |option|'s {{SchedulerYieldOptions/priority}} is not set, or
-      {{SchedulerYieldOptions/priority}} is "{{ContinuationPriority/inherit}}", then the originating
-      task's priority is used ({{TaskSignal}} or fixed priority). If the originating task did not
+      <li>If neither the {{SchedulerYieldOptions/signal}} nor the {{SchedulerYieldOptions/priority}}
+      |options| are specified, then |option|'s {{SchedulerYieldOptions/priority}} is defaulted to
+      "{{SchedulerSignalInherit/inherit}}".
+
+      <li><p>If |option|'s {{SchedulerYieldOptions/priority}} is "{{ContinuationPriority/inherit}}",
+      or if |option|'s {{SchedulerYieldOptions/priority}} is not set and
+      {{SchedulerYieldOptions/signal}} is "{{SchedulerSignalInherit/inherit}}", then the originating
+      task's priority is used (a {{TaskSignal}} or fixed priority). If the originating task did not
       have a priority, then "{{ContinuationPriority/user-visible}}" is used.
 
       <li><p>Otherwise if |option|'s {{SchedulerPostTaskOptions/priority}} is specified, then that
@@ -216,9 +225,9 @@ A <dfn>scheduler task queue</dfn> is a [=struct=] with the following [=struct/it
 A <dfn>scheduling state</dfn> is a [=struct=] with the following [=struct/items=]:
 
 : <dfn for="scheduling state">abort source</dfn>
-:: An {{AbortSignal}} object, initially null.
+:: An {{AbortSignal}} object or, initially null.
 : <dfn for="scheduling state">priority source</dfn>
-:: A {{TaskSignal}} object, initially null.
+:: A {{TaskSignal}} object or null, initially null.
 
 <br/>
 
@@ -242,7 +251,7 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
 
 <div algorithm>
   To <dfn>create a scheduler task queue</dfn> with {{TaskPriority}} |priority|, a boolean
-  |isContinuation|, and |removalSteps|:
+  |isContinuation|, and an algorithm |removalSteps|:
 
   1. Let |queue| be a new [=scheduler task queue=].
   1. Set |queue|'s [=scheduler task queue/priority=] to |priority|.
@@ -281,16 +290,20 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
 
 <div algorithm>
   A [=scheduler task queue=] |queue|'s <dfn for="scheduler task queue">effective priority</dfn> is
-  computed as follows:
+  computed as the third column of the row matching the |queue|'s [=scheduler task queue/priority=]
+  and [=scheduler task queue/is continuation=]:
 
-  1. Let |effectivePriority| be 0;
-  1. If |queue|'s [=scheduler task queue/priority=] is "{{TaskPriority/user-visible}}", set
-     |effectivePriority| to 2.
-  1. Otherwise if |queue|'s [=scheduler task queue/priority=] is "{{TaskPriority/user-blocking}}",
-     set |effectivePriority| to 4.
-  1. If |queue|'s [=scheduler task queue/is continuation=] is true, set |effectivePriority| to
-     |effectivePriority| + 1.
-  1. Return |effectivePriority|.
+  <p><table>
+   <thead>
+    <tr><th>Priority<th>Is Continuation<th>Effective Priority
+   <tbody>
+    <tr><td>"{{TaskPriority/background}}"<td>`false`<td>0
+    <tr><td>"{{TaskPriority/background}}"<td>`true`<td>1
+    <tr><td>"{{TaskPriority/user-visible}}"<td>`false`<td>2
+    <tr><td>"{{TaskPriority/user-visible}}"<td>`true`<td>3
+    <tr><td>"{{TaskPriority/user-blocking}}"<td>`false`<td>4
+    <tr><td>"{{TaskPriority/user-blocking}}"<td>`true`<td>5
+  </table>
 </div>
 
 ### Queueing and Removing Scheduler Tasks ### {#sec-queuing-scheduler-tasks}
@@ -332,7 +345,7 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
 
   1. Let |result| be [=a new promise=].
   1. Let |state| be the result of [=computing the scheduling state from options=] given |scheduler|,
-     |options|["{{SchedulerPostTaskOptions/signal}}"] if [=map/exists=], or otherwise null, and
+     |options|["{{SchedulerPostTaskOptions/signal}}"] if it [=map/exists=], or otherwise null, and
      |options|["{{SchedulerPostTaskOptions/priority}}"] if it [=map/exists=], or otherwise null.
   1. Let |signal| be |state|'s [=scheduling state/abort source=].
   1. If |signal| is not null and it is [=AbortSignal/aborted=], then [=reject=] |result| with
@@ -345,7 +358,7 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
        for |scheduler| given |state|'s [=scheduling state/priority source=] and false.
     1. [=Schedule a task to invoke an algorithm=] for |scheduler| given |handle| and the following
        steps:
-      1. Let |event loop| be the [=relevant agent=] for |scheduler|'s [=agent/event loop=].
+      1. Let |event loop| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=].
       1. Set |event loop|'s [=event loop/current scheduling state=] to |state|.
       1. Let |callbackResult| be the result of [=invoking=] |callback|. If that threw an exception,
          then [=reject=] |result| with that, otherwise resolve |result| with |callbackResult|.
@@ -393,25 +406,24 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
 
 <div algorithm>
   To <dfn>compute the scheduling state from options</dfn> given a {{Scheduler}} object |scheduler|,
-  an {{AbortSignal}} object, "{{SchedulerSignalInherit/inherit}}", or null |abortOption| and a
+  an {{AbortSignal}} object, "{{SchedulerSignalInherit/inherit}}", or null |signalOption| and a
   {{TaskPriority}}, "{{SchedulerSignalInherit/inherit}}", or null |priorityOption|:
 
   1. Let |result| be a new [=scheduling state=].
-  1. Let |inheritedState| be the [=relevant agent=] for |scheduler|'s [=agent/event loop=]'s
+  1. Let |inheritedState| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=]'s
      [=event loop/current scheduling state=].
-  1. If |abortOption| is "{{SchedulerSignalInherit/inherit}}", then set |result|'s
-     [=scheduling state/abort source=] to |inheritedState|'s [=scheduling state/abort source=] if
-     |inheritedState| is not null.
-  1. Otherwise |abortOption| is not "{{SchedulerSignalInherit/inherit}}"; set |result|'s
-     [=scheduling state/abort source=] to |abortOption|.
-  1. If |priorityOption| is "{{SchedulerSignalInherit/inherit}}", then set |result|'s
-     [=scheduling state/priority source=] to |inheritedState|'s [=scheduling state/priority source=]
-     if |inheritedState| is not null.
+  1. If |signalOption| is "{{SchedulerSignalInherit/inherit}}", then:
+    1. If |inheritedState| is not null, then set |result|'s [=scheduling state/abort source=] to
+       |inheritedState|'s [=scheduling state/abort source=].
+  1. Otherwise, set |result|'s [=scheduling state/abort source=] to |signalOption|.
+  1. If |priorityOption| is "{{SchedulerSignalInherit/inherit}}", then:
+    1. If |inheritedState| is not null, then set |result|'s [=scheduling state/priority source=] to
+       |inheritedState|'s [=scheduling state/priority source=].
   1. Otherwise if |priorityOption| is not null, then set |result|'s [=scheduling state/priority
      source=] to the result of [=creating a fixed priority unabortable task signal=] given
      |priorityOption|.
-  1. Otherwise if |abortOption| is not null and [=implements=] the {{TaskSignal}} interface, then
-     set |result|'s [=scheduling state/priority source=] to |abortOption|.
+  1. Otherwise if |signalOption| is not null and [=implements=] the {{TaskSignal}} interface, then
+     set |result|'s [=scheduling state/priority source=] to |signalOption|.
   1. If |result|'s [=scheduling state/priority source=] is null, then set |result|'s [=scheduling
      state/priority source=] to the result of [=creating a fixed priority unabortable task signal=]
      given "{{TaskPriority/user-visible}}".
@@ -454,7 +466,7 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
   1. Let |global| be the [=relevant global object=] for |scheduler|.
   1. Let |document| be |global|'s <a attribute for="Window">associated `Document`</a> if |global| is
      a {{Window}} object; otherwise null.
-  1. Let |event loop| be the [=relevant agent=] for |scheduler|'s [=agent/event loop=].
+  1. Let |event loop| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=].
   1. Let |enqueue order| be |event loop|'s [=event loop/next enqueue order=].
   1. Increment |event loop|'s [=event loop/next enqueue order=] by 1.
   1. Set |handle|'s [=task handle/task=] to the result of [=queuing a scheduler task=] on |handle|'s

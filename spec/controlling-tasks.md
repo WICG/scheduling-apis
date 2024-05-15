@@ -196,7 +196,7 @@ object |signal|, [=set/append=] |algorithm| to |signal|'s [=TaskSignal/priority 
 
 <div algorithm>
   To <dfn>create a fixed priority unabortable task signal</dfn> given {{TaskPriority}} |priority|
-  and a |realm|.
+  and a [=ECMAScript/realm=] |realm|.
 
   1. Let |init| be a new {{TaskSignalAnyInit}}.
   1. Set |init|["{{TaskSignalAnyInit/priority}}"] to |priority|.
