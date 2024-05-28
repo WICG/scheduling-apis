@@ -1,6 +1,6 @@
-# Scheduling Tasks # {#sec-scheduling-tasks}
+# Scheduling Tasks and Continuations # {#sec-scheduling-tasks-and-continuations}
 
-## Task Priorities ## {#sec-task-priorities}
+## Task and Continuation Priorities ## {#sec-task-priorities}
 
 This spec formalizes three priorities to support scheduling tasks:
 
@@ -24,18 +24,24 @@ updating secondary parts of the page. This is the default priority.
 for tasks that are not time-critical, such as background log processing or initializing certain
 third party libraries.
 
+Continuation priorities mirror task priorities, with an additional option to inherit the current
+priority:
+
+<pre class='idl'>
+  enum ContinuationPriority {
+    "user-blocking",
+    "user-visible",
+    "background",
+    "inherit"
+  };
+</pre>
+
 Note: Tasks scheduled through a given {{Scheduler}} run in *strict priority order*, meaning the
 scheduler will always run "{{TaskPriority/user-blocking}}" tasks before
 "{{TaskPriority/user-visible}}" tasks, which in turn always run before "{{TaskPriority/background}}"
-tasks.
-
-<div algorithm>
-  {{TaskPriority}} |p1| is <dfn for="TaskPriority">less than</dfn>
-  {{TaskPriority}} |p2| if |p1| is less than |p2| in the
-  following total ordering:
-  "{{TaskPriority/background}}" < "{{TaskPriority/user-visible}}" < "{{TaskPriority/user-blocking}}"
-</div>
-
+tasks. Continuation priorities are slotted in just above their {{TaskPriority}} counterparts, e.g.
+a {{ContinuationPriority/user-visible}} continuation has a higher [=scheduler task queue/effective
+priority=] than a {{TaskPriority/user-visible}} task.
 
 ## The `Scheduler` Interface ## {#sec-scheduler}
 
@@ -46,12 +52,22 @@ tasks.
     [EnforceRange] unsigned long long delay = 0;
   };
 
+  enum SchedulerSignalInherit {
+    "inherit"
+  };
+
+  dictionary SchedulerYieldOptions {
+    (AbortSignal or SchedulerSignalInherit) signal;
+    ContinuationPriority priority;
+  };
+
   callback SchedulerPostTaskCallback = any ();
 
   [Exposed=(Window, Worker)]
   interface Scheduler {
     Promise<any> postTask(SchedulerPostTaskCallback callback,
                           optional SchedulerPostTaskOptions options = {});
+    Promise<undefined> yield(optional SchedulerYieldOptions options = {});
   };
 </xmp>
 
@@ -64,8 +80,8 @@ the API into existing code that uses {{AbortSignal|AbortSignals}}.
 <dl class="domintro non-normative">
   <dt><code>result = scheduler . {{Scheduler/postTask()|postTask}}( |callback|, |options| )</code></dt>
   <dd>
-    <p>Returns a promise that is fulfilled with the return value of |callback|, or rejected with the
-    {{AbortSignal}}'s [=AbortSignal/abort reason=] if the task is aborted. If |callback| throws an
+    <p>Returns a promise that is fulfilled with the return value of |callback| or rejected with the
+    {{AbortSignal}}'s [=AbortSignal/abort reason=], if the task is aborted. If |callback| throws an
     error during execution, the promise returned by {{Scheduler/postTask()}} will be rejected with
     that error.
 
@@ -94,16 +110,65 @@ the API into existing code that uses {{AbortSignal|AbortSignals}}.
     execution of the task will be delayed for at least {{SchedulerPostTaskOptions/delay}}
     milliseconds.
   </dd>
+
+  <dt><code>result = scheduler . {{Scheduler/yield()|yield}}( |options| )</code></dt>
+  <dd>
+    <p>Returns a promise that is fulfilled with <code>undefined</code> or rejected with the
+    {{AbortSignal}}'s [=AbortSignal/abort reason=], if the continuation is aborted.
+
+    <p>By default, the priority of the continuation and the signal used to abort it are inherited from
+    the originating task, but they can optionally be specified in a similar manner as
+    {{Scheduler/postTask()}} through the {{SchedulerYieldOptions/signal}} and
+    {{SchedulerYieldOptions/priority}} |options|.
+
+    <p>For determining the {{AbortSignal}} used to abort the continuation:
+    <ul>
+      <li>If neither the {{SchedulerYieldOptions/signal}} nor the {{SchedulerYieldOptions/priority}}
+      |options| are specified, then |option|'s {{SchedulerYieldOptions/signal}} is defaulted to
+      "{{SchedulerSignalInherit/inherit}}".
+
+      <li><p>If |option|'s {{SchedulerYieldOptions/signal}} is "{{SchedulerSignalInherit/inherit}}"
+      and the originating task was scheduled with via {{Scheduler/postTask()}} with an
+      {{AbortSignal}}, then that signal is used to determine if the continuation is aborted.
+
+      <li><p>Otherwise if |option|'s {{SchedulerYieldOptions/signal}} is specified, then that is
+      used to determine if the continuation is aborted.
+    </ul>
+
+    <p>For determining the continuation's priority:
+    <ul>
+      <li>If neither the {{SchedulerYieldOptions/signal}} nor the {{SchedulerYieldOptions/priority}}
+      |options| are specified, then |option|'s {{SchedulerYieldOptions/priority}} is defaulted to
+      "{{SchedulerSignalInherit/inherit}}".
+
+      <li><p>If |option|'s {{SchedulerYieldOptions/priority}} is "{{ContinuationPriority/inherit}}",
+      or if |option|'s {{SchedulerYieldOptions/priority}} is not set and
+      {{SchedulerYieldOptions/signal}} is "{{SchedulerSignalInherit/inherit}}", then the originating
+      task's priority is used (a {{TaskSignal}} or fixed priority). If the originating task did not
+      have a priority, then "{{ContinuationPriority/user-visible}}" is used.
+
+      <li><p>Otherwise if |option|'s {{SchedulerPostTaskOptions/priority}} is specified, then that
+      {{ContinuationPriority}} will be used to schedule the continuation, and the continuation's
+      priority is immutable.
+
+      <li><p>Otherwise, if |option|'s {{SchedulerYieldOptions/signal}} is specified and is a
+      {{TaskSignal}} object, then the continuation's priority is determined dynamically by
+      |option|'s {{SchedulerYieldOptions/signal}}'s [=TaskSignal/priority=].
+
+      <li><p>Otherwise, the continuation's priority defaults to
+      "{{ContinuationPriority/user-visible}}".
+    </ul>
+
 </dl>
 
 
 A {{Scheduler}} object has an associated <dfn for="Scheduler">static priority task queue map</dfn>,
-which is a [=map=] from {{TaskPriority}} to [=scheduler task queue=]. This map is initialized to a
-new empty [=map=].
+which is a [=map=] from ({{TaskPriority}}, boolean) to [=scheduler task queue=]. This map is
+initialized to a new empty [=map=].
 
 A {{Scheduler}} object has an associated <dfn for="Scheduler">dynamic priority task queue map</dfn>,
-which is a [=map=] from {{TaskSignal}} to [=scheduler task queue=]. This map is initialized to a new
-empty [=map=].
+which is a [=map=] from ({{TaskSignal}}, boolean) to [=scheduler task queue=]. This map is
+initialized to a new empty [=map=].
 
 Note: We implement *dynamic prioritization* by enqueuing tasks associated with a specific
 {{TaskSignal}} into the same [=scheduler task queue=], and changing that queue's priority in
@@ -127,6 +192,9 @@ The <dfn method for=Scheduler title="postTask(callback, options)">postTask(|call
 method steps are to return the result of [=scheduling a postTask task=] for [=this=] given
 |callback| and |options|.
 
+The <dfn method for=Scheduler title="yield(options)">yield(|options|)</dfn> method steps are to
+return the result of [=scheduling a yield continuation=] for [=this=] given |options|.
+
 
 ## Definitions ## {#sec-scheduling-tasks-definitions}
 
@@ -137,7 +205,7 @@ The following [=task sources=] are defined as <dfn>scheduler task sources</dfn>,
 and must only be used for [=scheduler tasks=].
 
 : The <dfn>posted task task source</dfn>
-:: This [=task source=] is used for tasks scheduled through {{Scheduler/postTask()}}.
+:: This [=task source=] is used for tasks scheduled through {{Scheduler/postTask()}} or {{Scheduler/yield()}}.
 
 <br/>
 
@@ -145,10 +213,21 @@ A <dfn>scheduler task queue</dfn> is a [=struct=] with the following [=struct/it
 
 : <dfn for="scheduler task queue">priority</dfn>
 :: A {{TaskPriority}}.
+: <dfn for="scheduler task queue">is continuation</dfn>
+:: A boolean.
 : <dfn for="scheduler task queue">tasks</dfn>
 :: A [=set=] of [=scheduler tasks=].
 : <dfn for="scheduler task queue">removal steps</dfn>
 :: An algorithm.
+
+<br/>
+
+A <dfn>scheduling state</dfn> is a [=struct=] with the following [=struct/items=]:
+
+: <dfn for="scheduling state">abort source</dfn>
+:: An {{AbortSignal}} object or, initially null.
+: <dfn for="scheduling state">priority source</dfn>
+:: A {{TaskSignal}} object or null, initially null.
 
 <br/>
 
@@ -171,10 +250,12 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
 </div>
 
 <div algorithm>
-  To <dfn>create a scheduler task queue</dfn> with {{TaskPriority}} |priority| and |removalSteps|:
+  To <dfn>create a scheduler task queue</dfn> with {{TaskPriority}} |priority|, a boolean
+  |isContinuation|, and an algorithm |removalSteps|:
 
   1. Let |queue| be a new [=scheduler task queue=].
   1. Set |queue|'s [=scheduler task queue/priority=] to |priority|.
+  1. Set |queue|'s [=scheduler task queue/is continuation=] to |isContinuation|.
   1. Set |queue|'s [=scheduler task queue/tasks=] to a new empty [=set=].
   1. Set |queue|'s [=scheduler task queue/removal steps=] to |removalSteps|.
   1. Return |queue|.
@@ -205,6 +286,24 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
   A [=scheduler task queue=] |queue|'s <dfn for="scheduler task queue">first runnable task</dfn> is
   the first [=scheduler task=] in |queue|'s [=scheduler task queue/tasks=] that is
   [=task/runnable=].
+</div>
+
+<div algorithm>
+  A [=scheduler task queue=] |queue|'s <dfn for="scheduler task queue">effective priority</dfn> is
+  computed as the third column of the row matching the |queue|'s [=scheduler task queue/priority=]
+  and [=scheduler task queue/is continuation=]:
+
+  <p><table>
+   <thead>
+    <tr><th>Priority<th>Is Continuation<th>Effective Priority
+   <tbody>
+    <tr><td>"{{TaskPriority/background}}"<td>`false`<td>0
+    <tr><td>"{{TaskPriority/background}}"<td>`true`<td>1
+    <tr><td>"{{TaskPriority/user-visible}}"<td>`false`<td>2
+    <tr><td>"{{TaskPriority/user-visible}}"<td>`true`<td>3
+    <tr><td>"{{TaskPriority/user-blocking}}"<td>`false`<td>4
+    <tr><td>"{{TaskPriority/user-blocking}}"<td>`true`<td>5
+  </table>
 </div>
 
 ### Queueing and Removing Scheduler Tasks ### {#sec-queuing-scheduler-tasks}
@@ -238,28 +337,32 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
   [=scheduler task queue/tasks=] is [=list/empty=].
 </div>
 
-
-### Scheduling Tasks ### {#sec-scheduler-alg-scheduling-tasks}
+### Scheduling Tasks and Continuations ### {#sec-scheduler-alg-scheduling-tasks-and-continuations}
 
 <div algorithm>
   To <dfn>schedule a postTask task</dfn> for {{Scheduler}} |scheduler| given a
   {{SchedulerPostTaskCallback}} |callback| and {{SchedulerPostTaskOptions}} |options|:
 
   1. Let |result| be [=a new promise=].
-  1. Let |signal| be |options|["{{SchedulerPostTaskOptions/signal}}"] if
-     |options|["{{SchedulerPostTaskOptions/signal}}"] [=map/exists=], or otherwise null.
+  1. Let |state| be the result of [=computing the scheduling state from options=] given |scheduler|,
+     |options|["{{SchedulerPostTaskOptions/signal}}"] if it [=map/exists=], or otherwise null, and
+     |options|["{{SchedulerPostTaskOptions/priority}}"] if it [=map/exists=], or otherwise null.
+  1. Let |signal| be |state|'s [=scheduling state/abort source=].
   1. If |signal| is not null and it is [=AbortSignal/aborted=], then [=reject=] |result| with
      |signal|'s [=AbortSignal/abort reason=] and return |result|.
   1. Let |handle| be the result of [=creating a task handle=] given |result| and |signal|.
   1. If |signal| is not null, then [=AbortSignal/add=] |handle|'s [=task handle/abort steps=] to
      |signal|.
-  1. Let |priority| be |options|["{{SchedulerPostTaskOptions/priority}}"] if
-     |options|["{{SchedulerPostTaskOptions/priority}}"] [=map/exists=], or otherwise null.
   1. Let |enqueueSteps| be the following steps:
     1. Set |handle|'s [=task handle/queue=] to the result of [=selecting the scheduler task queue=]
-       for |scheduler| given |signal| and |priority|.
-    1. [=Schedule a task to invoke a callback=] for |scheduler| given |callback|, |result|, and
-       |handle|.
+       for |scheduler| given |state|'s [=scheduling state/priority source=] and false.
+    1. [=Schedule a task to invoke an algorithm=] for |scheduler| given |handle| and the following
+       steps:
+      1. Let |event loop| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=].
+      1. Set |event loop|'s [=event loop/current scheduling state=] to |state|.
+      1. Let |callbackResult| be the result of [=invoking=] |callback|. If that threw an exception,
+         then [=reject=] |result| with that, otherwise resolve |result| with |callbackResult|.
+      1. Set |event loop|'s [=event loop/current scheduling state=] to null.
   1. Let |delay| be |options|["{{SchedulerPostTaskOptions/delay}}"].
   1. If |delay| is greater than 0, then [=run steps after a timeout=] given |scheduler|'s [=relevant
      global object=], "`scheduler-postTask`", |delay|, and the following steps:
@@ -272,49 +375,104 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
 [whatwg/html#5925](https://github.com/whatwg/html/issues/5925).
 
 <div algorithm>
-  To <dfn>select the scheduler task queue</dfn> for a {{Scheduler}} |scheduler| given an
-  {{AbortSignal}} or null |signal|, and a {{TaskPriority}} or null |priority|:
+  To <dfn>schedule a yield continuation</dfn> for {{Scheduler}} |scheduler| given
+  {{SchedulerYieldOptions}} |options|:
 
-  1. If |priority| is null, |signal| is not null and [=implements=] the {{TaskSignal}} interface,
-     and |signal| [=TaskSignal/has fixed priority=], then set |priority| to |signal|'s
-     [=TaskSignal/priority=].
-  1. If |priority| is null and |signal| is not null and [=implements=] the {{TaskSignal}} interface,
-     then
-    1. If |scheduler|'s [=Scheduler/dynamic priority task queue map=] does not [=map/contain=]
-       |signal|, then
-      1. Let |queue| be the result of [=creating a scheduler task queue=] given |signal|'s
-         [=TaskSignal/priority=] and the following steps:
-          1. [=map/Remove=] [=Scheduler/dynamic priority task queue map=][|signal|].
-      1. Set [=Scheduler/dynamic priority task queue map=][|signal|] to |queue|.
-      1. [=TaskSignal/Add a priority change algorithm=] to |signal| that runs the following steps:
-        1. Set |queue|'s [=scheduler task queue/priority=] to |signal|'s {{TaskSignal/priority}}.
-    1. Return [=Scheduler/dynamic priority task queue map=][|signal|].
-  1. Otherwise |priority| is used to determine the task queue:
-    1. If |priority| is null, set |priority| to "{{TaskPriority/user-visible}}".
-    1. If |scheduler|'s [=Scheduler/static priority task queue map=] does not [=map/contain=]
-       |priority|, then
-      1. Let |queue| be the result of [=creating a scheduler task queue=] given |priority| and the
-         following steps:
-        1. [=map/Remove=] [=Scheduler/static priority task queue map=][|priority|].
-      1. Set [=Scheduler/static priority task queue map=][|priority|] to |queue|.
-    1. Return [=Scheduler/static priority task queue map=][|priority|].
+  1. Let |result| be [=a new promise=].
+  1. Let |abortOption| be |options|["{{SchedulerYieldOptions/signal}}"] if it [=map/exists=],
+     otherwise null.
+  1. Let |priorityOption| be |options|["{{SchedulerPostTaskOptions/priority}}"] if it
+     [=map/exists=], otherwise null.
+  1. If |abortOption| is null and |priorityOption| is null, then set |abortOption| to
+     "{{SchedulerSignalInherit/inherit}}" and set |priorityOption| to
+     "{{SchedulerSignalInherit/inherit}}".
+  1. Otherwise if |abortOption| is "{{SchedulerSignalInherit/inherit}}" and |priorityOption| is null,
+     then set |priorityOption| to "{{SchedulerSignalInherit/inherit}}".
+  1. Let |state| be the result of [=computing the scheduling state from options=] given |scheduler|,
+     |abortOption|, and |priorityOption|.
+  1. Let |signal| be |state|'s [=scheduling state/abort source=].
+  1. If |signal| is not null and it is [=AbortSignal/aborted=], then [=reject=] |result| with
+     |signal|'s [=AbortSignal/abort reason=] and return |result|.
+  1. Let |handle| be the result of [=creating a task handle=] given |result| and |signal|.
+  1. If |signal| is not null, then [=AbortSignal/add=] |handle|'s [=task handle/abort steps=] to
+     |signal|.
+  1. Set |handle|'s [=task handle/queue=] to the result of [=selecting the scheduler task queue=]
+     for |scheduler| given |state|'s [=scheduling state/priority source=] and true.
+  1. [=Schedule a task to invoke an algorithm=] for |scheduler| given |handle| and the following
+     steps:
+    1. Resolve |result|.
+  1. Return |result|.
 </div>
 
 <div algorithm>
-  To <dfn>schedule a task to invoke a callback</dfn> for {{Scheduler}} |scheduler| given a
-  {{SchedulerPostTaskCallback}} |callback|, a promise |result|, and a [=task handle=] |handle|:
+  To <dfn>compute the scheduling state from options</dfn> given a {{Scheduler}} object |scheduler|,
+  an {{AbortSignal}} object, "{{SchedulerSignalInherit/inherit}}", or null |signalOption| and a
+  {{TaskPriority}}, "{{SchedulerSignalInherit/inherit}}", or null |priorityOption|:
+
+  1. Let |result| be a new [=scheduling state=].
+  1. Let |inheritedState| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=]'s
+     [=event loop/current scheduling state=].
+  1. If |signalOption| is "{{SchedulerSignalInherit/inherit}}", then:
+    1. If |inheritedState| is not null, then set |result|'s [=scheduling state/abort source=] to
+       |inheritedState|'s [=scheduling state/abort source=].
+  1. Otherwise, set |result|'s [=scheduling state/abort source=] to |signalOption|.
+  1. If |priorityOption| is "{{SchedulerSignalInherit/inherit}}", then:
+    1. If |inheritedState| is not null, then set |result|'s [=scheduling state/priority source=] to
+       |inheritedState|'s [=scheduling state/priority source=].
+  1. Otherwise if |priorityOption| is not null, then set |result|'s [=scheduling state/priority
+     source=] to the result of [=creating a fixed priority unabortable task signal=] given
+     |priorityOption|.
+  1. Otherwise if |signalOption| is not null and [=implements=] the {{TaskSignal}} interface, then
+     set |result|'s [=scheduling state/priority source=] to |signalOption|.
+  1. If |result|'s [=scheduling state/priority source=] is null, then set |result|'s [=scheduling
+     state/priority source=] to the result of [=creating a fixed priority unabortable task signal=]
+     given "{{TaskPriority/user-visible}}".
+  1. Return |result|.
+
+  Note: The fixed priority unabortable signals created here can be cached and reused to avoid extra
+  memory allocations.
+</div>
+
+<div algorithm>
+  To <dfn>select the scheduler task queue</dfn> for a {{Scheduler}} |scheduler| given a
+  {{TaskSignal}} object |signal| and a boolean |isContinuation|:
+
+  1. If |signal| does not [=TaskSignal/have fixed priority=], then
+    1. If |scheduler|'s [=Scheduler/dynamic priority task queue map=] does not [=map/contain=]
+       (|signal|, |isContinuation|), then
+      1. Let |queue| be the result of [=creating a scheduler task queue=] given |signal|'s
+         [=TaskSignal/priority=], |isContinuation|, and the following steps:
+          1. [=map/Remove=] [=Scheduler/dynamic priority task queue map=][(|signal|, |isContinuation|)].
+      1. Set [=Scheduler/dynamic priority task queue map=][(|signal|, |isContinuation|)] to
+         |queue|.
+      1. [=TaskSignal/Add a priority change algorithm=] to |signal| that runs the following steps:
+        1. Set |queue|'s [=scheduler task queue/priority=] to |signal|'s {{TaskSignal/priority}}.
+    1. Return [=Scheduler/dynamic priority task queue map=][(|signal|, |isContinuation|)].
+  1. Otherwise
+    1. Let |priority| be |signal|'s [=TaskSignal/priority=].
+    1. If |scheduler|'s [=Scheduler/static priority task queue map=] does not [=map/contain=]
+       (|priority|, |isContinuation|) , then
+      1. Let |queue| be the result of [=creating a scheduler task queue=] given |priority|,
+         |isContinuation|, and the following steps:
+        1. [=map/Remove=] [=Scheduler/static priority task queue map=][(|priority|, |isContinuation|)].
+      1. Set [=Scheduler/static priority task queue map=][(|priority|, |isContinuation|)] to |queue|.
+    1. Return [=Scheduler/static priority task queue map=][(|priority|, |isContinuation|)].
+</div>
+
+<div algorithm>
+  To <dfn>schedule a task to invoke an algorithm</dfn> for {{Scheduler}} |scheduler| given a
+  [=task handle=] |handle| and an algorithm |steps|:
 
   1. Let |global| be the [=relevant global object=] for |scheduler|.
   1. Let |document| be |global|'s <a attribute for="Window">associated `Document`</a> if |global| is
      a {{Window}} object; otherwise null.
-  1. Let |event loop| be |scheduler|'s [=relevant agent's=] [=agent/event loop=].
+  1. Let |event loop| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=].
   1. Let |enqueue order| be |event loop|'s [=event loop/next enqueue order=].
   1. Increment |event loop|'s [=event loop/next enqueue order=] by 1.
   1. Set |handle|'s [=task handle/task=] to the result of [=queuing a scheduler task=] on |handle|'s
      [=task handle/queue=] given |enqueue order|, the [=posted task task source=], and |document|,
      and that performs the following steps:
-    1. Let |callback result| be the result of [=invoking=] |callback|. If that threw an exception,
-       then [=reject=] |result| with that, otherwise resolve |result| with |callback result|.
+    1. Run |steps|.
     1. Run |handle|'s [=task handle/task complete steps=].
 
   Issue: Because this algorithm can be called from [=in parallel=] steps, parts of this and other
@@ -354,8 +512,8 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
   1. For each |scheduler| in |schedulers|, [=list/extend=] |queues| with the result of [=getting the
      runnable task queues=] for |scheduler|.
   1. If |queues| is [=list/empty=] return null.
-  1. [=set/Remove=] from |queues| any |queue| such that |queue|'s [=scheduler task queue/priority=]
-     is [=TaskPriority/less than=] any other [=set/item=] of |queues|.
+  1. [=set/Remove=] from |queues| any |queue| such that |queue|'s [=scheduler task queue/effective
+     priority=] is less than any other [=set/item=] of |queues|.
   1. Let |queue| be the [=scheduler task queue=] in |queues| whose [=scheduler task queue/first
      runnable task=] is the [=scheduler task/older than|oldest=].
      <br/><span class=note>Two tasks cannot have the same age since [=scheduler task/enqueue order=]
