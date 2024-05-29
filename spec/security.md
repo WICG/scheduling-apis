@@ -23,11 +23,11 @@ is further reduced.
 ## Monitoring Another Origin's Tasks ## {#sec-security-monitoring-tasks}
 
 <div class="non-normative">
-The second consideration is whether {{Scheduler/postTask()}} leaks any
-information about other origins' tasks. We consider an attacker running on one
-origin trying to obtain information about code executing in another origin (and
-hence in a separate event loop) that is scheduled in the same thread in a
-browser.
+The second consideration is whether {{Scheduler/postTask()}} or
+{{Scheduler/yield()}} leak any information about other origins' tasks. We
+consider an attacker running on one origin trying to obtain information about
+code executing in another origin (and hence in a separate event loop) that is
+scheduled in the same thread in a browser.
 
 Because a thread within a UA can only run tasks from one event loop at a time,
 an attacker might be able to gain information about tasks running in another
@@ -65,15 +65,18 @@ the UA occasionally chooses to run tasks from other task sources depending on
 how long they've been starved. Using a dynamic scheme increases the set of potential
 task which in turn decreases the fidelity of the information.
 
-{{Scheduler/postTask()}} supports prioritization for tasks scheduled with it.
-How these tasks are interleaved with other task sources is also
-implementation-dependent, however it might be possible for an attacker to
-further reduce the set of potential tasks that can run instead of its own by
-leveraging this priority. For example, if a UA uses a simple static
-prioritization scheme spanning all event loops in a thread, then using
-{{TaskPriority/user-blocking}} {{Scheduler/postTask()}} tasks instead of
-{{Window/postMessage(message, options)|postMessage()}} tasks might decrease
-this set, depending on their relative prioritization and what is between.
+{{Scheduler/postTask()}} and {{Scheduler/yield()}} support prioritization for
+the tasks and continuations they schedule. How these tasks are interleaved with
+other task sources is also implementation-dependent, however it might be
+possible for an attacker to further reduce the set of potential tasks that can
+run instead of its own by leveraging this priority. For example, if a UA uses a
+simple static prioritization scheme spanning all event loops in a thread, then
+using "{{TaskPriority/user-blocking}}" {{Scheduler/postTask()}} tasks or
+"{{ContinuationPriority/user-visible}}" and higher priority
+{{Scheduler/yield()}} continuations &mdash; which are meant to have a higher
+event loop priority &mdash; instead of {{Window/postMessage(message,
+options)|postMessage()}} tasks might decrease this set, depending on their
+relative prioritization and what runs between.
 
 **What Mitigations are Possible?** <br/>
 There are mitigations that implementers can consider to minimize the risk:
