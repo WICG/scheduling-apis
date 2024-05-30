@@ -12,15 +12,17 @@ This spec formalizes three priorities to support scheduling tasks:
   };
 </pre>
 
-<dfn enum-value for=TaskPriority>user-blocking</dfn> is the highest priority, and is meant to be
-used for tasks that are blocking the user's ability to interact with the page, such as rendering the
-core experience or responding to user input.
+<dfn enum-value for=TaskPriority>user-blocking</dfn> is the highest priority, and it is meant for
+tasks that should run as soon as possible, such that running them at a lower priority would degrade
+user experience. This could be (chunked) work that is directly in response to user input, or
+updating the in-viewport UI state, for example.
 
-<dfn enum-value for=TaskPriority>user-visible</dfn> is the second highest priority, and is meant to
-be used for tasks that are observable to the user but not necessarily blocking user actions, such as
-updating secondary parts of the page. This is the default priority.
+<dfn enum-value for=TaskPriority>user-visible</dfn> is the second highest priority, and it is meant
+for tasks that will be visible to the user, but either not immediately or are not essential to user
+experience. These tasks are either less important or less urgent than user-blocking tasks. This is
+the default priority.
 
-<dfn enum-value for=TaskPriority>background</dfn> is the lowest priority, and is meant to be used
+<dfn enum-value for=TaskPriority>background</dfn> is the lowest priority, and it is meant to be used
 for tasks that are not time-critical, such as background log processing or initializing certain
 third party libraries.
 
