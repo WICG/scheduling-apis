@@ -4,9 +4,9 @@
   <title>Prioritized Task Scheduling</title>
   <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
-  <meta content="Bikeshed version d765c696b, updated Fri Mar 8 15:58:52 2024 -0800" name="generator">
+  <meta content="Bikeshed version 4afc1fdf9, updated Tue May 28 15:43:17 2024 -0700" name="generator">
   <link href="https://wicg.github.io/scheduling-apis/" rel="canonical">
-  <meta content="e6c47f5da98009f23677e08cd307b73564f8e17e" name="revision">
+  <meta content="0a23970a303f17b4265dec8f9fc303d3d83ee5db" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -1005,7 +1005,7 @@ var[data-var-color="6"] { background-color: #FFBCF2; box-shadow: 0 0 0 2px #FFBC
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-05-28">28 May 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-05-30">30 May 2024</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -2020,11 +2020,10 @@ their delay expires and not run instantly, the precision available to callers
 is further reduced. </div>
    <h3 class="heading settled" data-level="5.2" id="sec-security-monitoring-tasks"><span class="secno">5.2. </span><span class="content">Monitoring Another Origin’s Tasks</span><a class="self-link" href="#sec-security-monitoring-tasks"></a></h3>
    <div class="non-normative">
-     The second consideration is whether <code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask①⓪">postTask()</a></code> leaks any
-information about other origins' tasks. We consider an attacker running on one
-origin trying to obtain information about code executing in another origin (and
-hence in a separate event loop) that is scheduled in the same thread in a
-browser. 
+     The second consideration is whether <code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask①⓪">postTask()</a></code> or <code class="idl"><a data-link-type="idl" href="#dom-scheduler-yield" id="ref-for-dom-scheduler-yield④">yield()</a></code> leak any information about other origins' tasks. We
+consider an attacker running on one origin trying to obtain information about
+code executing in another origin (and hence in a separate event loop) that is
+scheduled in the same thread in a browser. 
     <p>Because a thread within a UA can only run tasks from one event loop at a time,
 an attacker might be able to gain information about tasks running in another
 event loop by monitoring when their tasks run. For example, an attacker could
@@ -2055,13 +2054,16 @@ priority, network is second highest, etc., or this could be more dynamic, e.g.
 the UA occasionally chooses to run tasks from other task sources depending on
 how long they’ve been starved. Using a dynamic scheme increases the set of potential
 task which in turn decreases the fidelity of the information.</p>
-    <p><code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask①①">postTask()</a></code> supports prioritization for tasks scheduled with it.
-How these tasks are interleaved with other task sources is also
-implementation-dependent, however it might be possible for an attacker to
-further reduce the set of potential tasks that can run instead of its own by
-leveraging this priority. For example, if a UA uses a simple static
-prioritization scheme spanning all event loops in a thread, then using <code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-blocking" id="ref-for-dom-taskpriority-user-blocking④">user-blocking</a></code> <code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask①②">postTask()</a></code> tasks instead of <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/web-messaging.html#dom-window-postmessage-options" id="ref-for-dom-window-postmessage-options③">postMessage()</a></code> tasks might decrease
-this set, depending on their relative prioritization and what is between.</p>
+    <p><code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask①①">postTask()</a></code> and <code class="idl"><a data-link-type="idl" href="#dom-scheduler-yield" id="ref-for-dom-scheduler-yield⑤">yield()</a></code> support prioritization for
+the tasks and continuations they schedule. How these tasks are interleaved with
+other task sources is also implementation-dependent, however it might be
+possible for an attacker to further reduce the set of potential tasks that can
+run instead of its own by leveraging this priority. For example, if a UA uses a
+simple static prioritization scheme spanning all event loops in a thread, then
+using "<code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-blocking" id="ref-for-dom-taskpriority-user-blocking④">user-blocking</a></code>" <code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask①②">postTask()</a></code> tasks or
+"<code class="idl"><a data-link-type="idl" href="#dom-continuationpriority-user-visible" id="ref-for-dom-continuationpriority-user-visible③">user-visible</a></code>" and higher priority <code class="idl"><a data-link-type="idl" href="#dom-scheduler-yield" id="ref-for-dom-scheduler-yield⑥">yield()</a></code> continuations — which are meant to have a higher
+event loop priority — instead of <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/web-messaging.html#dom-window-postmessage-options" id="ref-for-dom-window-postmessage-options③">postMessage()</a></code> tasks might decrease this set, depending on their
+relative prioritization and what runs between.</p>
     <p><strong>What Mitigations are Possible?</strong> <br> There are mitigations that implementers can consider to minimize the risk:</p>
     <ul>
      <li data-md>
@@ -2939,11 +2941,11 @@ let dfnPanelData = {
 "dom-continuationpriority-background": {"dfnID":"dom-continuationpriority-background","dfnText":"\"background\"","external":false,"refSections":[],"url":"#dom-continuationpriority-background"},
 "dom-continuationpriority-inherit": {"dfnID":"dom-continuationpriority-inherit","dfnText":"\"inherit\"","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-continuationpriority-inherit"}],"title":"2.2. The Scheduler Interface"}],"url":"#dom-continuationpriority-inherit"},
 "dom-continuationpriority-user-blocking": {"dfnID":"dom-continuationpriority-user-blocking","dfnText":"\"user-blocking\"","external":false,"refSections":[],"url":"#dom-continuationpriority-user-blocking"},
-"dom-continuationpriority-user-visible": {"dfnID":"dom-continuationpriority-user-visible","dfnText":"\"user-visible\"","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-continuationpriority-user-visible"}],"title":"2.1. Task and Continuation Priorities"},{"refs":[{"id":"ref-for-dom-continuationpriority-user-visible\u2460"},{"id":"ref-for-dom-continuationpriority-user-visible\u2461"}],"title":"2.2. The Scheduler Interface"}],"url":"#dom-continuationpriority-user-visible"},
+"dom-continuationpriority-user-visible": {"dfnID":"dom-continuationpriority-user-visible","dfnText":"\"user-visible\"","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-continuationpriority-user-visible"}],"title":"2.1. Task and Continuation Priorities"},{"refs":[{"id":"ref-for-dom-continuationpriority-user-visible\u2460"},{"id":"ref-for-dom-continuationpriority-user-visible\u2461"}],"title":"2.2. The Scheduler Interface"},{"refs":[{"id":"ref-for-dom-continuationpriority-user-visible\u2462"}],"title":"5.2. Monitoring Another Origin\u2019s Tasks"}],"url":"#dom-continuationpriority-user-visible"},
 "dom-scheduler-posttask": {"dfnID":"dom-scheduler-posttask","dfnText":"postTask(callback, options)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-scheduler-posttask"}],"title":"1. Introduction"},{"refs":[{"id":"ref-for-dom-scheduler-posttask\u2460"},{"id":"ref-for-dom-scheduler-posttask\u2461"},{"id":"ref-for-dom-scheduler-posttask\u2462"},{"id":"ref-for-dom-scheduler-posttask\u2463"},{"id":"ref-for-dom-scheduler-posttask\u2464"}],"title":"2.2. The Scheduler Interface"},{"refs":[{"id":"ref-for-dom-scheduler-posttask\u2465"}],"title":"2.3. Definitions"},{"refs":[{"id":"ref-for-dom-scheduler-posttask\u2466"}],"title":"3. Controlling Tasks"},{"refs":[{"id":"ref-for-dom-scheduler-posttask\u2467"}],"title":"3.3. The TaskSignal Interface"},{"refs":[{"id":"ref-for-dom-scheduler-posttask\u2468"}],"title":"5.1. postTask as a High-Resolution Timing Source"},{"refs":[{"id":"ref-for-dom-scheduler-posttask\u2460\u24ea"},{"id":"ref-for-dom-scheduler-posttask\u2460\u2460"},{"id":"ref-for-dom-scheduler-posttask\u2460\u2461"}],"title":"5.2. Monitoring Another Origin\u2019s Tasks"}],"url":"#dom-scheduler-posttask"},
 "dom-scheduler-posttask-callback-options-callback": {"dfnID":"dom-scheduler-posttask-callback-options-callback","dfnText":"callback","external":false,"refSections":[],"url":"#dom-scheduler-posttask-callback-options-callback"},
 "dom-scheduler-posttask-callback-options-options": {"dfnID":"dom-scheduler-posttask-callback-options-options","dfnText":"options","external":false,"refSections":[],"url":"#dom-scheduler-posttask-callback-options-options"},
-"dom-scheduler-yield": {"dfnID":"dom-scheduler-yield","dfnText":"yield(options)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-scheduler-yield"}],"title":"1. Introduction"},{"refs":[{"id":"ref-for-dom-scheduler-yield\u2460"},{"id":"ref-for-dom-scheduler-yield\u2461"}],"title":"2.2. The Scheduler Interface"},{"refs":[{"id":"ref-for-dom-scheduler-yield\u2462"}],"title":"2.3. Definitions"}],"url":"#dom-scheduler-yield"},
+"dom-scheduler-yield": {"dfnID":"dom-scheduler-yield","dfnText":"yield(options)","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-scheduler-yield"}],"title":"1. Introduction"},{"refs":[{"id":"ref-for-dom-scheduler-yield\u2460"},{"id":"ref-for-dom-scheduler-yield\u2461"}],"title":"2.2. The Scheduler Interface"},{"refs":[{"id":"ref-for-dom-scheduler-yield\u2462"}],"title":"2.3. Definitions"},{"refs":[{"id":"ref-for-dom-scheduler-yield\u2463"},{"id":"ref-for-dom-scheduler-yield\u2464"},{"id":"ref-for-dom-scheduler-yield\u2465"}],"title":"5.2. Monitoring Another Origin\u2019s Tasks"}],"url":"#dom-scheduler-yield"},
 "dom-scheduler-yield-options-options": {"dfnID":"dom-scheduler-yield-options-options","dfnText":"options","external":false,"refSections":[],"url":"#dom-scheduler-yield-options-options"},
 "dom-schedulerposttaskoptions-delay": {"dfnID":"dom-schedulerposttaskoptions-delay","dfnText":"delay","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-schedulerposttaskoptions-delay"},{"id":"ref-for-dom-schedulerposttaskoptions-delay\u2460"}],"title":"2.2. The Scheduler Interface"},{"refs":[{"id":"ref-for-dom-schedulerposttaskoptions-delay\u2461"}],"title":"2.4.2. Scheduling Tasks and Continuations"},{"refs":[{"id":"ref-for-dom-schedulerposttaskoptions-delay\u2462"}],"title":"5.1. postTask as a High-Resolution Timing Source"}],"url":"#dom-schedulerposttaskoptions-delay"},
 "dom-schedulerposttaskoptions-priority": {"dfnID":"dom-schedulerposttaskoptions-priority","dfnText":"priority","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-schedulerposttaskoptions-priority"},{"id":"ref-for-dom-schedulerposttaskoptions-priority\u2460"},{"id":"ref-for-dom-schedulerposttaskoptions-priority\u2461"},{"id":"ref-for-dom-schedulerposttaskoptions-priority\u2462"}],"title":"2.2. The Scheduler Interface"},{"refs":[{"id":"ref-for-dom-schedulerposttaskoptions-priority\u2463"},{"id":"ref-for-dom-schedulerposttaskoptions-priority\u2464"}],"title":"2.4.2. Scheduling Tasks and Continuations"}],"url":"#dom-schedulerposttaskoptions-priority"},
