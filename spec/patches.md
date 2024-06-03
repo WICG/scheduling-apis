@@ -64,16 +64,16 @@ most scheduling flexibility.
 But the intent of this specification is that the {{TaskPriority}} of {{Scheduler}} tasks would
 influence the event loop priority. Specifically, "{{TaskPriority/background}}" tasks and
 continuations are typically considered less important than most other event loop tasks, and
-"{{TaskPriority/user-blocking}}" tasks and "{{TaskPriority/user-visible}}" and
-"{{TaskPriority/user-blocking}}" continuations are typically considered to be more important.
+"{{TaskPriority/user-blocking}}" tasks and continuations, as well as "{{TaskPriority/user-visible}}"
+continuations (but not tasks), are typically considered to be more important.
 <br/><br/>
 One strategy is to run {{Scheduler}} tasks with an [=scheduler task queue/effective priority=] of 3
 or higher with an elevated priority, e.g. lower than input, rendering, and other <em>urgent</em>
 work, but higher than most other [=task sources=]. {{Scheduler}} tasks with an [=scheduler task
-queue/effective priority=] of 0 or 1 ("{{TaskPriority/background}}") could be run only when no other
-tasks in an [=event loop=]'s [=task queues=] are [=task/runnable=], and {{Scheduler}} tasks with an
-[=scheduler task queue/effective priority=] of 2 ("{{TaskPriority/user-visible}}" tasks) could be
-scheduled like other scheduling-related [=task sources=], e.g. the [=timer task source=].
+queue/effective priority=] of 0 or 1 could be run only when no other tasks in an [=event loop=]'s
+[=task queues=] are [=task/runnable=], and {{Scheduler}} tasks with an [=scheduler task
+queue/effective priority=] of 2 could be scheduled like other scheduling-related [=task sources=],
+e.g. the [=timer task source=].
 
 Issue: The |taskQueue| in this step will either be a [=set=] of [=tasks=] or a [=set=] of
 [=scheduler tasks=]. The steps that follow only [=set/remove=] an [=set/item=], so they are
