@@ -12,17 +12,27 @@ This spec formalizes three priorities to support scheduling tasks:
   };
 </pre>
 
-<dfn enum-value for=TaskPriority>user-blocking</dfn> is the highest priority, and is meant to be
-used for tasks that are blocking the user's ability to interact with the page, such as rendering the
-core experience or responding to user input.
+<dfn enum-value for=TaskPriority>user-blocking</dfn> is the highest priority, and it is meant for
+tasks that should run as soon as possible, such that running them at a lower priority would degrade
+user experience. This could be (chunked) work that is directly in response to user input, or
+updating the in-viewport UI state, for example.
+<br/><br/>
+Note that tasks scheduled with this priority will typically have a higher event loop priority
+compared to other tasks, but they are not necessarily render-blocking. Work that needs to happen
+immediately without interruption should typically be done synchronously &mdash; but this can lead to
+poor responsiveness if the work takes too long. "{{TaskPriority/user-blocking}}" tasks, on the other
+hand, can be used to break up work and remain remain responsive to input and rendering, while
+increasing the liklihood that the work finishes as soon as possible.
 
-<dfn enum-value for=TaskPriority>user-visible</dfn> is the second highest priority, and is meant to
-be used for tasks that are observable to the user but not necessarily blocking user actions, such as
-updating secondary parts of the page. This is the default priority.
+<dfn enum-value for=TaskPriority>user-visible</dfn> is the second highest priority, and it is meant
+for tasks that will have useful side effects that are observable to the user, but either which are
+not immediately observable or which are not essential to user experience. Tasks with this prioriy
+are less important or less urgent than "{{TaskPriority/user-blocking}}" tasks. This is the default
+priority.
 
-<dfn enum-value for=TaskPriority>background</dfn> is the lowest priority, and is meant to be used
-for tasks that are not time-critical, such as background log processing or initializing certain
-third party libraries.
+<dfn enum-value for=TaskPriority>background</dfn> is the lowest priority, and it is meant to be used
+for tasks that are not time-critical, such as background log or metrics processing or initializing
+certain third party libraries.
 
 Continuation priorities mirror task priorities, with an additional option to inherit the current
 priority:
