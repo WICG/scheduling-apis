@@ -63,7 +63,7 @@ most scheduling flexibility.
 <br/><br/>
 But the intent of this specification is that the {{TaskPriority}} of {{Scheduler}} tasks would
 influence the event loop priority. Specifically, "{{TaskPriority/background}}" tasks and
-continuations are typically considered less important than most other event loop tasks, and
+continuations are typically considered less important than most other event loop tasks, while
 "{{TaskPriority/user-blocking}}" tasks and continuations, as well as "{{TaskPriority/user-visible}}"
 continuations (but not tasks), are typically considered to be more important.
 <br/><br/>
