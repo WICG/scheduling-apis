@@ -391,7 +391,7 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
   1. Let |result| be [=a new promise=].
   1. Let |abortOption| be |options|["{{SchedulerYieldOptions/signal}}"] if it [=map/exists=],
      otherwise null.
-  1. Let |priorityOption| be |options|["{{SchedulerPostTaskOptions/priority}}"] if it
+  1. Let |priorityOption| be |options|["{{SchedulerYieldOptions/priority}}"] if it
      [=map/exists=], otherwise null.
   1. If |abortOption| is null and |priorityOption| is null, then set |abortOption| to
      "{{SchedulerSignalInherit/inherit}}" and set |priorityOption| to
