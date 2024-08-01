@@ -34,24 +34,11 @@ priority.
 for tasks that are not time-critical, such as background log or metrics processing or initializing
 certain third party libraries.
 
-Continuation priorities mirror task priorities, with an additional option to inherit the current
-priority:
-
-<pre class='idl'>
-  enum ContinuationPriority {
-    "user-blocking",
-    "user-visible",
-    "background",
-    "inherit"
-  };
-</pre>
-
 Note: Tasks scheduled through a given {{Scheduler}} run in *strict priority order*, meaning the
 scheduler will always run "{{TaskPriority/user-blocking}}" tasks before
 "{{TaskPriority/user-visible}}" tasks, which in turn always run before "{{TaskPriority/background}}"
-tasks. Continuation priorities are slotted in just above their {{TaskPriority}} counterparts, e.g.
-a {{ContinuationPriority/user-visible}} continuation has a higher [=scheduler task queue/effective
-priority=] than a {{TaskPriority/user-visible}} task.
+tasks. Continuations have a higher [=scheduler task queue/effective priority=] than tasks with the
+same {{TaskPriority}}.
 
 ## The `Scheduler` Interface ## {#sec-scheduler}
 
@@ -62,22 +49,13 @@ priority=] than a {{TaskPriority/user-visible}} task.
     [EnforceRange] unsigned long long delay = 0;
   };
 
-  enum SchedulerSignalInherit {
-    "inherit"
-  };
-
-  dictionary SchedulerYieldOptions {
-    (AbortSignal or SchedulerSignalInherit) signal;
-    ContinuationPriority priority;
-  };
-
   callback SchedulerPostTaskCallback = any ();
 
   [Exposed=(Window, Worker)]
   interface Scheduler {
     Promise<any> postTask(SchedulerPostTaskCallback callback,
                           optional SchedulerPostTaskOptions options = {});
-    Promise<undefined> yield(optional SchedulerYieldOptions options = {});
+    Promise<undefined> yield();
   };
 </xmp>
 
@@ -126,51 +104,13 @@ the API into existing code that uses {{AbortSignal|AbortSignals}}.
     <p>Returns a promise that is fulfilled with <code>undefined</code> or rejected with the
     {{AbortSignal}}'s [=AbortSignal/abort reason=], if the continuation is aborted.
 
-    <p>By default, the priority of the continuation and the signal used to abort it are inherited from
-    the originating task, but they can optionally be specified in a similar manner as
-    {{Scheduler/postTask()}} through the {{SchedulerYieldOptions/signal}} and
-    {{SchedulerYieldOptions/priority}} |options|.
-
-    <p>For determining the {{AbortSignal}} used to abort the continuation:
-    <ul>
-      <li>If neither the {{SchedulerYieldOptions/signal}} nor the {{SchedulerYieldOptions/priority}}
-      |options| are specified, then |option|'s {{SchedulerYieldOptions/signal}} is defaulted to
-      "{{SchedulerSignalInherit/inherit}}".
-
-      <li><p>If |option|'s {{SchedulerYieldOptions/signal}} is "{{SchedulerSignalInherit/inherit}}"
-      and the originating task was scheduled with via {{Scheduler/postTask()}} with an
-      {{AbortSignal}}, then that signal is used to determine if the continuation is aborted.
-
-      <li><p>Otherwise if |option|'s {{SchedulerYieldOptions/signal}} is specified, then that is
-      used to determine if the continuation is aborted.
-    </ul>
-
-    <p>For determining the continuation's priority:
-    <ul>
-      <li>If neither the {{SchedulerYieldOptions/signal}} nor the {{SchedulerYieldOptions/priority}}
-      |options| are specified, then |option|'s {{SchedulerYieldOptions/priority}} is defaulted to
-      "{{SchedulerSignalInherit/inherit}}".
-
-      <li><p>If |option|'s {{SchedulerYieldOptions/priority}} is "{{ContinuationPriority/inherit}}",
-      or if |option|'s {{SchedulerYieldOptions/priority}} is not set and
-      {{SchedulerYieldOptions/signal}} is "{{SchedulerSignalInherit/inherit}}", then the originating
-      task's priority is used (a {{TaskSignal}} or fixed priority). If the originating task did not
-      have a priority, then "{{ContinuationPriority/user-visible}}" is used.
-
-      <li><p>Otherwise if |option|'s {{SchedulerPostTaskOptions/priority}} is specified, then that
-      {{ContinuationPriority}} will be used to schedule the continuation, and the continuation's
-      priority is immutable.
-
-      <li><p>Otherwise, if |option|'s {{SchedulerYieldOptions/signal}} is specified and is a
-      {{TaskSignal}} object, then the continuation's priority is determined dynamically by
-      |option|'s {{SchedulerYieldOptions/signal}}'s [=TaskSignal/priority=].
-
-      <li><p>Otherwise, the continuation's priority defaults to
-      "{{ContinuationPriority/user-visible}}".
-    </ul>
-
+    <p>The priority of the continuation and the signal used to abort it are inherited from
+    the originating task. If the originating task was scheduled with via {{Scheduler/postTask()}}
+    with an {{AbortSignal}}, then that signal is used to determine if the continuation is aborted.
+    The originating task's priority (a {{TaskSignal}} or fixed priority) is also used to determine
+    the continuation's priority. If the originating task did not have a priority, then
+    "{{TaskPriority/user-visible}}" is used.
 </dl>
-
 
 A {{Scheduler}} object has an associated <dfn for="Scheduler">static priority task queue map</dfn>,
 which is a [=map=] from ({{TaskPriority}}, boolean) to [=scheduler task queue=]. This map is
@@ -354,12 +294,20 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
   {{SchedulerPostTaskCallback}} |callback| and {{SchedulerPostTaskOptions}} |options|:
 
   1. Let |result| be [=a new promise=].
-  1. Let |state| be the result of [=computing the scheduling state from options=] given |scheduler|,
-     |options|["{{SchedulerPostTaskOptions/signal}}"] if it [=map/exists=], or otherwise null, and
-     |options|["{{SchedulerPostTaskOptions/priority}}"] if it [=map/exists=], or otherwise null.
-  1. Let |signal| be |state|'s [=scheduling state/abort source=].
+  1. Let |signal| be |options|["{{SchedulerPostTaskOptions/signal}}"] if it [=map/exists=], or
+     otherwise null.
   1. If |signal| is not null and it is [=AbortSignal/aborted=], then [=reject=] |result| with
      |signal|'s [=AbortSignal/abort reason=] and return |result|.
+  1. Let |state| be a new [=scheduling state=].
+  1. Set |state|'s [=scheduling state/abort source=] to |signal|.
+  1. If |options|["{{SchedulerPostTaskOptions/priority}}"] [=map/exists=], then set |state|'s
+     [=scheduling state/priority source=] to the result of [=creating a fixed priority unabortable
+     task signal=] given |options|["{{SchedulerPostTaskOptions/priority}}"].
+  1. Otherwise if |signal| is not null and [=implements=] the {{TaskSignal}} interface, then set
+     |state|'s [=scheduling state/priority source=] to |signal|.
+  1. If |state|'s [=scheduling state/priority source=] is null, then set |state|'s
+     [=scheduling state/priority source=] to the result of [=creating a fixed priority unabortable
+     task signal=] given "{{TaskPriority/user-visible}}".
   1. Let |handle| be the result of [=creating a task handle=] given |result| and |signal|.
   1. If |signal| is not null, then [=AbortSignal/add=] |handle|'s [=task handle/abort steps=] to
      |signal|.
@@ -379,67 +327,37 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
     1. If |signal| is null or |signal| is not [=AbortSignal/aborted=], then run |enqueueSteps|.
   1. Otherwise, run |enqueueSteps|.
   1. Return |result|.
+
+  Note: The fixed priority unabortable signals created here can be cached and reused to avoid extra
+  memory allocations.
 </div>
 
 Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension; see
 [whatwg/html#5925](https://github.com/whatwg/html/issues/5925).
 
 <div algorithm>
-  To <dfn>schedule a yield continuation</dfn> for {{Scheduler}} |scheduler| given
-  {{SchedulerYieldOptions}} |options|:
+  To <dfn>schedule a yield continuation</dfn> for {{Scheduler}} |scheduler|:
 
   1. Let |result| be [=a new promise=].
-  1. Let |abortOption| be |options|["{{SchedulerYieldOptions/signal}}"] if it [=map/exists=],
-     otherwise null.
-  1. Let |priorityOption| be |options|["{{SchedulerYieldOptions/priority}}"] if it
-     [=map/exists=], otherwise null.
-  1. If |abortOption| is null and |priorityOption| is null, then set |abortOption| to
-     "{{SchedulerSignalInherit/inherit}}" and set |priorityOption| to
-     "{{SchedulerSignalInherit/inherit}}".
-  1. Otherwise if |abortOption| is "{{SchedulerSignalInherit/inherit}}" and |priorityOption| is null,
-     then set |priorityOption| to "{{SchedulerSignalInherit/inherit}}".
-  1. Let |state| be the result of [=computing the scheduling state from options=] given |scheduler|,
-     |abortOption|, and |priorityOption|.
-  1. Let |signal| be |state|'s [=scheduling state/abort source=].
-  1. If |signal| is not null and it is [=AbortSignal/aborted=], then [=reject=] |result| with
-     |signal|'s [=AbortSignal/abort reason=] and return |result|.
-  1. Let |handle| be the result of [=creating a task handle=] given |result| and |signal|.
-  1. If |signal| is not null, then [=AbortSignal/add=] |handle|'s [=task handle/abort steps=] to
-     |signal|.
+  1. Let |inheritedState| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=]'s
+     [=event loop/current scheduling state=].
+  1. Let |abortSource| be |inheritedState|'s [=scheduling state/abort source=].
+  1. If |abortSource| is not null and |abortSource| is [=AbortSignal/aborted=], then [=reject=]
+     |result| with |abortSource|'s [=AbortSignal/abort reason=] and return |result|.
+  1. Let |prioritySource| be |inheritedState|'s [=scheduling state/priority source=].
+  1. If |prioritySource| is null, then set |prioritySource| to the result of [=creating a fixed
+     priority unabortable task signal=] given "{{TaskPriority/user-visible}}".
+  1. Let |handle| be the result of [=creating a task handle=] given |result| and |abortSource|.
+  1. If |abortSource| is not null, then [=AbortSignal/add=] |handle|'s [=task handle/abort steps=] to
+     |abortSource|.
   1. Set |handle|'s [=task handle/queue=] to the result of [=selecting the scheduler task queue=]
-     for |scheduler| given |state|'s [=scheduling state/priority source=] and true.
+     for |scheduler| given |prioritySource| and true.
   1. [=Schedule a task to invoke an algorithm=] for |scheduler| given |handle| and the following
      steps:
     1. Resolve |result|.
   1. Return |result|.
-</div>
 
-<div algorithm>
-  To <dfn>compute the scheduling state from options</dfn> given a {{Scheduler}} object |scheduler|,
-  an {{AbortSignal}} object, "{{SchedulerSignalInherit/inherit}}", or null |signalOption| and a
-  {{TaskPriority}}, "{{SchedulerSignalInherit/inherit}}", or null |priorityOption|:
-
-  1. Let |result| be a new [=scheduling state=].
-  1. Let |inheritedState| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=]'s
-     [=event loop/current scheduling state=].
-  1. If |signalOption| is "{{SchedulerSignalInherit/inherit}}", then:
-    1. If |inheritedState| is not null, then set |result|'s [=scheduling state/abort source=] to
-       |inheritedState|'s [=scheduling state/abort source=].
-  1. Otherwise, set |result|'s [=scheduling state/abort source=] to |signalOption|.
-  1. If |priorityOption| is "{{SchedulerSignalInherit/inherit}}", then:
-    1. If |inheritedState| is not null, then set |result|'s [=scheduling state/priority source=] to
-       |inheritedState|'s [=scheduling state/priority source=].
-  1. Otherwise if |priorityOption| is not null, then set |result|'s [=scheduling state/priority
-     source=] to the result of [=creating a fixed priority unabortable task signal=] given
-     |priorityOption|.
-  1. Otherwise if |signalOption| is not null and [=implements=] the {{TaskSignal}} interface, then
-     set |result|'s [=scheduling state/priority source=] to |signalOption|.
-  1. If |result|'s [=scheduling state/priority source=] is null, then set |result|'s [=scheduling
-     state/priority source=] to the result of [=creating a fixed priority unabortable task signal=]
-     given "{{TaskPriority/user-visible}}".
-  1. Return |result|.
-
-  Note: The fixed priority unabortable signals created here can be cached and reused to avoid extra
+  Note: The fixed priority unabortable signal created here can be cached and reused to avoid extra
   memory allocations.
 </div>
 
