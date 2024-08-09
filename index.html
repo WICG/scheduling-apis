@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version 6270e4735, updated Tue Aug 6 12:12:30 2024 -0700" name="generator">
   <link href="https://wicg.github.io/scheduling-apis/" rel="canonical">
-  <meta content="ab9bdc917e7c2b2965d13b8b05597abdc7c69731" name="revision">
+  <meta content="4b5384089293576edcd5c085956f1ea438638d86" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -1027,7 +1027,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-08-07">7 August 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-08-09">9 August 2024</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -2029,9 +2029,10 @@ possible for an attacker to further reduce the set of potential tasks that can
 run instead of its own by leveraging this priority. For example, if a UA uses a
 simple static prioritization scheme spanning all event loops in a thread, then
 using "<code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-blocking" id="ref-for-dom-taskpriority-user-blocking⑦">user-blocking</a></code>" <code class="idl"><a data-link-type="idl" href="#dom-scheduler-posttask" id="ref-for-dom-scheduler-posttask①①">postTask()</a></code> tasks or
-"<code class="idl"><a data-link-type="idl" href="https://wicg.github.io/scheduling-apis/#dom-continuationpriority-user-visible" id="ref-for-dom-continuationpriority-user-visible">user-visible</a></code>" and higher priority <code class="idl"><a data-link-type="idl" href="#dom-scheduler-yield" id="ref-for-dom-scheduler-yield⑥">yield()</a></code> continuations — which are meant to have a higher
-event loop priority — instead of <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/web-messaging.html#dom-window-postmessage-options" id="ref-for-dom-window-postmessage-options③">postMessage()</a></code> tasks might decrease this set, depending on their
-relative prioritization and what runs between.</p>
+"<code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-visible" id="ref-for-dom-taskpriority-user-visible⑨">user-visible</a></code>" and higher priority <code class="idl"><a data-link-type="idl" href="#dom-scheduler-yield" id="ref-for-dom-scheduler-yield⑥">yield()</a></code> continuations — which are meant to have a higher event loop priority
+— instead of <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/web-messaging.html#dom-window-postmessage-options" id="ref-for-dom-window-postmessage-options③">postMessage()</a></code> tasks
+might decrease this set, depending on their relative prioritization and what
+runs between.</p>
     <p><strong>What Mitigations are Possible?</strong> <br> There are mitigations that implementers can consider to minimize the risk:</p>
     <ul>
      <li data-md>
@@ -2269,11 +2270,6 @@ perspective and do not believe there to be any privacy considerations.</p>
      <li><span class="dfn-paneled" id="145b2fc1">requestIdleCallback()</span>
     </ul>
    <li>
-    <a data-link-type="biblio">[SCHEDULING-APIS]</a> defines the following terms:
-    <ul>
-     <li><span class="dfn-paneled" id="0c106b2c">"user-visible"</span>
-    </ul>
-   <li>
     <a data-link-type="biblio">[WEBIDL]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="dca2de17">DOMException</span>
@@ -2316,8 +2312,6 @@ perspective and do not believe there to be any privacy considerations.</p>
   <dl>
    <dt id="biblio-requestidlecallback">[REQUESTIDLECALLBACK]
    <dd>Ross McIlroy; Ilya Grigorik. <a href="https://w3c.github.io/requestidlecallback/"><cite>requestIdleCallback() Cooperative Scheduling of Background Tasks</cite></a>. URL: <a href="https://w3c.github.io/requestidlecallback/">https://w3c.github.io/requestidlecallback/</a>
-   <dt id="biblio-scheduling-apis">[SCHEDULING-APIS]
-   <dd><a href="https://wicg.github.io/scheduling-apis/"><cite>Prioritized Task Scheduling</cite></a>. cg-draft. URL: <a href="https://wicg.github.io/scheduling-apis/">https://wicg.github.io/scheduling-apis/</a>
   </dl>
   <h2 class="no-num no-ref heading settled" id="idl-index"><span class="content">IDL Index</span><a class="self-link" href="#idl-index"></a></h2>
 <pre class="idl highlight def"><c- b>enum</c-> <a href="#enumdef-taskpriority"><code><c- g>TaskPriority</c-></code></a> {
@@ -2792,7 +2786,6 @@ let dfnPanelData = {
 "02fb8691": {"dfnID":"02fb8691","dfnText":"MessageChannel","external":true,"refSections":[{"refs":[{"id":"ref-for-messagechannel"}],"title":"1. Introduction"}],"url":"https://html.spec.whatwg.org/multipage/web-messaging.html#messagechannel"},
 "03675365": {"dfnID":"03675365","dfnText":"event handler idl attribute","external":true,"refSections":[{"refs":[{"id":"ref-for-event-handler-idl-attributes"}],"title":"3.3. The TaskSignal Interface"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes"},
 "03afaf9c": {"dfnID":"03afaf9c","dfnText":"empty","external":true,"refSections":[{"refs":[{"id":"ref-for-list-empty"}],"title":"2.4.1. Queueing and Removing Scheduler Tasks"},{"refs":[{"id":"ref-for-list-empty\u2460"},{"id":"ref-for-list-empty\u2461"}],"title":"2.4.3. Selecting the Next Task to Run"},{"refs":[{"id":"ref-for-list-empty\u2462"},{"id":"ref-for-list-empty\u2463"}],"title":"4.1.3. Event loop: processing model"}],"url":"https://infra.spec.whatwg.org/#list-empty"},
-"0c106b2c": {"dfnID":"0c106b2c","dfnText":"\"user-visible\"","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-continuationpriority-user-visible"}],"title":"5.2. Monitoring Another Origin\u2019s Tasks"}],"url":"https://wicg.github.io/scheduling-apis/#dom-continuationpriority-user-visible"},
 "0fe84b59": {"dfnID":"0fe84b59","dfnText":"signal","external":true,"refSections":[{"refs":[{"id":"ref-for-abortcontroller-signal"},{"id":"ref-for-abortcontroller-signal\u2460"}],"title":"3.2. The TaskController Interface"}],"url":"https://dom.spec.whatwg.org/#abortcontroller-signal"},
 "10ce5f6f": {"dfnID":"10ce5f6f","dfnText":"invoke","external":true,"refSections":[{"refs":[{"id":"ref-for-invoke-a-callback-function"}],"title":"2.4.2. Scheduling Tasks and Continuations"}],"url":"https://webidl.spec.whatwg.org/#invoke-a-callback-function"},
 "1243a891": {"dfnID":"1243a891","dfnText":"exist","external":true,"refSections":[{"refs":[{"id":"ref-for-map-exists"},{"id":"ref-for-map-exists\u2460"},{"id":"ref-for-map-exists\u2461"},{"id":"ref-for-map-exists\u2462"}],"title":"2.4.2. Scheduling Tasks and Continuations"}],"url":"https://infra.spec.whatwg.org/#map-exists"},
@@ -2881,7 +2874,7 @@ let dfnPanelData = {
 "dom-taskcontrollerinit-priority": {"dfnID":"dom-taskcontrollerinit-priority","dfnText":"priority","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-taskcontrollerinit-priority"},{"id":"ref-for-dom-taskcontrollerinit-priority\u2460"}],"title":"3.2. The TaskController Interface"}],"url":"#dom-taskcontrollerinit-priority"},
 "dom-taskpriority-background": {"dfnID":"dom-taskpriority-background","dfnText":"background","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-taskpriority-background"},{"id":"ref-for-dom-taskpriority-background\u2460"}],"title":"2.1. Task and Continuation Priorities"},{"refs":[{"id":"ref-for-dom-taskpriority-background\u2461"},{"id":"ref-for-dom-taskpriority-background\u2462"}],"title":"2.4. Processing Model"},{"refs":[{"id":"ref-for-dom-taskpriority-background\u2463"}],"title":"4.1.3. Event loop: processing model"},{"refs":[{"id":"ref-for-dom-taskpriority-background\u2464"}],"title":"4.2.1. Invoke idle callbacks algorithm"}],"url":"#dom-taskpriority-background"},
 "dom-taskpriority-user-blocking": {"dfnID":"dom-taskpriority-user-blocking","dfnText":"user-blocking","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-taskpriority-user-blocking"},{"id":"ref-for-dom-taskpriority-user-blocking\u2460"},{"id":"ref-for-dom-taskpriority-user-blocking\u2461"},{"id":"ref-for-dom-taskpriority-user-blocking\u2462"}],"title":"2.1. Task and Continuation Priorities"},{"refs":[{"id":"ref-for-dom-taskpriority-user-blocking\u2463"},{"id":"ref-for-dom-taskpriority-user-blocking\u2464"}],"title":"2.4. Processing Model"},{"refs":[{"id":"ref-for-dom-taskpriority-user-blocking\u2465"}],"title":"4.1.3. Event loop: processing model"},{"refs":[{"id":"ref-for-dom-taskpriority-user-blocking\u2466"}],"title":"5.2. Monitoring Another Origin\u2019s Tasks"}],"url":"#dom-taskpriority-user-blocking"},
-"dom-taskpriority-user-visible": {"dfnID":"dom-taskpriority-user-visible","dfnText":"user-visible","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-taskpriority-user-visible"},{"id":"ref-for-dom-taskpriority-user-visible\u2460"}],"title":"2.1. Task and Continuation Priorities"},{"refs":[{"id":"ref-for-dom-taskpriority-user-visible\u2461"},{"id":"ref-for-dom-taskpriority-user-visible\u2462"}],"title":"2.2. The Scheduler Interface"},{"refs":[{"id":"ref-for-dom-taskpriority-user-visible\u2463"},{"id":"ref-for-dom-taskpriority-user-visible\u2464"}],"title":"2.4. Processing Model"},{"refs":[{"id":"ref-for-dom-taskpriority-user-visible\u2465"},{"id":"ref-for-dom-taskpriority-user-visible\u2466"}],"title":"2.4.2. Scheduling Tasks and Continuations"},{"refs":[{"id":"ref-for-dom-taskpriority-user-visible\u2467"}],"title":"4.1.3. Event loop: processing model"}],"url":"#dom-taskpriority-user-visible"},
+"dom-taskpriority-user-visible": {"dfnID":"dom-taskpriority-user-visible","dfnText":"user-visible","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-taskpriority-user-visible"},{"id":"ref-for-dom-taskpriority-user-visible\u2460"}],"title":"2.1. Task and Continuation Priorities"},{"refs":[{"id":"ref-for-dom-taskpriority-user-visible\u2461"},{"id":"ref-for-dom-taskpriority-user-visible\u2462"}],"title":"2.2. The Scheduler Interface"},{"refs":[{"id":"ref-for-dom-taskpriority-user-visible\u2463"},{"id":"ref-for-dom-taskpriority-user-visible\u2464"}],"title":"2.4. Processing Model"},{"refs":[{"id":"ref-for-dom-taskpriority-user-visible\u2465"},{"id":"ref-for-dom-taskpriority-user-visible\u2466"}],"title":"2.4.2. Scheduling Tasks and Continuations"},{"refs":[{"id":"ref-for-dom-taskpriority-user-visible\u2467"}],"title":"4.1.3. Event loop: processing model"},{"refs":[{"id":"ref-for-dom-taskpriority-user-visible\u2468"}],"title":"5.2. Monitoring Another Origin\u2019s Tasks"}],"url":"#dom-taskpriority-user-visible"},
 "dom-taskprioritychangeevent-previouspriority": {"dfnID":"dom-taskprioritychangeevent-previouspriority","dfnText":"previousPriority","external":false,"refSections":[{"refs":[{"id":"ref-for-dom-taskprioritychangeevent-previouspriority"},{"id":"ref-for-dom-taskprioritychangeevent-previouspriority\u2460"}],"title":"3.1. The TaskPriorityChangeEvent Interface"},{"refs":[{"id":"ref-for-dom-taskprioritychangeevent-previouspriority\u2461"}],"title":"3.3. The TaskSignal Interface"}],"url":"#dom-taskprioritychangeevent-previouspriority"},
 "dom-taskprioritychangeevent-taskprioritychangeevent": {"dfnID":"dom-taskprioritychangeevent-taskprioritychangeevent","dfnText":"constructor","external":false,"refSections":[],"url":"#dom-taskprioritychangeevent-taskprioritychangeevent"},
 "dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-prioritychangeeventinitdict": {"dfnID":"dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-prioritychangeeventinitdict","dfnText":"priorityChangeEventInitDict","external":false,"refSections":[],"url":"#dom-taskprioritychangeevent-taskprioritychangeevent-type-prioritychangeeventinitdict-prioritychangeeventinitdict"},
@@ -3550,7 +3543,6 @@ let refsData = {
 "https://webidl.spec.whatwg.org/#notallowederror": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"NotAllowedError","type":"exception","url":"https://webidl.spec.whatwg.org/#notallowederror"},
 "https://webidl.spec.whatwg.org/#reject": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"reject","type":"dfn","url":"https://webidl.spec.whatwg.org/#reject"},
 "https://webidl.spec.whatwg.org/#this": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"this","type":"dfn","url":"https://webidl.spec.whatwg.org/#this"},
-"https://wicg.github.io/scheduling-apis/#dom-continuationpriority-user-visible": {"export":true,"for_":["ContinuationPriority"],"level":"1","normative":true,"shortname":"scheduling-apis","spec":"scheduling-apis","status":"current","text":"\"user-visible\"","type":"enum-value","url":"https://wicg.github.io/scheduling-apis/#dom-continuationpriority-user-visible"},
 "https://www.w3.org/TR/requestidlecallback/#dom-window-requestidlecallback": {"export":true,"for_":["Window"],"level":"","normative":true,"shortname":"requestidlecallback","spec":"requestidlecallback","status":"anchor-block","text":"requestIdleCallback()","type":"method","url":"https://www.w3.org/TR/requestidlecallback/#dom-window-requestidlecallback"},
 };
 
