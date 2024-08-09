@@ -318,8 +318,9 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
        steps:
       1. Let |event loop| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=].
       1. Set |event loop|'s [=event loop/current scheduling state=] to |state|.
-      1. Let |callbackResult| be the result of [=invoking=] |callback|. If that threw an exception,
-         then [=reject=] |result| with that, otherwise resolve |result| with |callbackResult|.
+      1. Let |callbackResult| be the result of [=invoking=] |callback| with « » and "`rethrow`".
+         If that threw an exception, then [=reject=] |result| with that. Otherwise, [=resolve=]
+         |result| with |callbackResult|.
       1. Set |event loop|'s [=event loop/current scheduling state=] to null.
   1. Let |delay| be |options|["{{SchedulerPostTaskOptions/delay}}"].
   1. If |delay| is greater than 0, then [=run steps after a timeout=] given |scheduler|'s [=relevant
