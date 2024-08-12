@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version 6270e4735, updated Tue Aug 6 12:12:30 2024 -0700" name="generator">
   <link href="https://wicg.github.io/scheduling-apis/" rel="canonical">
-  <meta content="4b5384089293576edcd5c085956f1ea438638d86" name="revision">
+  <meta content="714aeb350577029d26872c1847acf312c8a55545" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -1027,7 +1027,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-08-09">9 August 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-08-12">12 August 2024</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1502,8 +1502,8 @@ and must only be used for <a data-link-type="dfn" href="#scheduler-task" id="ref
          <li data-md>
           <p>Set <var>event loop</var>’s <a data-link-type="dfn" href="#event-loop-current-scheduling-state" id="ref-for-event-loop-current-scheduling-state">current scheduling state</a> to <var>state</var>.</p>
          <li data-md>
-          <p>Let <var>callbackResult</var> be the result of <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#invoke-a-callback-function" id="ref-for-invoke-a-callback-function">invoking</a> <var>callback</var>. If that threw an exception,
- then <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#reject" id="ref-for-reject②">reject</a> <var>result</var> with that, otherwise resolve <var>result</var> with <var>callbackResult</var>.</p>
+          <p>Let <var>callbackResult</var> be the result of <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#invoke-a-callback-function" id="ref-for-invoke-a-callback-function">invoking</a> <var>callback</var> with « » and "<code>rethrow</code>".
+ If that threw an exception, then <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#reject" id="ref-for-reject②">reject</a> <var>result</var> with that. Otherwise, <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#resolve" id="ref-for-resolve">resolve</a> <var>result</var> with <var>callbackResult</var>.</p>
          <li data-md>
           <p>Set <var>event loop</var>’s <a data-link-type="dfn" href="#event-loop-current-scheduling-state" id="ref-for-event-loop-current-scheduling-state①">current scheduling state</a> to null.</p>
         </ol>
@@ -2285,6 +2285,7 @@ perspective and do not believe there to be any privacy considerations.</p>
      <li><span class="dfn-paneled" id="a32c65d4">implements</span>
      <li><span class="dfn-paneled" id="10ce5f6f">invoke</span>
      <li><span class="dfn-paneled" id="b262501e">reject</span>
+     <li><span class="dfn-paneled" id="3b90bdcd">resolve</span>
      <li><span class="dfn-paneled" id="9cce47fd">sequence</span>
      <li><span class="dfn-paneled" id="4013a022">this</span>
      <li><span class="dfn-paneled" id="b4cfa5ce">throw</span>
@@ -2801,6 +2802,7 @@ let dfnPanelData = {
 "3332e595": {"dfnID":"3332e595","dfnText":"setTimeout(handler, timeout, ...arguments)","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-settimeout"},{"id":"ref-for-dom-settimeout\u2460"}],"title":"1. Introduction"},{"refs":[{"id":"ref-for-dom-settimeout\u2461"}],"title":"5.1. postTask as a High-Resolution Timing Source"}],"url":"https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#dom-settimeout"},
 "36858240": {"dfnID":"36858240","dfnText":"boolean","external":true,"refSections":[{"refs":[{"id":"ref-for-boolean"}],"title":"3.3. The TaskSignal Interface"}],"url":"https://infra.spec.whatwg.org/#boolean"},
 "3aec4bbc": {"dfnID":"3aec4bbc","dfnText":"current realm","external":true,"refSections":[{"refs":[{"id":"ref-for-current-realm"}],"title":"3.3. The TaskSignal Interface"}],"url":"https://tc39.es/ecma262/#current-realm"},
+"3b90bdcd": {"dfnID":"3b90bdcd","dfnText":"resolve","external":true,"refSections":[{"refs":[{"id":"ref-for-resolve"}],"title":"2.4.2. Scheduling Tasks and Continuations"}],"url":"https://webidl.spec.whatwg.org/#resolve"},
 "3fca5a9e": {"dfnID":"3fca5a9e","dfnText":"map","external":true,"refSections":[{"refs":[{"id":"ref-for-ordered-map"},{"id":"ref-for-ordered-map\u2460"},{"id":"ref-for-ordered-map\u2461"},{"id":"ref-for-ordered-map\u2462"}],"title":"2.2. The Scheduler Interface"}],"url":"https://infra.spec.whatwg.org/#ordered-map"},
 "4013a022": {"dfnID":"4013a022","dfnText":"this","external":true,"refSections":[{"refs":[{"id":"ref-for-this"},{"id":"ref-for-this\u2460"}],"title":"2.2. The Scheduler Interface"},{"refs":[{"id":"ref-for-this\u2461"},{"id":"ref-for-this\u2462"}],"title":"3.2. The TaskController Interface"},{"refs":[{"id":"ref-for-this\u2463"}],"title":"3.3. The TaskSignal Interface"},{"refs":[{"id":"ref-for-this\u2464"}],"title":"4.1.1. WindowOrWorkerGlobalScope"}],"url":"https://webidl.spec.whatwg.org/#this"},
 "44a7708c": {"dfnID":"44a7708c","dfnText":"EventInit","external":true,"refSections":[{"refs":[{"id":"ref-for-dictdef-eventinit"}],"title":"3.1. The TaskPriorityChangeEvent Interface"}],"url":"https://dom.spec.whatwg.org/#dictdef-eventinit"},
@@ -3542,6 +3544,7 @@ let refsData = {
 "https://webidl.spec.whatwg.org/#invoke-a-callback-function": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"invoke","type":"dfn","url":"https://webidl.spec.whatwg.org/#invoke-a-callback-function"},
 "https://webidl.spec.whatwg.org/#notallowederror": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"NotAllowedError","type":"exception","url":"https://webidl.spec.whatwg.org/#notallowederror"},
 "https://webidl.spec.whatwg.org/#reject": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"reject","type":"dfn","url":"https://webidl.spec.whatwg.org/#reject"},
+"https://webidl.spec.whatwg.org/#resolve": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"resolve","type":"dfn","url":"https://webidl.spec.whatwg.org/#resolve"},
 "https://webidl.spec.whatwg.org/#this": {"export":true,"for_":[],"level":"1","normative":true,"shortname":"webidl","spec":"webidl","status":"current","text":"this","type":"dfn","url":"https://webidl.spec.whatwg.org/#this"},
 "https://www.w3.org/TR/requestidlecallback/#dom-window-requestidlecallback": {"export":true,"for_":["Window"],"level":"","normative":true,"shortname":"requestidlecallback","spec":"requestidlecallback","status":"anchor-block","text":"requestIdleCallback()","type":"method","url":"https://www.w3.org/TR/requestidlecallback/#dom-window-requestidlecallback"},
 };
