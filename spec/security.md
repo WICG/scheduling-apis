@@ -72,11 +72,11 @@ possible for an attacker to further reduce the set of potential tasks that can
 run instead of its own by leveraging this priority. For example, if a UA uses a
 simple static prioritization scheme spanning all event loops in a thread, then
 using "{{TaskPriority/user-blocking}}" {{Scheduler/postTask()}} tasks or
-"{{ContinuationPriority/user-visible}}" and higher priority
-{{Scheduler/yield()}} continuations &mdash; which are meant to have a higher
-event loop priority &mdash; instead of {{Window/postMessage(message,
-options)|postMessage()}} tasks might decrease this set, depending on their
-relative prioritization and what runs between.
+"{{TaskPriority/user-visible}}" and higher priority {{Scheduler/yield()}}
+continuations &mdash; which are meant to have a higher event loop priority
+&mdash; instead of {{Window/postMessage(message, options)|postMessage()}} tasks
+might decrease this set, depending on their relative prioritization and what
+runs between.
 
 **What Mitigations are Possible?** <br/>
 There are mitigations that implementers can consider to minimize the risk:
