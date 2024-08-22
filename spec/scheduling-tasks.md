@@ -99,7 +99,7 @@ the API into existing code that uses {{AbortSignal|AbortSignals}}.
     milliseconds.
   </dd>
 
-  <dt><code>result = scheduler . {{Scheduler/yield()|yield}}( |options| )</code></dt>
+  <dt><code>result = scheduler . {{Scheduler/yield()|yield}}()</code></dt>
   <dd>
     <p>Returns a promise that is fulfilled with <code>undefined</code> or rejected with the
     {{AbortSignal}}'s [=AbortSignal/abort reason=], if the continuation is aborted.
@@ -142,8 +142,8 @@ The <dfn method for=Scheduler title="postTask(callback, options)">postTask(|call
 method steps are to return the result of [=scheduling a postTask task=] for [=this=] given
 |callback| and |options|.
 
-The <dfn method for=Scheduler title="yield(options)">yield(|options|)</dfn> method steps are to
-return the result of [=scheduling a yield continuation=] for [=this=] given |options|.
+The <dfn method for=Scheduler title="yield()">yield()</dfn> method steps are to
+return the result of [=scheduling a yield continuation=] for [=this=].
 
 
 ## Definitions ## {#sec-scheduling-tasks-definitions}
