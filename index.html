@@ -6,7 +6,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/cg-draft" rel="stylesheet">
   <meta content="Bikeshed version 6270e4735, updated Tue Aug 6 12:12:30 2024 -0700" name="generator">
   <link href="https://wicg.github.io/scheduling-apis/" rel="canonical">
-  <meta content="00a877362140798c78432516182c0fbd15b6dc02" name="revision">
+  <meta content="ec14f7d7fb1a4ec07a7a899ee8b85140714dac4d" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>
@@ -1027,7 +1027,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Prioritized Task Scheduling</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-08-22">22 August 2024</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types#CG-DRAFT">Draft Community Group Report</a>, <time class="dt-updated" datetime="2024-09-16">16 September 2024</time></p>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1534,11 +1534,11 @@ and must only be used for <a data-link-type="dfn" href="#scheduler-task" id="ref
      <li data-md>
       <p>Let <var>inheritedState</var> be the <var>scheduler</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-agent" id="ref-for-relevant-agent①">relevant agent</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-agent-event-loop" id="ref-for-concept-agent-event-loop①">event loop</a>'s <a data-link-type="dfn" href="#event-loop-current-scheduling-state" id="ref-for-event-loop-current-scheduling-state②">current scheduling state</a>.</p>
      <li data-md>
-      <p>Let <var>abortSource</var> be <var>inheritedState</var>’s <a data-link-type="dfn" href="#scheduling-state-abort-source" id="ref-for-scheduling-state-abort-source①">abort source</a>.</p>
+      <p>Let <var>abortSource</var> be <var>inheritedState</var>’s <a data-link-type="dfn" href="#scheduling-state-abort-source" id="ref-for-scheduling-state-abort-source①">abort source</a> if <var>inheritedState</var> is not null, or otherwise null.</p>
      <li data-md>
       <p>If <var>abortSource</var> is not null and <var>abortSource</var> is <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortsignal-aborted" id="ref-for-abortsignal-aborted②">aborted</a>, then <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#reject" id="ref-for-reject③">reject</a> <var>result</var> with <var>abortSource</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#abortsignal-abort-reason" id="ref-for-abortsignal-abort-reason④">abort reason</a> and return <var>result</var>.</p>
      <li data-md>
-      <p>Let <var>prioritySource</var> be <var>inheritedState</var>’s <a data-link-type="dfn" href="#scheduling-state-priority-source" id="ref-for-scheduling-state-priority-source⑤">priority source</a>.</p>
+      <p>Let <var>prioritySource</var> be <var>inheritedState</var>’s <a data-link-type="dfn" href="#scheduling-state-priority-source" id="ref-for-scheduling-state-priority-source⑤">priority source</a> if <var>inheritedState</var> is not null, or otherwise null.</p>
      <li data-md>
       <p>If <var>prioritySource</var> is null, then set <var>prioritySource</var> to the result of <a data-link-type="dfn" href="#create-a-fixed-priority-unabortable-task-signal" id="ref-for-create-a-fixed-priority-unabortable-task-signal②">creating a fixed
  priority unabortable task signal</a> given "<code class="idl"><a data-link-type="idl" href="#dom-taskpriority-user-visible" id="ref-for-dom-taskpriority-user-visible⑦">user-visible</a></code>".</p>
