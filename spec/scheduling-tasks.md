@@ -342,10 +342,12 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
   1. Let |result| be [=a new promise=].
   1. Let |inheritedState| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=]'s
      [=event loop/current scheduling state=].
-  1. Let |abortSource| be |inheritedState|'s [=scheduling state/abort source=].
+  1. Let |abortSource| be |inheritedState|'s [=scheduling state/abort source=] if |inheritedState|
+     is not null, or otherwise null.
   1. If |abortSource| is not null and |abortSource| is [=AbortSignal/aborted=], then [=reject=]
      |result| with |abortSource|'s [=AbortSignal/abort reason=] and return |result|.
-  1. Let |prioritySource| be |inheritedState|'s [=scheduling state/priority source=].
+  1. Let |prioritySource| be |inheritedState|'s [=scheduling state/priority source=] if
+     |inheritedState| is not null, or otherwise null.
   1. If |prioritySource| is null, then set |prioritySource| to the result of [=creating a fixed
      priority unabortable task signal=] given "{{TaskPriority/user-visible}}".
   1. Let |handle| be the result of [=creating a task handle=] given |result| and |abortSource|.
