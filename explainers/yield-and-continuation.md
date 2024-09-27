@@ -1,5 +1,10 @@
 # `scheduler.yield()`
 
+**WARNING: This explainer is out of date.** The API no longer supports directly
+specifying the priority and abort behavior, but rather inherits this state from
+the current task. See https://wicg.github.io/scheduling-apis/#dom-scheduler-yield
+for the up-to-date API and behavior.
+
 ## Authors
 
 - [Scott Haseley](https://github.com/shaseley)
