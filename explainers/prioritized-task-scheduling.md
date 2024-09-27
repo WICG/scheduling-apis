@@ -340,6 +340,11 @@ doSomethingWithAbortSignal(signal);
 
 ### `scheduler.yield()`
 
+**WARNING: This section is out of date.** The API no longer supports directly
+specifying the priority and abort behavior, but rather inherits this state from
+the current task. See https://wicg.github.io/scheduling-apis/#dom-scheduler-yield
+for the up-to-date API and behavior.
+
 (See also the [separate `scheduler.yield()` explainer](./yield-and-continuation.md)).
 
 `scheduler.yield()` can be used in any context to yield to the event loop by awaiting the promise it
