@@ -21,7 +21,7 @@ Note that tasks scheduled with this priority will typically have a higher event 
 compared to other tasks, but they are not necessarily render-blocking. Work that needs to happen
 immediately without interruption should typically be done synchronously &mdash; but this can lead to
 poor responsiveness if the work takes too long. "{{TaskPriority/user-blocking}}" tasks, on the other
-hand, can be used to break up work and remain remain responsive to input and rendering, while
+hand, can be used to break up work and remain responsive to input and rendering, while
 increasing the liklihood that the work finishes as soon as possible.
 
 <dfn enum-value for=TaskPriority>user-visible</dfn> is the second highest priority, and it is meant
