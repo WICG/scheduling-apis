@@ -104,13 +104,15 @@ method that would return a plain [=task=], but that would involve a fair amount 
 
 ### <a href="https://html.spec.whatwg.org/#queuing-tasks">Event Loop: Queuing Tasks</a> ### {#sec-patches-html-queuing-tasks}
 
-Change the <a href="">To queue a microtask</a> algorithm to accept an optional boolean
-|ignoreContinuationState| (default false).
+Change the <a href="https://html.spec.whatwg.org/#queue-a-microtask">To queue a microtask</a>
+algorithm to accept an optional boolean |ignoreContinuationState| (default false).
 
 Change Step 5 to the following:
 
-  1. Let |continuationState| be |eventLoop|'s [=event loop/current continuation state=] if
-     |ignoreContinuationState| is false, otherwise null.
+  1. Let |continuationState| be null.
+  1. If |ignoreContinuationState| is false and |eventLoop|'s
+     [=event loop/current continuation state=] is not null, then set |continuationState| to the
+     result of [=list/cloning=] |event loop|'s [=event loop/current continuation state=].
   1. Set <var ignore=''>microtask</var>'s <a attribute for="task">steps</a> to the following:
     1. If |ignoreContinuationState| is false, then set |eventLoop|'s
        [=event loop/current continuation state=] to |continuationState|.
@@ -124,7 +126,9 @@ Add the following before step 5:
 
   1. Let |event loop| be <var ignore=''>incumbent settings<var>'s
      [=environment settings object/realm=]'s [=realm/agent=]'s [=agent/event loop=].
-  1. Let |state| be |event loop|'s [=event loop/current continuation state=].
+  1. Let |state| be the result of [=list/cloning=] |event loop|'s
+     [=event loop/current continuation state=] if [=event loop/current continuation state=] is not
+     null, or otherwise null.
 
 Modify step 5 to read:
 
