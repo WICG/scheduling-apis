@@ -175,9 +175,19 @@ A <dfn>scheduler task queue</dfn> is a [=struct=] with the following [=struct/it
 A <dfn>scheduling state</dfn> is a [=struct=] with the following [=struct/items=]:
 
 : <dfn for="scheduling state">abort source</dfn>
-:: An {{AbortSignal}} object or, initially null.
+:: An {{AbortSignal}} object or null, initially null.
 : <dfn for="scheduling state">priority source</dfn>
 :: A {{TaskSignal}} object or null, initially null.
+
+<br/>
+
+A <dfn>continuation state</dfn> is a [=struct=] with the following [=struct/items=]:
+
+: <dfn for="continuation state">state map</dfn>
+:: An initially empty [=map=].
+
+Note: The [=continuation state/state map=] can be implemented as weak map if its keys are
+implemented as garbage collected objects.
 
 <br/>
 
@@ -290,6 +300,25 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
 ### Scheduling Tasks and Continuations ### {#sec-scheduler-alg-scheduling-tasks-and-continuations}
 
 <div algorithm>
+  To <dfn>set the current scheduling state</dfn> for |scheduler| (a {{Scheduler}}) to |state| (a
+  [=scheduling state=]):
+
+  1. Let |eventLoop| be |scheduler|'s [=relevant agent=]'s [=agent/event loop=].
+  1. [=Set the continuation state value=] for |scheduler| to |state| given |eventLoop|.
+
+  Note: Any key can be used for the [=continuation state/state map=] as long as it is unique to the
+  {{Scheduler}}.
+</div>
+
+<div algorithm>
+  To <dfn>get the current scheduling state</dfn> for |scheduler| (a {{Scheduler}}):
+
+  1. Let |eventLoop| be |scheduler|'s [=relevant agent=]'s [=agent/event loop=].
+  1. Return the result of [=getting the continuation state value=] for |scheduler| given
+     |eventLoop|.
+</div>
+
+<div algorithm>
   To <dfn>schedule a postTask task</dfn> for {{Scheduler}} |scheduler| given a
   {{SchedulerPostTaskCallback}} |callback| and {{SchedulerPostTaskOptions}} |options|:
 
@@ -316,12 +345,12 @@ A <dfn>task handle</dfn> is a [=struct=] with the following [=struct/items=]:
        for |scheduler| given |state|'s [=scheduling state/priority source=] and false.
     1. [=Schedule a task to invoke an algorithm=] for |scheduler| given |handle| and the following
        steps:
-      1. Let |event loop| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=].
-      1. Set |event loop|'s [=event loop/current scheduling state=] to |state|.
+      1. Let |eventLoop| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=].
+      1. [=Set the current scheduling state=] for |scheduler| to |state|.
       1. Let |callbackResult| be the result of [=invoking=] |callback| with « » and "`rethrow`".
          If that threw an exception, then [=reject=] |result| with that. Otherwise, [=resolve=]
          |result| with |callbackResult|.
-      1. Set |event loop|'s [=event loop/current scheduling state=] to null.
+      1. Set |eventLoop|'s [=event loop/current continuation state=] to null.
   1. Let |delay| be |options|["{{SchedulerPostTaskOptions/delay}}"].
   1. If |delay| is greater than 0, then [=run steps after a timeout=] given |scheduler|'s [=relevant
      global object=], "`scheduler-postTask`", |delay|, and the following steps:
@@ -340,8 +369,7 @@ Issue: [=Run steps after a timeout=] doesn't necessarily account for suspension;
   To <dfn>schedule a yield continuation</dfn> for {{Scheduler}} |scheduler|:
 
   1. Let |result| be [=a new promise=].
-  1. Let |inheritedState| be the |scheduler|'s [=relevant agent=]'s [=agent/event loop=]'s
-     [=event loop/current scheduling state=].
+  1. Let |inheritedState| be the result of [=getting the current scheduling state=] for |scheduler|.
   1. Let |abortSource| be |inheritedState|'s [=scheduling state/abort source=] if |inheritedState|
      is not null, or otherwise null.
   1. If |abortSource| is not null and |abortSource| is [=AbortSignal/aborted=], then [=reject=]

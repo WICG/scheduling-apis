@@ -32,8 +32,30 @@ determine task execution order across [=scheduler task queues=] of the same {{Ta
 all {{Scheduler}}s associated with the same [=event loop=]. A timestamp would also suffice as long
 as it is guaranteed to be strictly increasing and unique.
 
-Add: An [=event loop=] has a <dfn for="event loop">current scheduling state</dfn> (a [=scheduling
-state=] or null), which is initialized to null.
+Add: An [=event loop=] has a <dfn for="event loop">current continuation state</dfn> (a
+[=continuation state=] or null), which is initially null.
+
+Add the following algorithms:
+
+<div algorithm>
+  To <dfn>set the continuation state value</dfn> for |key| to |value| given an |eventLoop| (an
+  [=event loop=]):
+
+  1. If |eventLoop|'s [=event loop/current continuation state=] is null, then set |eventLoop|'s
+     [=event loop/current continuation state=] to a new [=continuation state=].
+  1. Let |continuationState| be |eventLoop|'s [=event loop/current continuation state=].
+  1. Assert: |continuationState|'s [=continuation state/state map=][|key|] does not [=map/exist=].
+  1. Set |continuationState|'s [=continuation state/state map=][|key|] to |value|.
+</div>
+
+<div algorithm>
+  To <dfn>get the continuation state value</dfn> for |key| given an |eventLoop| (an [=event loop=]):
+
+  1. Let |continuationState| be |eventLoop|'s [=event loop/current continuation state=].
+  1. If |continuationState| is not null and |continuationState|'s
+     [=continuation state/state map=][|key|] [=map/exists=], then return |continuationState|'s
+     [=continuation state/state map=][|key|], otherwise return null.
+</div>
 
 ### <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model">Event loop: processing model</a> ### {#sec-patches-html-event-loop-processing}
 
@@ -80,20 +102,40 @@ Issue: The |taskQueue| in this step will either be a [=set=] of [=tasks=] or a [
 *roughly* compatible. Ideally, there would be a common task queue interface that supports a `pop()`
 method that would return a plain [=task=], but that would involve a fair amount of refactoring.
 
+### <a href="https://html.spec.whatwg.org/#queuing-tasks">Event Loop: Queuing Tasks</a> ### {#sec-patches-html-queuing-tasks}
+
+Change the <a href="https://html.spec.whatwg.org/#queue-a-microtask">To queue a microtask</a>
+algorithm to accept an optional boolean |ignoreContinuationState| (default false).
+
+Change Step 5 to the following:
+
+  1. Let |continuationState| be null.
+  1. If |ignoreContinuationState| is false and |eventLoop|'s
+     [=event loop/current continuation state=] is not null, then set |continuationState| to the
+     result of [=list/cloning=] |event loop|'s [=event loop/current continuation state=].
+  1. Set <var ignore=''>microtask</var>'s <a attribute for="task">steps</a> to the following:
+    1. If |ignoreContinuationState| is false, then set |eventLoop|'s
+       [=event loop/current continuation state=] to |continuationState|.
+    1. Run <var ignore=''>steps</var>.
+    1. If |ignoreContinuationState| is false, then set |eventLoop|'s
+       [=event loop/current continuation state=] to null.
+
 ### <a href="https://html.spec.whatwg.org/multipage/webappapis.html#hostmakejobcallback">HostMakeJobCallback(callable)</a> ### {#sec-patches-html-hostmakejobcallback}
 
 Add the following before step 5:
 
   1. Let |event loop| be <var ignore=''>incumbent settings<var>'s
      [=environment settings object/realm=]'s [=realm/agent=]'s [=agent/event loop=].
-  1. Let |state| be |event loop|'s [=event loop/current scheduling state=].
+  1. Let |state| be the result of [=list/cloning=] |event loop|'s
+     [=event loop/current continuation state=] if [=event loop/current continuation state=] is not
+     null, or otherwise null.
 
 Modify step 5 to read:
 
  1. Return the <span>JobCallback Record</span> { \[[Callback]]: <var ignore=''>callable</var>,
     \[[HostDefined]]: { \[[IncumbentSettings]]: <var ignore=''>incumbent settings</var>,
     \[[ActiveScriptContext]]: <var ignore=''>script execution context</var>,
-    \[[SchedulingState]]: |state| } }.
+    \[[ContinuationState]]: |state| } }.
 
 ### <a href="https://html.spec.whatwg.org/multipage/webappapis.html#hostcalljobcallback">HostCallJobCallback(callback, V, argumentsList)</a> ### {#sec-patches-html-hostcalljobcallback}
 
@@ -101,12 +143,18 @@ Add the following steps before step 5:
 
   1. Let |event loop| be <var ignore=''>incumbent settings<var>'s
      [=environment settings object/realm=]'s [=realm/agent=]'s [=agent/event loop=].
-  1. Set |event loop|'s [=event loop/current scheduling state=] to
-     <var ignore=''>callback</var>.\[[HostDefined]].\[[SchedulingState]].
+  1. Set |event loop|'s [=event loop/current continuation state=] to
+     <var ignore=''>callback</var>.\[[HostDefined]].\[[ContinuationState]].
 
 Add the following after step 7:
 
-  1. Set |event loop|'s [=event loop/current scheduling state=] to null.
+  1. Set |event loop|'s [=event loop/current continuation state=] to null.
+
+### <a href="https://html.spec.whatwg.org/multipage/webappapis.html#hostenqueuepromisejob">HostEnqueuePromiseJob(job, realm)</a> ### {#sec-patches-html-hostenqueuepromisejob}
+
+Change step 2 to:
+
+ 1. Queue a microtask to perform the following steps with |ignoreContinuationState| set to true:
 
 ## <a href="https://w3c.github.io/requestidlecallback/">`requestIdleCallback()`</a> ## {#sec-patches-requestidlecallback}
 
@@ -118,9 +166,9 @@ Add the following step before step 3.3:
   1. Let |state| be a new [=scheduling state=].
   1. Set |state|'s [=scheduling state/priority source=] to the result of [=creating a fixed priority
      unabortable task signal=] given "{{TaskPriority/background}}" and |realm|.
-  1. Let |event loop| be |realm|'s [=realm/agent=]'s [=agent/event loop=].
-  1. Set |event loop|'s [=event loop/current scheduling state=] to |state|.
+  1. Let |scheduler| be the {{Scheduler}} whose [=relevant realm=] is |realm|.
+  1. [=Set the current scheduling state=] for |scheduler| to |state|.
 
 Add the following after step 3.3:
 
-  1. Set |event loop|'s [=event loop/current scheduling state=] to null.
+  1. Set |event loop|'s [=event loop/current continuation state=] to null.
