@@ -124,7 +124,7 @@ Change Step 5 to the following:
 
 Add the following before step 5:
 
-  1. Let |event loop| be <var ignore=''>incumbent settings<var>'s
+  1. Let |event loop| be <var ignore=''>incumbent settings</var>'s
      [=environment settings object/realm=]'s [=realm/agent=]'s [=agent/event loop=].
   1. Let |state| be the result of [=list/cloning=] |event loop|'s
      [=event loop/current continuation state=] if [=event loop/current continuation state=] is not
@@ -141,7 +141,7 @@ Modify step 5 to read:
 
 Add the following steps before step 5:
 
-  1. Let |event loop| be <var ignore=''>incumbent settings<var>'s
+  1. Let |event loop| be <var ignore=''>incumbent settings</var>'s
      [=environment settings object/realm=]'s [=realm/agent=]'s [=agent/event loop=].
   1. Set |event loop|'s [=event loop/current continuation state=] to
      <var ignore=''>callback</var>.\[[HostDefined]].\[[ContinuationState]].
